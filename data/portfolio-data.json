@@ -125,9 +125,18 @@
       "visitLabel": "Demo",
       "featured": true,
       "tech": [
-        { "name": "Microcontroller", "icon": "fas fa-microchip" },
-        { "name": "Python / KMK", "icon": "fab fa-python" },
-        { "name": "Hardware", "icon": "fas fa-bolt" }
+        {
+          "name": "Microcontroller",
+          "icon": "fas fa-microchip"
+        },
+        {
+          "name": "Python / KMK",
+          "icon": "fab fa-python"
+        },
+        {
+          "name": "Hardware",
+          "icon": "fas fa-bolt"
+        }
       ]
     },
     {
@@ -140,9 +149,18 @@
       "visitLabel": "Visit",
       "featured": true,
       "tech": [
-        { "name": "JavaScript", "icon": "fab fa-js" },
-        { "name": "Node.js", "icon": "fab fa-node" },
-        { "name": "Adobe Extensibility", "icon": "fas fa-plug" }
+        {
+          "name": "JavaScript",
+          "icon": "fab fa-js"
+        },
+        {
+          "name": "Node.js",
+          "icon": "fab fa-node"
+        },
+        {
+          "name": "Adobe Extensibility",
+          "icon": "fas fa-plug"
+        }
       ]
     },
     {
@@ -155,9 +173,18 @@
       "visitLabel": "Visit",
       "featured": true,
       "tech": [
-        { "name": "React", "icon": "fab fa-react" },
-        { "name": "Node.js", "icon": "fab fa-node" },
-        { "name": "Database", "icon": "fas fa-database" }
+        {
+          "name": "React",
+          "icon": "fab fa-react"
+        },
+        {
+          "name": "Node.js",
+          "icon": "fab fa-node"
+        },
+        {
+          "name": "Database",
+          "icon": "fas fa-database"
+        }
       ]
     },
     {
@@ -170,9 +197,18 @@
       "visitLabel": "Visit",
       "featured": true,
       "tech": [
-        { "name": "Microcontroller", "icon": "fas fa-microchip" },
-        { "name": "Python / KMK", "icon": "fab fa-python" },
-        { "name": "Hardware", "icon": "fas fa-bolt" }
+        {
+          "name": "Microcontroller",
+          "icon": "fas fa-microchip"
+        },
+        {
+          "name": "Python / KMK",
+          "icon": "fab fa-python"
+        },
+        {
+          "name": "Hardware",
+          "icon": "fas fa-bolt"
+        }
       ]
     },
     {
@@ -185,9 +221,18 @@
       "visitLabel": "Demo",
       "featured": true,
       "tech": [
-        { "name": "Python", "icon": "fab fa-python" },
-        { "name": "Raspberry Pi", "icon": "fab fa-raspberry-pi" },
-        { "name": "Game Development", "icon": "fas fa-gamepad" }
+        {
+          "name": "Python",
+          "icon": "fab fa-python"
+        },
+        {
+          "name": "Raspberry Pi",
+          "icon": "fab fa-raspberry-pi"
+        },
+        {
+          "name": "Game Development",
+          "icon": "fas fa-gamepad"
+        }
       ]
     },
     {
@@ -200,9 +245,18 @@
       "visitLabel": "deeplink",
       "featured": true,
       "tech": [
-        { "name": "Database", "icon": "fas fa-database" },
-        { "name": "React", "icon": "fab fa-react" },
-        { "name": "Self-host", "icon": "fas fa-server" }
+        {
+          "name": "Database",
+          "icon": "fas fa-database"
+        },
+        {
+          "name": "React",
+          "icon": "fab fa-react"
+        },
+        {
+          "name": "Self-host",
+          "icon": "fas fa-server"
+        }
       ]
     },
     {
@@ -215,9 +269,18 @@
       "visitLabel": "Visit",
       "featured": true,
       "tech": [
-        { "name": "React", "icon": "fab fa-react" },
-        { "name": "Node.js", "icon": "fab fa-node" },
-        { "name": "Database", "icon": "fas fa-database" }
+        {
+          "name": "React",
+          "icon": "fab fa-react"
+        },
+        {
+          "name": "Node.js",
+          "icon": "fab fa-node"
+        },
+        {
+          "name": "Database",
+          "icon": "fas fa-database"
+        }
       ]
     },
     {
@@ -230,9 +293,18 @@
       "visitLabel": "Visit",
       "featured": true,
       "tech": [
-        { "name": "JavaScript", "icon": "fab fa-js" },
-        { "name": "Node.js", "icon": "fab fa-node" },
-        { "name": "npm", "icon": "fab fa-npm" }
+        {
+          "name": "JavaScript",
+          "icon": "fab fa-js"
+        },
+        {
+          "name": "Node.js",
+          "icon": "fab fa-node"
+        },
+        {
+          "name": "npm",
+          "icon": "fab fa-npm"
+        }
       ]
     },
     {
@@ -245,9 +317,18 @@
       "visitLabel": "",
       "featured": true,
       "tech": [
-        { "name": "Terminal", "icon": "fas fa-terminal" },
-        { "name": "Linux", "icon": "fab fa-linux" },
-        { "name": "SSH", "icon": "fas fa-network-wired" }
+        {
+          "name": "Terminal",
+          "icon": "fas fa-terminal"
+        },
+        {
+          "name": "Linux",
+          "icon": "fab fa-linux"
+        },
+        {
+          "name": "SSH",
+          "icon": "fas fa-network-wired"
+        }
       ]
     }
   ],
@@ -259,7 +340,11 @@
       "date": "February 20, 2026",
       "url": "/blog/i-made-a-custom-raspberry-pi-camera/",
       "image": "assets/blog/i-made-a-custom-raspberry-pi-camera.png",
-      "tags": ["hardware", "raspberry pi", "camera"]
+      "tags": [
+        "hardware",
+        "raspberry pi",
+        "camera"
+      ]
     },
     {
       "id": "first-game-jam-blog",
@@ -268,7 +353,11 @@
       "date": "November 29, 2025",
       "url": "/blog/how-i-won-my-first-game-jam/",
       "image": "assets/blog/how-i-won-my-first-game-jam.png",
-      "tags": ["gamedev", "unity", "gamejam"]
+      "tags": [
+        "gamedev",
+        "unity",
+        "gamejam"
+      ]
     }
   ],
   "resume": {
@@ -391,5 +480,6 @@
       "Earned <b>gold</b> medals in <b>IKLC</b>, <b>ICATS Science Contest</b>, and <b>IBIC</b>; qualified for the Hippo English Olympiad regional round held in Turkey."
     ],
     "skills": "JavaScript · TypeScript · Python · C# · C++ · React · Astro · Node.js · HTML/CSS · Unity · Raspberry Pi · Arduino · KiCad · MongoDB · Git/GitHub"
-  }
+  },
+  "_updatedAt": 1793057263282
 }
