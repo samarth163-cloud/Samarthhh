@@ -64,27 +64,43 @@
       .replace(/'/g, "&#039;");
   }
 
-  // Load Data
+  // Load Data: Always check fresh server data and sync with localStorage
   async function loadInitialData() {
+    let serverData = null;
+    try {
+      const res = await fetch(DATA_URL + "?v=" + Date.now(), { cache: "no-store" });
+      if (res.ok) {
+        serverData = await res.json();
+      }
+    } catch (err) {
+      console.warn("Failed to fetch fresh server JSON", err);
+    }
+
     let loaded = null;
     try {
       const stored = localStorage.getItem(STORAGE_KEY) || localStorage.getItem(LEGACY_KEY);
       if (stored) {
-        loaded = JSON.parse(stored);
+        const local = JSON.parse(stored);
+        if (serverData) {
+          const serverTime = serverData._updatedAt || 0;
+          const localTime = local._updatedAt || 0;
+          if (serverTime >= localTime) {
+            loaded = serverData;
+            try { localStorage.setItem(STORAGE_KEY, JSON.stringify(serverData)); } catch(e){}
+          } else {
+            loaded = local;
+          }
+        } else {
+          loaded = local;
+        }
       }
     } catch (e) {
       console.warn("Failed to parse localStorage data", e);
     }
 
-    if (!loaded) {
-      try {
-        const res = await fetch(DATA_URL + "?v=" + Date.now(), { cache: "no-store" });
-        if (res.ok) {
-          loaded = await res.json();
-        }
-      } catch (err) {
-        console.error("Failed to fetch default JSON", err);
-      }
+    if (!loaded && serverData) {
+      loaded = serverData;
+      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(serverData)); } catch(e){}
     }
 
     if (loaded) {
@@ -1377,6 +1393,7 @@
 
   async function performMasterSave() {
     try {
+      state._updatedAt = Date.now();
       const serialized = JSON.stringify(state, null, 2);
       localStorage.setItem(STORAGE_KEY, serialized);
 
@@ -1400,10 +1417,13 @@
         // Static server running
       }
 
+      const hasToken = !!localStorage.getItem("gh_deploy_token");
       if (serverSaved) {
         showToast("Changes saved to disk & portfolio updated live!", "success");
+      } else if (hasToken) {
+        showToast("Saved locally & deploying globally to all devices...", "info");
       } else {
-        showToast("Changes applied live in browser! (To sync file, use 'Save to Project File')", "success");
+        showToast("Saved in this browser! Click 'Deploy to All Devices 🌐' to sync with other laptops/phones.", "success");
       }
 
       // Pulse save button
@@ -1411,6 +1431,11 @@
       if (btnSave) {
         btnSave.classList.add("btn-yellow");
         setTimeout(() => btnSave.classList.remove("btn-yellow"), 600);
+      }
+
+      // Auto-trigger global deploy if token is present
+      if (hasToken) {
+        triggerGlobalDeploy(true);
       }
     } catch (err) {
       console.error("Save error", err);
@@ -1592,14 +1617,166 @@
     }
   }
 
-  // GitHub & Vercel Auto-Deploy
+  // =========================================================================
+  // GLOBAL CLOUD DEPLOYMENT ENGINE (GitHub & Vercel Multi-Device Sync)
+  // =========================================================================
+
+  async function triggerGlobalDeploy(silent = false) {
+    const repo = localStorage.getItem("gh_deploy_repo") || "samarth163-cloud/Samarthhh";
+    const branch = localStorage.getItem("gh_deploy_branch") || "main";
+    const token = (localStorage.getItem("gh_deploy_token") || "").trim();
+
+    if (!token) {
+      openCloudDeployModal();
+      return;
+    }
+
+    const btnGlobal = document.getElementById("btn-global-sync");
+    const btnGh = document.getElementById("btn-gh-deploy");
+
+    if (btnGlobal) {
+      btnGlobal.disabled = true;
+      btnGlobal.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Deploying Globally...`;
+    }
+    if (btnGh) {
+      btnGh.disabled = true;
+      btnGh.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Committing to GitHub...`;
+    }
+
+    try {
+      state._updatedAt = Date.now();
+      const filePath = "data/portfolio-data.json";
+      const apiUrl = `https://api.github.com/repos/${repo}/contents/${filePath}?ref=${branch}`;
+
+      // 1. Get current file SHA
+      let currentSha = null;
+      try {
+        const checkRes = await fetch(apiUrl, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            Accept: "application/vnd.github.v3+json",
+          },
+        });
+        if (checkRes.ok) {
+          const fileData = await checkRes.json();
+          currentSha = fileData.sha;
+        }
+      } catch (e) {
+        // file might be new
+      }
+
+      // 2. Prepare UTF-8 Base64 content
+      const jsonString = JSON.stringify(state, null, 2);
+      const encodedContent = btoa(unescape(encodeURIComponent(jsonString)));
+
+      // 3. Commit to GitHub
+      const commitRes = await fetch(`https://api.github.com/repos/${repo}/contents/${filePath}`, {
+        method: "PUT",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          Accept: "application/vnd.github.v3+json",
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          message: "Update portfolio content via Admin Panel [Global Sync]",
+          content: encodedContent,
+          branch: branch,
+          ...(currentSha ? { sha: currentSha } : {}),
+        }),
+      });
+
+      if (!commitRes.ok) {
+        const errData = await commitRes.json().catch(() => ({}));
+        throw new Error(errData.message || `GitHub returned ${commitRes.status}`);
+      }
+
+      showToast("🚀 Successfully deployed globally! All devices & visitors will now see your updates!", "success");
+    } catch (err) {
+      console.error("Global deploy error:", err);
+      showToast("Cloud Deploy Error: " + err.message, "error");
+      if (!silent) {
+        openCloudDeployModal();
+      }
+    } finally {
+      if (btnGlobal) {
+        btnGlobal.disabled = false;
+        btnGlobal.innerHTML = `<i class="fas fa-cloud-arrow-up"></i> <span>Deploy to All Devices 🌐</span>`;
+      }
+      if (btnGh) {
+        btnGh.disabled = false;
+        btnGh.innerHTML = `<i class="fas fa-rocket"></i> Commit &amp; Deploy to Vercel`;
+      }
+    }
+  }
+
+  function openCloudDeployModal() {
+    const modal = document.getElementById("modal-cloud-sync");
+    const tokenInput = document.getElementById("modal-gh-token");
+    const repoInput = document.getElementById("modal-gh-repo");
+    const branchInput = document.getElementById("modal-gh-branch");
+
+    if (tokenInput) tokenInput.value = localStorage.getItem("gh_deploy_token") || "";
+    if (repoInput) repoInput.value = localStorage.getItem("gh_deploy_repo") || "samarth163-cloud/Samarthhh";
+    if (branchInput) branchInput.value = localStorage.getItem("gh_deploy_branch") || "main";
+
+    if (modal) modal.style.display = "flex";
+  }
+
+  function closeCloudDeployModal() {
+    const modal = document.getElementById("modal-cloud-sync");
+    if (modal) modal.style.display = "none";
+  }
+
+  // Cloud Modal Listeners
+  const btnCloseCloud = document.getElementById("btn-close-cloud-modal");
+  const btnCancelCloud = document.getElementById("btn-cancel-cloud-modal");
+  const btnConfirmCloud = document.getElementById("btn-confirm-cloud-deploy");
+
+  if (btnCloseCloud) btnCloseCloud.addEventListener("click", closeCloudDeployModal);
+  if (btnCancelCloud) btnCancelCloud.addEventListener("click", closeCloudDeployModal);
+
+  if (btnConfirmCloud) {
+    btnConfirmCloud.addEventListener("click", async () => {
+      const tokenInput = document.getElementById("modal-gh-token");
+      const repoInput = document.getElementById("modal-gh-repo");
+      const branchInput = document.getElementById("modal-gh-branch");
+
+      const token = (tokenInput?.value || "").trim();
+      const repo = (repoInput?.value || "").trim() || "samarth163-cloud/Samarthhh";
+      const branch = (branchInput?.value || "").trim() || "main";
+
+      if (!token) {
+        showToast("Please enter your GitHub Personal Access Token", "error");
+        return;
+      }
+
+      localStorage.setItem("gh_deploy_token", token);
+      localStorage.setItem("gh_deploy_repo", repo);
+      localStorage.setItem("gh_deploy_branch", branch);
+
+      // sync with backup tab inputs
+      if (ghRepoInput) ghRepoInput.value = repo;
+      if (ghBranchInput) ghBranchInput.value = branch;
+      if (ghTokenInput) ghTokenInput.value = token;
+
+      closeCloudDeployModal();
+      showToast("Token saved! Deploying changes globally now...", "info");
+      await triggerGlobalDeploy(false);
+    });
+  }
+
+  const btnGlobalSync = document.getElementById("btn-global-sync");
+  if (btnGlobalSync) {
+    btnGlobalSync.addEventListener("click", () => triggerGlobalDeploy(false));
+  }
+
+  // Backup tab GitHub credentials
   const ghRepoInput = document.getElementById("gh-repo");
   const ghBranchInput = document.getElementById("gh-branch");
   const ghTokenInput = document.getElementById("gh-token");
   const btnGhSave = document.getElementById("btn-gh-save-config");
   const btnGhDeploy = document.getElementById("btn-gh-deploy");
 
-  // Load saved credentials
   if (ghRepoInput) ghRepoInput.value = localStorage.getItem("gh_deploy_repo") || "samarth163-cloud/Samarthhh";
   if (ghBranchInput) ghBranchInput.value = localStorage.getItem("gh_deploy_branch") || "main";
   if (ghTokenInput) ghTokenInput.value = localStorage.getItem("gh_deploy_token") || "";
@@ -1614,74 +1791,7 @@
   }
 
   if (btnGhDeploy) {
-    btnGhDeploy.addEventListener("click", async () => {
-      const repo = (ghRepoInput?.value || "").trim();
-      const branch = (ghBranchInput?.value || "").trim() || "main";
-      const token = (ghTokenInput?.value || "").trim();
-
-      if (!repo || !token) {
-        showToast("Please enter your GitHub Repo and Personal Access Token (PAT)", "error");
-        return;
-      }
-
-      btnGhDeploy.disabled = true;
-      btnGhDeploy.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Committing to GitHub...`;
-
-      try {
-        const filePath = "data/portfolio-data.json";
-        const apiUrl = `https://api.github.com/repos/${repo}/contents/${filePath}?ref=${branch}`;
-
-        // 1. Get current file SHA if exists
-        let currentSha = null;
-        try {
-          const checkRes = await fetch(apiUrl, {
-            headers: {
-              Authorization: `Bearer ${token}`,
-              Accept: "application/vnd.github.v3+json",
-            },
-          });
-          if (checkRes.ok) {
-            const fileData = await checkRes.json();
-            currentSha = fileData.sha;
-          }
-        } catch (e) {
-          // File might be new
-        }
-
-        // 2. Prepare UTF-8 Base64 content
-        const jsonString = JSON.stringify(state, null, 2);
-        const encodedContent = btoa(unescape(encodeURIComponent(jsonString)));
-
-        // 3. Commit to GitHub
-        const commitRes = await fetch(`https://api.github.com/repos/${repo}/contents/${filePath}`, {
-          method: "PUT",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            Accept: "application/vnd.github.v3+json",
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            message: "Update portfolio content via Admin Panel [auto-deploy]",
-            content: encodedContent,
-            branch: branch,
-            ...(currentSha ? { sha: currentSha } : {}),
-          }),
-        });
-
-        if (!commitRes.ok) {
-          const errData = await commitRes.json().catch(() => ({}));
-          throw new Error(errData.message || `GitHub returned ${commitRes.status}`);
-        }
-
-        showToast("🚀 Successfully committed to GitHub! Vercel is now deploying your changes live!", "success");
-      } catch (err) {
-        console.error("GitHub commit error:", err);
-        showToast("Deploy error: " + err.message, "error");
-      } finally {
-        btnGhDeploy.disabled = false;
-        btnGhDeploy.innerHTML = `<i class="fas fa-rocket"></i> Commit &amp; Deploy to Vercel`;
-      }
-    });
+    btnGhDeploy.addEventListener("click", () => triggerGlobalDeploy(false));
   }
 
   // Init

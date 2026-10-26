@@ -19,26 +19,42 @@
     console.warn("BroadcastChannel not supported", e);
   }
 
-  // Load data: check localStorage first, then fallback to JSON file
+  // Load data: sync server data across all devices globally
   async function loadData() {
+    let serverData = null;
     try {
-      const local = localStorage.getItem(STORAGE_KEY) || localStorage.getItem(LEGACY_KEY);
-      if (local) {
-        return JSON.parse(local);
+      const res = await fetch(DATA_URL + "?v=" + Date.now(), { cache: "no-store" });
+      if (res.ok) {
+        serverData = await res.json();
+      }
+    } catch (e) {
+      console.warn("Could not fetch fresh server data", e);
+    }
+
+    try {
+      const localStr = localStorage.getItem(STORAGE_KEY) || localStorage.getItem(LEGACY_KEY);
+      if (localStr) {
+        const local = JSON.parse(localStr);
+        // If server data exists, compare timestamps
+        if (serverData) {
+          const serverTime = serverData._updatedAt || 0;
+          const localTime = local._updatedAt || 0;
+          if (serverTime >= localTime) {
+            try { localStorage.setItem(STORAGE_KEY, JSON.stringify(serverData)); } catch(e){}
+            return serverData;
+          }
+        }
+        return local;
       }
     } catch (e) {
       console.warn("Could not read from localStorage", e);
     }
 
-    try {
-      const res = await fetch(DATA_URL + "?v=" + Date.now(), { cache: "no-store" });
-      if (res.ok) {
-        const data = await res.json();
-        return data;
-      }
-    } catch (e) {
-      // Default static HTML remains visible
+    if (serverData) {
+      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(serverData)); } catch(e){}
+      return serverData;
     }
+
     return null;
   }
 

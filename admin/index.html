@@ -51,10 +51,14 @@
       <button class="btn btn-sm" id="btn-theme-toggle" type="button" title="Toggle Dark/Light Mode">
         <i id="theme-toggle-icon" class="fas fa-moon"></i>
       </button>
-      <button class="btn btn-primary" id="btn-save-master" type="button">
+      <button class="btn btn-primary" id="btn-save-master" type="button" title="Save in this browser">
         <i class="fas fa-floppy-disk"></i>
-        <span>Save &amp; Apply</span>
+        <span>Save</span>
         <span class="shortcut">Ctrl+S</span>
+      </button>
+      <button class="btn" id="btn-global-sync" type="button" style="background: #00ff88; color: #000; font-weight: 800; border: 2.5px solid #000; box-shadow: 3px 3px 0 #000; display: inline-flex; align-items: center; gap: 6px;" title="Deploy edits to all devices and live website">
+        <i class="fas fa-cloud-arrow-up"></i>
+        <span>Deploy to All Devices 🌐</span>
       </button>
     </div>
   </header>
@@ -634,6 +638,54 @@
       <div class="modal-footer">
         <button class="btn" id="btn-cancel-project-modal" type="button">Cancel</button>
         <button class="btn btn-primary" id="btn-save-project-modal" type="button">Save Project</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Global Cloud Sync Modal -->
+  <div class="modal-backdrop" id="modal-cloud-sync" style="display: none; align-items: center; justify-content: center; z-index: 9999;">
+    <div class="modal-card" style="max-width: 540px; width: 90%;">
+      <div class="modal-header">
+        <div class="modal-title" style="display: flex; align-items: center; gap: 8px;">
+          <i class="fas fa-cloud-arrow-up" style="color: #00aa55;"></i>
+          <span>Global Cloud Sync (All Devices)</span>
+        </div>
+        <button class="btn btn-sm" id="btn-close-cloud-modal" type="button"><i class="fas fa-xmark"></i></button>
+      </div>
+      <div class="modal-body">
+        <p style="font-size: 14px; color: var(--text-muted); line-height: 1.6; margin-bottom: 16px;">
+          Apne portfolio ka data <strong>saare devices (doosre laptops, mobiles, aur visitors)</strong> me globally update karne ke liye apna GitHub Token dalein. Yeh token sirf aapke is browser me securely save rahega.
+        </p>
+
+        <div style="background: var(--bg-surface); border: 2px dashed var(--border-color); padding: 14px; margin-bottom: 16px; border-radius: 4px;">
+          <div style="font-weight: 700; font-size: 13px; margin-bottom: 6px;">1-Click Token Generator:</div>
+          <a href="https://github.com/settings/tokens/new?scopes=repo&description=Samarth+Portfolio+Deploy" target="_blank" rel="noopener noreferrer" class="btn btn-sm" style="background: #24292e; color: #fff; display: inline-flex; align-items: center; gap: 6px; text-decoration: none;">
+            <i class="fab fa-github"></i> Generate GitHub Token ↗
+          </a>
+          <div style="font-size: 12px; color: var(--text-muted); margin-top: 6px;">(Link khulne par page ke last me <b>"Generate token"</b> dabayein aur token copy karein)</div>
+        </div>
+
+        <div class="form-group" style="margin-bottom: 14px;">
+          <label class="form-label">GitHub Personal Access Token (PAT)</label>
+          <input type="password" id="modal-gh-token" class="form-input" placeholder="ghp_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" />
+        </div>
+
+        <div class="form-grid" style="margin-bottom: 14px;">
+          <div class="form-group">
+            <label class="form-label">Repository</label>
+            <input type="text" id="modal-gh-repo" class="form-input" value="samarth163-cloud/Samarthhh" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Branch</label>
+            <input type="text" id="modal-gh-branch" class="form-input" value="main" />
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer" style="display: flex; justify-content: flex-end; gap: 10px;">
+        <button class="btn" id="btn-cancel-cloud-modal" type="button">Cancel</button>
+        <button class="btn btn-success" id="btn-confirm-cloud-deploy" type="button" style="background: #00ff88; color: #000; font-weight: 800;">
+          <i class="fas fa-rocket"></i> Deploy to All Devices 🌐
+        </button>
       </div>
     </div>
   </div>
