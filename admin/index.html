@@ -653,21 +653,33 @@
         <button class="btn btn-sm" id="btn-close-cloud-modal" type="button"><i class="fas fa-xmark"></i></button>
       </div>
       <div class="modal-body">
-        <p style="font-size: 14px; color: var(--text-muted); line-height: 1.6; margin-bottom: 16px;">
-          Apne portfolio ka data <strong>saare devices (doosre laptops, mobiles, aur visitors)</strong> me globally update karne ke liye apna GitHub Token dalein. Yeh token sirf aapke is browser me securely save rahega.
-        </p>
+        <div style="background: #fff3cd; color: #856404; border: 2px solid #ffe8a1; padding: 10px 14px; border-radius: 4px; font-size: 13px; font-weight: 600; margin-bottom: 14px; display: flex; align-items: flex-start; gap: 10px;">
+          <i class="fas fa-triangle-exclamation" style="font-size: 18px; color: #d39e00; margin-top: 2px;"></i>
+          <div>
+            <b>Dhyan Dein:</b> Yeh aapka GitHub Password <u>NAHI</u> hai! GitHub par account password se API access band ho chuka hai. Yeh ek <b>Personal Access Token (PAT)</b> hai jo <code>ghp_</code> se shuru hota hai.
+          </div>
+        </div>
 
         <div style="background: var(--bg-surface); border: 2px dashed var(--border-color); padding: 14px; margin-bottom: 16px; border-radius: 4px;">
-          <div style="font-weight: 700; font-size: 13px; margin-bottom: 6px;">1-Click Token Generator:</div>
-          <a href="https://github.com/settings/tokens/new?scopes=repo&description=Samarth+Portfolio+Deploy" target="_blank" rel="noopener noreferrer" class="btn btn-sm" style="background: #24292e; color: #fff; display: inline-flex; align-items: center; gap: 6px; text-decoration: none;">
-            <i class="fab fa-github"></i> Generate GitHub Token ↗
+          <div style="font-weight: 700; font-size: 13px; margin-bottom: 8px;">3 Aasaan Steps me Token lein:</div>
+          <ol style="margin: 0 0 12px 18px; padding: 0; font-size: 13px; color: var(--text-color); line-height: 1.6;">
+            <li>Neeche diye gaye button par click karein:</li>
+            <li>Nayi window khulne par page ke end me jakar green button <b>"Generate token"</b> dabayein.</li>
+            <li>Jo code aayega (<code>ghp_...</code>) usko copy karke neeche paste karein.</li>
+          </ol>
+          <a href="https://github.com/settings/tokens/new?scopes=repo&description=Samarth+Portfolio+Deploy" target="_blank" rel="noopener noreferrer" class="btn btn-sm" style="background: #24292e; color: #fff; display: inline-flex; align-items: center; gap: 8px; text-decoration: none; font-weight: 700;">
+            <i class="fab fa-github"></i> 1-Click: Open GitHub Token Page ↗
           </a>
-          <div style="font-size: 12px; color: var(--text-muted); margin-top: 6px;">(Link khulne par page ke last me <b>"Generate token"</b> dabayein aur token copy karein)</div>
         </div>
 
         <div class="form-group" style="margin-bottom: 14px;">
-          <label class="form-label">GitHub Personal Access Token (PAT)</label>
-          <input type="password" id="modal-gh-token" class="form-input" placeholder="ghp_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" />
+          <label class="form-label" style="display: flex; justify-content: space-between;">
+            <span>GitHub Personal Access Token (starts with ghp_)</span>
+            <span style="font-weight: normal; font-size: 11px; color: var(--text-muted);">(Saved only in this browser)</span>
+          </label>
+          <div style="display: flex; gap: 6px;">
+            <input type="text" id="modal-gh-token" class="form-input" style="font-family: monospace; font-size: 13px;" placeholder="ghp_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" autocomplete="off" spellcheck="false" />
+          </div>
         </div>
 
         <div class="form-grid" style="margin-bottom: 14px;">

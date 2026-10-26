@@ -1624,10 +1624,16 @@
   async function triggerGlobalDeploy(silent = false) {
     const repo = localStorage.getItem("gh_deploy_repo") || "samarth163-cloud/Samarthhh";
     const branch = localStorage.getItem("gh_deploy_branch") || "main";
-    const token = (localStorage.getItem("gh_deploy_token") || "").trim();
+    let token = (localStorage.getItem("gh_deploy_token") || "").trim();
 
-    if (!token) {
-      openCloudDeployModal();
+    // Clean token of accidental prefixes/quotes/whitespace
+    token = token.replace(/^Bearer\s+/i, "").replace(/^token\s+/i, "").replace(/^["']|["']$/g, "").trim();
+
+    if (!token || token === "ghp_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" || token.length < 15) {
+      if (!silent) {
+        showToast("Kripya valid GitHub Token dalein ('ghp_' se shuru hone wala).", "error");
+        openCloudDeployModal();
+      }
       return;
     }
 
@@ -1648,21 +1654,26 @@
       const filePath = "data/portfolio-data.json";
       const apiUrl = `https://api.github.com/repos/${repo}/contents/${filePath}?ref=${branch}`;
 
+      // GitHub authentication header: 'token' for classic PAT (ghp_), 'Bearer' for fine-grained
+      const authHeader = token.startsWith("github_pat_") ? `Bearer ${token}` : `token ${token}`;
+
       // 1. Get current file SHA
       let currentSha = null;
       try {
         const checkRes = await fetch(apiUrl, {
           headers: {
-            Authorization: `Bearer ${token}`,
+            Authorization: authHeader,
             Accept: "application/vnd.github.v3+json",
           },
         });
         if (checkRes.ok) {
           const fileData = await checkRes.json();
           currentSha = fileData.sha;
+        } else if (checkRes.status === 401) {
+          throw new Error("Bad credentials: Aapka GitHub token galat ya expired hai. Kripya naya Personal Access Token generate karein.");
         }
       } catch (e) {
-        // file might be new
+        if (e.message.includes("Bad credentials")) throw e;
       }
 
       // 2. Prepare UTF-8 Base64 content
@@ -1673,7 +1684,7 @@
       const commitRes = await fetch(`https://api.github.com/repos/${repo}/contents/${filePath}`, {
         method: "PUT",
         headers: {
-          Authorization: `Bearer ${token}`,
+          Authorization: authHeader,
           Accept: "application/vnd.github.v3+json",
           "Content-Type": "application/json",
         },
@@ -1687,10 +1698,16 @@
 
       if (!commitRes.ok) {
         const errData = await commitRes.json().catch(() => ({}));
+        if (commitRes.status === 401) {
+          throw new Error("Bad credentials: Token invalid hai. Check karein ki aapne account password nahi balki 'ghp_' token dala hai.");
+        }
+        if (commitRes.status === 404) {
+          throw new Error(`Repository "${repo}" nahi mili ya is token ke paas repo permissions nahi hain.`);
+        }
         throw new Error(errData.message || `GitHub returned ${commitRes.status}`);
       }
 
-      showToast("🚀 Successfully deployed globally! All devices & visitors will now see your updates!", "success");
+      showToast("🚀 Successfully deployed globally! Sabhi devices me kuch hi second me updates dikhenge!", "success");
     } catch (err) {
       console.error("Global deploy error:", err);
       showToast("Cloud Deploy Error: " + err.message, "error");
@@ -1741,12 +1758,19 @@
       const repoInput = document.getElementById("modal-gh-repo");
       const branchInput = document.getElementById("modal-gh-branch");
 
-      const token = (tokenInput?.value || "").trim();
+      let token = (tokenInput?.value || "").trim();
+      token = token.replace(/^Bearer\s+/i, "").replace(/^token\s+/i, "").replace(/^["']|["']$/g, "").trim();
+
       const repo = (repoInput?.value || "").trim() || "samarth163-cloud/Samarthhh";
       const branch = (branchInput?.value || "").trim() || "main";
 
-      if (!token) {
-        showToast("Please enter your GitHub Personal Access Token", "error");
+      if (!token || token === "ghp_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx") {
+        showToast("Kripya apna GitHub Token enter karein ('ghp_' se start hone wala code)", "error");
+        return;
+      }
+
+      if (token.length < 20 || !token.startsWith("gh")) {
+        showToast("Yeh token invalid lag raha hai! GitHub Token 'ghp_' se shuru hota hai. (Account password mat dalein).", "error");
         return;
       }
 
@@ -1760,7 +1784,7 @@
       if (ghTokenInput) ghTokenInput.value = token;
 
       closeCloudDeployModal();
-      showToast("Token saved! Deploying changes globally now...", "info");
+      showToast("Token save ho gaya! Ab sabhi devices me deploy kar rahe hain...", "info");
       await triggerGlobalDeploy(false);
     });
   }
