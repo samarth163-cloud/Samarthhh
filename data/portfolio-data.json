@@ -116,8 +116,8 @@
   },
   "projects": [
     {
-      "id": "pishot",
-      "title": "PiShot",
+      "id": "sssssssssssssssss",
+      "title": "sssssssssssssssss",
       "description": "An open-source DIY camera! Built from scratch with a Raspberry Pi Zero 2W, Pi camera module, hand-wiring, and a 3D-printed case. And custom firmware!",
       "image": "assets/projects/pishot.png",
       "sourceUrl": "https://github.com/samarth163-cloud/PiShot",
@@ -481,5 +481,5 @@
     ],
     "skills": "JavaScript · TypeScript · Python · C# · C++ · React · Astro · Node.js · HTML/CSS · Unity · Raspberry Pi · Arduino · KiCad · MongoDB · Git/GitHub"
   },
-  "_updatedAt": 1793057418545
+  "_updatedAt": 1793057691905
 }
