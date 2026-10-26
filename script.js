@@ -66,14 +66,34 @@ document.addEventListener("DOMContentLoaded", () => {
   initializeParticles();
   loadTotalCodingTime();
 
-  // Profile pic click to cycle avatar
+  // Profile pic click to cycle avatar & doodle interaction
   const profilePic = document.getElementById("profile-pic");
+  const avatarDoodle = document.getElementById("avatar-click-doodle");
+
   if (profilePic) {
     let currentPicIndex = 2;
     profilePic.title = "Click to cycle avatar";
     profilePic.addEventListener("click", () => {
       currentPicIndex = (currentPicIndex % 11) + 1;
       profilePic.src = `assets/profile/${currentPicIndex}.jpg`;
+      if (avatarDoodle) {
+        avatarDoodle.style.transform = "rotate(-24deg) scale(1.2)";
+        setTimeout(() => {
+          avatarDoodle.style.transform = "";
+        }, 220);
+      }
+    });
+  }
+
+  if (avatarDoodle && profilePic) {
+    avatarDoodle.addEventListener("click", () => {
+      profilePic.click();
+    });
+    avatarDoodle.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        profilePic.click();
+      }
     });
   }
 
