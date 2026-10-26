@@ -1652,20 +1652,23 @@
     try {
       state._updatedAt = Date.now();
       const filePath = "data/portfolio-data.json";
-      const apiUrl = `https://api.github.com/repos/${repo}/contents/${filePath}?ref=${branch}`;
 
       // GitHub authentication header: 'token' for classic PAT (ghp_), 'Bearer' for fine-grained
       const authHeader = token.startsWith("github_pat_") ? `Bearer ${token}` : `token ${token}`;
 
-      // 1. Get current file SHA
+      // 1. Get current file SHA with cache-buster
       let currentSha = null;
       try {
-        const checkRes = await fetch(apiUrl, {
-          headers: {
-            Authorization: authHeader,
-            Accept: "application/vnd.github.v3+json",
-          },
-        });
+        const checkRes = await fetch(
+          `https://api.github.com/repos/${repo}/contents/${filePath}?ref=${branch}&_nocache=${Date.now()}`,
+          {
+            cache: "no-store",
+            headers: {
+              Authorization: authHeader,
+              Accept: "application/vnd.github.v3+json",
+            },
+          }
+        );
         if (checkRes.ok) {
           const fileData = await checkRes.json();
           currentSha = fileData.sha;
@@ -1680,8 +1683,8 @@
       const jsonString = JSON.stringify(state, null, 2);
       const encodedContent = btoa(unescape(encodeURIComponent(jsonString)));
 
-      // 3. Commit to GitHub
-      const commitRes = await fetch(`https://api.github.com/repos/${repo}/contents/${filePath}`, {
+      // 3. Commit to GitHub (with automatic 409 SHA retry)
+      let commitRes = await fetch(`https://api.github.com/repos/${repo}/contents/${filePath}`, {
         method: "PUT",
         headers: {
           Authorization: authHeader,
@@ -1695,6 +1698,46 @@
           ...(currentSha ? { sha: currentSha } : {}),
         }),
       });
+
+      // Handle 409 Conflict (SHA mismatch) automatically
+      if (!commitRes.ok && commitRes.status === 409) {
+        const errData = await commitRes.json().catch(() => ({}));
+        const match = (errData.message || "").match(/does not match ([a-f0-9]{40})/);
+        let freshSha = match ? match[1] : null;
+
+        if (!freshSha) {
+          try {
+            const refetchRes = await fetch(
+              `https://api.github.com/repos/${repo}/contents/${filePath}?ref=${branch}&_retry=${Date.now()}`,
+              {
+                cache: "no-store",
+                headers: { Authorization: authHeader, Accept: "application/vnd.github.v3+json" },
+              }
+            );
+            if (refetchRes.ok) {
+              const freshData = await refetchRes.json();
+              freshSha = freshData.sha;
+            }
+          } catch (e) {}
+        }
+
+        if (freshSha) {
+          commitRes = await fetch(`https://api.github.com/repos/${repo}/contents/${filePath}`, {
+            method: "PUT",
+            headers: {
+              Authorization: authHeader,
+              Accept: "application/vnd.github.v3+json",
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              message: "Update portfolio content via Admin Panel [Global Sync]",
+              content: encodedContent,
+              branch: branch,
+              sha: freshSha,
+            }),
+          });
+        }
+      }
 
       if (!commitRes.ok) {
         const errData = await commitRes.json().catch(() => ({}));
