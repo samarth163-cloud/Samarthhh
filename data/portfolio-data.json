@@ -6,7 +6,7 @@
     "description": "I build open-source software, games, and hardware- from custom cameras and devboards to web platforms.",
     "ctaText": "Explore projects",
     "ctaSubtext": "[All my work is open source]",
-    "profilePic": "assets/profile/2.jpg",
+    "profilePic": "assets/profile/1.jpg",
     "socials": [
       {
         "name": "Instagram",
@@ -481,5 +481,5 @@
     ],
     "skills": "JavaScript · TypeScript · Python · C# · C++ · React · Astro · Node.js · HTML/CSS · Unity · Raspberry Pi · Arduino · KiCad · MongoDB · Git/GitHub"
   },
-  "_updatedAt": 1793057263282
+  "_updatedAt": 1793057418545
 }
