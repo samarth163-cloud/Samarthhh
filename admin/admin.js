@@ -6,7 +6,7 @@
 (function () {
   const STORAGE_KEY = "samarth_portfolio_data";
   const LEGACY_KEY = "samarth_portfolio_data_v1";
-  const DATA_URL = "../data/portfolio-data.json";
+  const DATA_URL = "/data/portfolio-data.json";
   const CHANNEL_NAME = "samarth_portfolio_sync";
 
   let broadcastChannel = null;
@@ -182,9 +182,9 @@
         return `
         <div class="project-item-card" data-index="${actualIndex}">
           <div class="item-thumb-wrapper">
-            <img class="item-thumb" src="${escapeHtml(proj.image || "../assets/projects/pishot.png")}" alt="${escapeHtml(
+            <img class="item-thumb" src="${escapeHtml(proj.image?.startsWith("/") ? proj.image : (proj.image?.startsWith("http") || proj.image?.startsWith("data:") ? proj.image : `/${proj.image || "assets/projects/pishot.png"}`))}" alt="${escapeHtml(
           proj.title
-        )}" onerror="this.src='../assets/projects/pishot.png'" />
+        )}" onerror="this.src='/assets/projects/pishot.png'" />
           </div>
           <div class="item-info">
             <div class="item-title-row">
@@ -432,7 +432,10 @@
     const prevTech = document.getElementById("prev-tech");
     const prevVisitTxt = document.getElementById("prev-visit-txt");
 
-    if (prevImg) prevImg.src = projImage.value.startsWith("data:") ? projImage.value : `../${projImage.value}`;
+    if (prevImg) {
+      const v = projImage.value || "assets/projects/pishot.png";
+      prevImg.src = v.startsWith("data:") || v.startsWith("http") ? v : (v.startsWith("/") ? v : `/${v}`);
+    }
     if (prevTitle) prevTitle.textContent = projTitle.value || "Project Title";
     if (prevDesc) prevDesc.innerHTML = projDesc.value || "Project description...";
     if (prevVisitTxt) prevVisitTxt.textContent = projVisitLabel.value || "Visit";
@@ -1125,9 +1128,9 @@
     if (descEl) descEl.value = g.description || "";
     if (ctaTextEl) ctaTextEl.value = g.ctaText || "Explore projects";
     if (ctaSubtextEl) ctaSubtextEl.value = g.ctaSubtext || "[All my work is open source]";
-    if (picEl) picEl.value = g.profilePic || "assets/profile/2.jpg";
     if (picPrev) {
-      picPrev.src = g.profilePic?.startsWith("data:") ? g.profilePic : `../${g.profilePic || "assets/profile/2.jpg"}`;
+      const p = g.profilePic || "assets/profile/2.jpg";
+      picPrev.src = p.startsWith("data:") || p.startsWith("http") ? p : (p.startsWith("/") ? p : `/${p}`);
     }
 
     renderHeroSocials(g.socials || []);
@@ -1205,7 +1208,7 @@
       const picEl = document.getElementById("hero-profile-pic");
       const picPrev = document.getElementById("hero-avatar-preview");
       if (picEl) picEl.value = p;
-      if (picPrev) picPrev.src = `../${p}`;
+      if (picPrev) picPrev.src = p.startsWith("/") ? p : `/${p}`;
       state.general.profilePic = p;
       showToast(`Selected avatar ${btn.textContent}`, "info");
     });
@@ -1241,7 +1244,8 @@
           if (id === "hero-profile-pic") {
             const picPrev = document.getElementById("hero-avatar-preview");
             if (picPrev) {
-              picPrev.src = el.value.startsWith("data:") ? el.value : `../${el.value}`;
+              const val = el.value || "assets/profile/2.jpg";
+              picPrev.src = val.startsWith("data:") || val.startsWith("http") ? val : (val.startsWith("/") ? val : `/${val}`);
             }
           }
         });
