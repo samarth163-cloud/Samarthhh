@@ -28,6 +28,7 @@
   };
 
   let editingProjectIndex = -1;
+  const pendingImageUploads = {};
 
   // DOM Elements
   const tabLinks = document.querySelectorAll(".admin-nav-link");
@@ -373,11 +374,21 @@
     projImageFile.addEventListener("change", (e) => {
       const file = e.target.files[0];
       if (file) {
+        let targetPath = (projImage?.value || "").trim().replace(/^\//, "");
+        if (!targetPath || targetPath.startsWith("data:")) {
+          const titleSlug = (projTitle?.value || "project").toLowerCase().replace(/[^a-z0-9]/g, "-");
+          targetPath = `assets/projects/${titleSlug}.png`;
+        }
+
         const reader = new FileReader();
         reader.onload = (ev) => {
-          projImage.value = ev.target.result;
-          updateModalPreview();
-          showToast("Image loaded into project!", "info");
+          const fullDataUrl = ev.target.result;
+          const rawBase64 = fullDataUrl.split(",")[1];
+          pendingImageUploads[targetPath] = rawBase64;
+
+          projImage.value = targetPath;
+          updateModalPreview(fullDataUrl);
+          showToast(`Image loaded! Name will stay "${targetPath}". Save/Deploy will overwrite file on GitHub.`, "info");
         };
         reader.readAsDataURL(file);
       }
@@ -441,7 +452,7 @@
   }
 
   // Update Mini Preview
-  function updateModalPreview() {
+  function updateModalPreview(overrideSrc = null) {
     const prevImg = document.getElementById("prev-img");
     const prevTitle = document.getElementById("prev-title");
     const prevDesc = document.getElementById("prev-desc");
@@ -449,8 +460,12 @@
     const prevVisitTxt = document.getElementById("prev-visit-txt");
 
     if (prevImg) {
-      const v = projImage.value || "assets/projects/pishot.png";
-      prevImg.src = v.startsWith("data:") || v.startsWith("http") ? v : (v.startsWith("/") ? v : `/${v}`);
+      if (overrideSrc) {
+        prevImg.src = overrideSrc;
+      } else {
+        const v = projImage.value || "assets/projects/pishot.png";
+        prevImg.src = v.startsWith("data:") || v.startsWith("http") ? v : (v.startsWith("/") ? v : `/${v}`);
+      }
     }
     if (prevTitle) prevTitle.textContent = projTitle.value || "Project Title";
     if (prevDesc) prevDesc.innerHTML = projDesc.value || "Project description...";
@@ -1235,14 +1250,27 @@
     heroAvatarUpload.addEventListener("change", (e) => {
       const file = e.target.files[0];
       if (file) {
+        const picEl = document.getElementById("hero-profile-pic");
+        const picPrev = document.getElementById("hero-avatar-preview");
+
+        // Keep existing filename (e.g. assets/profile/1.jpg or assets/profile/2.jpg)
+        let targetPath = (picEl?.value || "").trim().replace(/^\//, "");
+        if (!targetPath || targetPath.startsWith("data:")) {
+          targetPath = "assets/profile/1.jpg";
+        }
+
         const reader = new FileReader();
         reader.onload = (ev) => {
-          const picEl = document.getElementById("hero-profile-pic");
-          const picPrev = document.getElementById("hero-avatar-preview");
-          if (picEl) picEl.value = ev.target.result;
-          if (picPrev) picPrev.src = ev.target.result;
-          state.general.profilePic = ev.target.result;
-          showToast("Profile image updated!", "success");
+          const fullDataUrl = ev.target.result;
+          const rawBase64 = fullDataUrl.split(",")[1];
+          pendingImageUploads[targetPath] = rawBase64;
+
+          // Local preview in admin
+          if (picPrev) picPrev.src = fullDataUrl;
+          if (picEl) picEl.value = targetPath;
+          state.general.profilePic = targetPath;
+
+          showToast(`Photo loaded! File ka naam '${targetPath}' hi rahega. 'Deploy to All Devices 🌐' par yeh photo GitHub par replace/overwrite ho jayegi!`, "success");
         };
         reader.readAsDataURL(file);
       }
@@ -1655,6 +1683,77 @@
 
       // GitHub authentication header: 'token' for classic PAT (ghp_), 'Bearer' for fine-grained
       const authHeader = token.startsWith("github_pat_") ? `Bearer ${token}` : `token ${token}`;
+
+      // Overwrite any pending uploaded image files directly on GitHub (keep same filenames)
+      const pendingPaths = Object.keys(pendingImageUploads);
+      for (const imgPath of pendingPaths) {
+        try {
+          if (btnGlobal) {
+            btnGlobal.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Overwriting ${imgPath}...`;
+          }
+          const imgBase64 = pendingImageUploads[imgPath];
+
+          // Get current SHA of the image file on GitHub (if it exists)
+          let imgSha = null;
+          try {
+            const shaRes = await fetch(
+              `https://api.github.com/repos/${repo}/contents/${imgPath}?ref=${branch}&_nocache=${Date.now()}`,
+              {
+                cache: "no-store",
+                headers: { Authorization: authHeader, Accept: "application/vnd.github.v3+json" }
+              }
+            );
+            if (shaRes.ok) {
+              const shaData = await shaRes.json();
+              imgSha = shaData.sha;
+            }
+          } catch (e) {}
+
+          // Commit image binary directly to GitHub at that exact path
+          let imgCommitRes = await fetch(`https://api.github.com/repos/${repo}/contents/${imgPath}`, {
+            method: "PUT",
+            headers: {
+              Authorization: authHeader,
+              Accept: "application/vnd.github.v3+json",
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+              message: `Overwrite image ${imgPath} via Admin Panel [Global Sync]`,
+              content: imgBase64,
+              branch: branch,
+              ...(imgSha ? { sha: imgSha } : {})
+            })
+          });
+
+          // Auto-retry on 409 conflict
+          if (!imgCommitRes.ok && imgCommitRes.status === 409) {
+            const conflictData = await imgCommitRes.json().catch(() => ({}));
+            const match = (conflictData.message || "").match(/does not match ([a-f0-9]{40})/);
+            if (match) {
+              imgCommitRes = await fetch(`https://api.github.com/repos/${repo}/contents/${imgPath}`, {
+                method: "PUT",
+                headers: {
+                  Authorization: authHeader,
+                  Accept: "application/vnd.github.v3+json",
+                  "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                  message: `Overwrite image ${imgPath} via Admin Panel [Global Sync]`,
+                  content: imgBase64,
+                  branch: branch,
+                  sha: match[1]
+                })
+              });
+            }
+          }
+
+          if (imgCommitRes.ok) {
+            delete pendingImageUploads[imgPath];
+          }
+        } catch (imgErr) {
+          console.error(`Error uploading image ${imgPath}:`, imgErr);
+        }
+      }
 
       // 1. Get current file SHA with cache-buster
       let currentSha = null;

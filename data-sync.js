@@ -69,6 +69,19 @@
       .replace(/'/g, "&#039;");
   }
 
+  // Helper to format image URLs and bust browser cache on updates
+  function formatImageUrl(url, updatedAt) {
+    if (!url) return "";
+    if (url.startsWith("data:") || url.startsWith("blob:") || url.startsWith("http://") || url.startsWith("https://")) {
+      return url;
+    }
+    const cleanUrl = url.startsWith("/") ? url : "/" + url;
+    if (updatedAt) {
+      return `${cleanUrl}?v=${updatedAt}`;
+    }
+    return cleanUrl;
+  }
+
   // Hydrate Index (Portfolio Homepage)
   function renderIndexPage(data) {
     if (!data) return;
@@ -82,7 +95,9 @@
       if (desc && data.general.description) desc.textContent = data.general.description;
 
       const profilePic = document.getElementById("profile-pic");
-      if (profilePic && data.general.profilePic) profilePic.src = data.general.profilePic;
+      if (profilePic && data.general.profilePic) {
+        profilePic.src = formatImageUrl(data.general.profilePic, data._updatedAt);
+      }
 
       const heroCtaBtn = document.querySelector(".hero-cta .cta-button:first-child");
       if (heroCtaBtn && data.general.ctaText) {
@@ -192,7 +207,7 @@
                 )} <i class="fa-solid fa-link"></i></a>`
               : "";
 
-            const imageSrc = p.image || "assets/projects/pishot.png";
+            const imageSrc = formatImageUrl(p.image || "assets/projects/pishot.png", data._updatedAt);
 
             return `
             <div class="card" data-project-id="${escapeHtml(p.id || "")}">
@@ -223,10 +238,11 @@
             const tags = Array.isArray(b.tags)
               ? b.tags.map((t) => `<span>${escapeHtml(t)}</span>`).join("")
               : "";
+            const blogImg = formatImageUrl(b.image || "", data._updatedAt);
             return `
             <article class="blog-card" data-blog-id="${escapeHtml(b.id || "")}">
               <a href="${escapeHtml(b.url || "#")}" class="blog-card-link" target="_blank" rel="noopener noreferrer" aria-label="Read ${escapeHtml(b.title)}">
-                <img src="${escapeHtml(b.image || "")}" alt="${escapeHtml(b.title)}" />
+                <img src="${escapeHtml(blogImg)}" alt="${escapeHtml(b.title)}" />
                 <div class="blog-card-content">
                   <p class="blog-date">${escapeHtml(b.date || "")}</p>
                   <h3>${escapeHtml(b.title)}</h3>
