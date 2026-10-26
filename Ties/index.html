@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Ties</title>
+    <link rel="stylesheet" href="/Ties/styles.css" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400..900&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <div class="header-container">
+      <h1 class="heading">TIES</h1>
+      <div id="direction-timer">
+        <div id="timer-fill"></div>
+      </div>
+    </div>
+
+    <div id="scoreboard" class="scoreboard">
+      <span id="player-score" class="score left"><b>0</b></span>
+      <span class="score-divider"></span>
+      <span id="ai-score" class="score right"><b>0</b></span>
+    </div>
+
+    <canvas id="gameCanvas" width="600" height="600"></canvas>
+    <div id="start-popup" class="popup">
+      <div>
+        <strong>How to Play</strong><br />
+        <ul>
+          <li>
+            Every 5 seconds, you can change the direction using the arrow keys.
+            Or by swiping on mobile.
+          </li>
+          <li>Bounce off the arena edge to create "ties".</li>
+          <li>Cut the enemy's ties by hitting them.</li>
+          <li>Protect your own ties from being cut.</li>
+          <li>If you have ties and the enemy has none, you win.</li>
+          <li>If the enemy has ties and you have none, you lose.</li>
+        </ul>
+
+        Good luck!
+      </div>
+      <button id="start-btn">Start Game</button>
+      </div>
+      <div id="gameover" class="popup hidden">
+        <div id="gameover-text"></div>
+        <button id="restart-btn">Restart</button>
+      </div>
+
+      <div id="direction-timer">
+        <div id="timer-fill"></div>
+      </div>
+
+      <footer>
+        Ties &copy; 2025 <a href="/" target="_blank">Samarth</a>
+      </footer>
+
+      <script src="/Ties/script.js"></script>
+  </body>
+</html>

@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Samarth // Admin Control Suite</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Anton&family=Bebas+Neue&family=Space+Grotesk:wght@500;600;700;800;900&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <link rel="stylesheet" href="admin.css" />
+  <link rel="icon" type="image/png" href="../assets/favicon/favicon-32x32.png" />
+  <script>
+    // Initialize Theme
+    const savedTheme = localStorage.getItem("theme") || "light";
+    document.addEventListener("DOMContentLoaded", () => {
+      document.body.classList.add(savedTheme);
+      updateThemeIcon();
+    });
+    function updateThemeIcon() {
+      const icon = document.getElementById("theme-toggle-icon");
+      if (icon) {
+        icon.className = document.body.classList.contains("dark") ? "fas fa-sun" : "fas fa-moon";
+      }
+    }
+  </script>
+</head>
+<body>
+
+  <!-- Top Navigation Header -->
+  <header class="admin-header">
+    <div class="brand-wrapper">
+      <div class="brand-title">
+        <i class="fas fa-terminal" style="color: var(--accent-red);"></i>
+        SAMARTH // ADMIN
+        <span class="badge">v2.0</span>
+      </div>
+      <div class="sync-status" id="sync-status-badge">
+        <span class="dot"></span>
+        <span id="sync-status-text">Live Sync Active</span>
+      </div>
+    </div>
+
+    <div class="header-actions">
+      <a href="/" target="_blank" class="btn btn-sm" title="View Live Portfolio">
+        <i class="fas fa-globe"></i> View Portfolio ↗
+      </a>
+      <a href="/resume/" target="_blank" class="btn btn-sm" title="View Live Resume">
+        <i class="fas fa-file-lines"></i> View Resume ↗
+      </a>
+      <button class="btn btn-sm" id="btn-theme-toggle" type="button" title="Toggle Dark/Light Mode">
+        <i id="theme-toggle-icon" class="fas fa-moon"></i>
+      </button>
+      <button class="btn btn-primary" id="btn-save-master" type="button">
+        <i class="fas fa-floppy-disk"></i>
+        <span>Save &amp; Apply</span>
+        <span class="shortcut">Ctrl+S</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Layout (Sidebar + Main) -->
+  <div class="admin-layout">
+    
+    <!-- Sidebar -->
+    <aside class="admin-sidebar">
+      <div class="nav-section-title">Control Modules</div>
+      <ul class="admin-nav">
+        <li class="admin-nav-item">
+          <button class="admin-nav-link active" data-tab="tab-projects" type="button">
+            <span class="link-left"><i class="fas fa-cubes"></i> Projects</span>
+            <span class="nav-counter" id="nav-count-projects">9</span>
+          </button>
+        </li>
+        <li class="admin-nav-item">
+          <button class="admin-nav-link" data-tab="tab-resume" type="button">
+            <span class="link-left"><i class="fas fa-file-contract"></i> Resume Editor</span>
+            <span class="nav-counter" id="nav-count-resume">4 exp</span>
+          </button>
+        </li>
+        <li class="admin-nav-item">
+          <button class="admin-nav-link" data-tab="tab-about" type="button">
+            <span class="link-left"><i class="fas fa-user-astronaut"></i> About Me</span>
+          </button>
+        </li>
+        <li class="admin-nav-item">
+          <button class="admin-nav-link" data-tab="tab-hero" type="button">
+            <span class="link-left"><i class="fas fa-sliders-h"></i> Hero &amp; General</span>
+          </button>
+        </li>
+        <li class="admin-nav-item">
+          <button class="admin-nav-link" data-tab="tab-blog" type="button">
+            <span class="link-left"><i class="fas fa-newspaper"></i> Blog Cards</span>
+            <span class="nav-counter" id="nav-count-blog">2</span>
+          </button>
+        </li>
+        <li class="admin-nav-item">
+          <button class="admin-nav-link" data-tab="tab-backup" type="button">
+            <span class="link-left"><i class="fas fa-database"></i> Backup &amp; Files</span>
+          </button>
+        </li>
+      </ul>
+
+      <div class="sidebar-footer">
+        <button class="btn btn-sm btn-yellow" id="btn-direct-disk-save" style="width: 100%;">
+          <i class="fas fa-hard-drive"></i> Save to Project File
+        </button>
+        <button class="btn btn-sm" id="btn-download-json-quick" style="width: 100%;">
+          <i class="fas fa-download"></i> Export JSON
+        </button>
+      </div>
+    </aside>
+
+    <!-- Main Workspace -->
+    <main class="admin-main">
+
+      <!-- ================================================================= -->
+      <!-- TAB 1: PROJECTS MANAGER                                           -->
+      <!-- ================================================================= -->
+      <section class="tab-pane active" id="tab-projects">
+        <div class="section-hero-banner">
+          <div>
+            <h2>Projects Showcase</h2>
+            <p>Manage, add, reorder, and edit all projects shown on your portfolio showcase section.</p>
+          </div>
+          <button class="btn btn-primary" id="btn-add-project" type="button">
+            <i class="fas fa-plus"></i> Add New Project
+          </button>
+        </div>
+
+        <div class="admin-card">
+          <div class="admin-card-header">
+            <div class="admin-card-title">
+              <i class="fas fa-list-check"></i> All Projects (<span id="project-count-title">9</span>)
+            </div>
+            <div style="display: flex; gap: 8px;">
+              <input type="text" id="project-search-input" class="form-input" placeholder="Search projects..." style="width: 220px; padding: 6px 12px; font-size: 13px;" />
+            </div>
+          </div>
+
+          <div class="items-list" id="projects-list-container">
+            <!-- Dynamically populated project cards -->
+          </div>
+        </div>
+      </section>
+
+      <!-- ================================================================= -->
+      <!-- TAB 2: RESUME MANAGER                                             -->
+      <!-- ================================================================= -->
+      <section class="tab-pane" id="tab-resume">
+        <div class="section-hero-banner">
+          <div>
+            <h2>Resume Customizer</h2>
+            <p>Full control over your resume.txt — experiences, projects, education, honors, and contacts.</p>
+          </div>
+          <a href="/resume/" target="_blank" class="btn btn-yellow">
+            <i class="fas fa-arrow-up-right-from-square"></i> Preview Resume
+          </a>
+        </div>
+
+        <!-- Resume Header / Profile -->
+        <div class="admin-card">
+          <div class="admin-card-header">
+            <div class="admin-card-title"><i class="fas fa-id-badge"></i> Header &amp; Contact Info</div>
+          </div>
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label">Full Name</label>
+              <input type="text" id="resume-name" class="form-input" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Headline / Title</label>
+              <input type="text" id="resume-headline" class="form-input" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Eyebrow</label>
+              <input type="text" id="resume-eyebrow" class="form-input" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Location</label>
+              <input type="text" id="resume-location" class="form-input" />
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">
+              <span>Contact Links</span>
+              <button class="btn btn-sm btn-yellow" id="btn-add-resume-contact" type="button"><i class="fas fa-plus"></i> Add Link</button>
+            </label>
+            <div id="resume-contacts-container" class="items-list">
+              <!-- Dynamically populated contacts -->
+            </div>
+          </div>
+        </div>
+
+        <!-- Introduction -->
+        <div class="admin-card">
+          <div class="admin-card-header">
+            <div class="admin-card-title"><i class="fas fa-align-left"></i> Introduction Text</div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Summary / Intro Paragraph</label>
+            <textarea id="resume-intro" class="form-textarea" rows="4"></textarea>
+          </div>
+        </div>
+
+        <!-- Experience Entries -->
+        <div class="admin-card">
+          <div class="admin-card-header">
+            <div class="admin-card-title"><i class="fas fa-briefcase"></i> Experience</div>
+            <button class="btn btn-sm btn-primary" id="btn-add-experience" type="button">
+              <i class="fas fa-plus"></i> Add Experience
+            </button>
+          </div>
+          <div id="resume-experience-container" class="items-list">
+            <!-- Dynamically populated experience entries -->
+          </div>
+        </div>
+
+        <!-- Projects on Resume -->
+        <div class="admin-card">
+          <div class="admin-card-header">
+            <div class="admin-card-title"><i class="fas fa-laptop-code"></i> Projects on Resume</div>
+            <button class="btn btn-sm btn-primary" id="btn-add-resume-project" type="button">
+              <i class="fas fa-plus"></i> Add Project
+            </button>
+          </div>
+          <div id="resume-projects-container" class="items-list">
+            <!-- Dynamically populated projects on resume -->
+          </div>
+        </div>
+
+        <!-- Education -->
+        <div class="admin-card">
+          <div class="admin-card-header">
+            <div class="admin-card-title"><i class="fas fa-graduation-cap"></i> Education</div>
+            <button class="btn btn-sm btn-primary" id="btn-add-education" type="button">
+              <i class="fas fa-plus"></i> Add Education
+            </button>
+          </div>
+          <div id="resume-education-container" class="items-list">
+            <!-- Dynamically populated education entries -->
+          </div>
+        </div>
+
+        <!-- Recognition & Awards -->
+        <div class="admin-card">
+          <div class="admin-card-header">
+            <div class="admin-card-title"><i class="fas fa-trophy"></i> Recognition &amp; Awards</div>
+            <button class="btn btn-sm btn-primary" id="btn-add-recognition" type="button">
+              <i class="fas fa-plus"></i> Add Item
+            </button>
+          </div>
+          <div id="resume-recognition-container" class="items-list">
+            <!-- Dynamically populated recognition bullets -->
+          </div>
+        </div>
+
+        <!-- Skills -->
+        <div class="admin-card">
+          <div class="admin-card-header">
+            <div class="admin-card-title"><i class="fas fa-screwdriver-wrench"></i> Resume Skills</div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">
+              <span>Skills List (Separated by · or commas)</span>
+            </label>
+            <textarea id="resume-skills" class="form-textarea" rows="3"></textarea>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================================================================= -->
+      <!-- TAB 3: ABOUT ME MANAGER                                           -->
+      <!-- ================================================================= -->
+      <section class="tab-pane" id="tab-about">
+        <div class="section-hero-banner">
+          <div>
+            <h2>About Me Customizer</h2>
+            <p>Customize your bio, highlights of things you have done, and tools &amp; methodologies.</p>
+          </div>
+        </div>
+
+        <!-- Bio Paragraph -->
+        <div class="admin-card">
+          <div class="admin-card-header">
+            <div class="admin-card-title"><i class="fas fa-comment-dots"></i> Bio Paragraph</div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">
+              <span>Bio Text (HTML allowed like &lt;b&gt;, &lt;br /&gt;)</span>
+            </label>
+            <textarea id="about-bio" class="form-textarea" rows="6"></textarea>
+          </div>
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label">Hackatime Username</label>
+              <input type="text" id="about-hackatime-user" class="form-input" />
+            </div>
+            <div class="form-group" style="justify-content: center;">
+              <label class="form-label">Live Coding Time Counter</label>
+              <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-weight: 700; margin-top: 6px;">
+                <input type="checkbox" id="about-show-coding-stats" style="width: 18px; height: 18px;" />
+                Display live coding hours on portfolio
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Highlights: Some Things I Have Done -->
+        <div class="admin-card">
+          <div class="admin-card-header">
+            <div class="admin-card-title"><i class="fas fa-star"></i> Some Things I Have Done</div>
+            <button class="btn btn-sm btn-primary" id="btn-add-highlight" type="button">
+              <i class="fas fa-plus"></i> Add Highlight
+            </button>
+          </div>
+          <div id="about-highlights-container" class="items-list">
+            <!-- Dynamically populated highlights -->
+          </div>
+        </div>
+
+        <!-- Skills, Methodologies, and Tools Categories -->
+        <div class="admin-card">
+          <div class="admin-card-header">
+            <div class="admin-card-title"><i class="fas fa-layer-group"></i> Skills, Methodologies &amp; Tools Categories</div>
+            <button class="btn btn-sm btn-primary" id="btn-add-skill-category" type="button">
+              <i class="fas fa-plus"></i> Add Category
+            </button>
+          </div>
+          <div id="about-skill-categories-container" class="items-list">
+            <!-- Dynamically populated skill categories -->
+          </div>
+        </div>
+      </section>
+
+      <!-- ================================================================= -->
+      <!-- TAB 4: HERO & GENERAL MANAGER                                     -->
+      <!-- ================================================================= -->
+      <section class="tab-pane" id="tab-hero">
+        <div class="section-hero-banner">
+          <div>
+            <h2>Hero &amp; Profile Details</h2>
+            <p>Customize your profile photo, hero title, subheadline, and external social media links.</p>
+          </div>
+        </div>
+
+        <div class="admin-card">
+          <div class="admin-card-header">
+            <div class="admin-card-title"><i class="fas fa-crown"></i> Hero Identity</div>
+          </div>
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label">Full Name</label>
+              <input type="text" id="hero-name" class="form-input" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Short Name / Nickname</label>
+              <input type="text" id="hero-short-name" class="form-input" />
+            </div>
+            <div class="form-group full-width">
+              <label class="form-label">Hero Headline Description</label>
+              <textarea id="hero-description" class="form-textarea" rows="3"></textarea>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Primary CTA Button Text</label>
+              <input type="text" id="hero-cta-text" class="form-input" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">CTA Subtext Note</label>
+              <input type="text" id="hero-cta-subtext" class="form-input" />
+            </div>
+          </div>
+        </div>
+
+        <!-- Profile Picture Selector -->
+        <div class="admin-card">
+          <div class="admin-card-header">
+            <div class="admin-card-title"><i class="fas fa-image"></i> Profile Avatar</div>
+          </div>
+          <div style="display: flex; gap: 24px; align-items: center; flex-wrap: wrap;">
+            <div style="width: 110px; height: 110px; border: 3px solid var(--border-color); box-shadow: var(--hard-shadow-sm); overflow: hidden; background: #fff;">
+              <img id="hero-avatar-preview" src="../assets/profile/2.jpg" style="width: 100%; height: 100%; object-fit: cover;" alt="Avatar Preview" />
+            </div>
+            <div style="flex: 1; min-width: 280px;">
+              <div class="form-group">
+                <label class="form-label">Profile Image Path / URL</label>
+                <input type="text" id="hero-profile-pic" class="form-input" />
+              </div>
+              <div style="display: flex; gap: 8px; flex-wrap: wrap; align-items: center;">
+                <span style="font-family: var(--font-mono); font-size: 11px; font-weight: 700;">Quick Avatars:</span>
+                <button type="button" class="btn btn-sm btn-quick-avatar" data-path="assets/profile/1.jpg">1</button>
+                <button type="button" class="btn btn-sm btn-quick-avatar" data-path="assets/profile/2.jpg">2</button>
+                <button type="button" class="btn btn-sm btn-quick-avatar" data-path="assets/profile/3.jpg">3</button>
+                <button type="button" class="btn btn-sm btn-quick-avatar" data-path="assets/profile/4.jpg">4</button>
+                <button type="button" class="btn btn-sm btn-quick-avatar" data-path="assets/profile/5.jpg">5</button>
+                <button type="button" class="btn btn-sm btn-quick-avatar" data-path="assets/profile/6.jpg">6</button>
+                <label class="btn btn-sm btn-yellow" style="margin-left: 10px; cursor: pointer;">
+                  <i class="fas fa-upload"></i> Upload Image
+                  <input type="file" id="hero-avatar-upload" accept="image/*" style="display: none;" />
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Social Media Links -->
+        <div class="admin-card">
+          <div class="admin-card-header">
+            <div class="admin-card-title"><i class="fas fa-share-nodes"></i> Homepage Social Links</div>
+            <button class="btn btn-sm btn-primary" id="btn-add-social" type="button">
+              <i class="fas fa-plus"></i> Add Social Link
+            </button>
+          </div>
+          <div id="hero-socials-container" class="items-list">
+            <!-- Dynamically populated socials -->
+          </div>
+        </div>
+      </section>
+
+      <!-- ================================================================= -->
+      <!-- TAB 5: BLOG CARDS MANAGER                                         -->
+      <!-- ================================================================= -->
+      <section class="tab-pane" id="tab-blog">
+        <div class="section-hero-banner">
+          <div>
+            <h2>Homepage Blog Cards</h2>
+            <p>Select which journal articles or blog posts are highlighted on your portfolio homepage.</p>
+          </div>
+          <button class="btn btn-primary" id="btn-add-blog-card" type="button">
+            <i class="fas fa-plus"></i> Add Blog Card
+          </button>
+        </div>
+
+        <div class="admin-card">
+          <div class="admin-card-header">
+            <div class="admin-card-title"><i class="fas fa-rss"></i> Highlighted Posts</div>
+          </div>
+          <div id="blog-cards-container" class="items-list">
+            <!-- Dynamically populated blog cards -->
+          </div>
+        </div>
+      </section>
+
+      <!-- ================================================================= -->
+      <!-- TAB 6: BACKUP & DATA MANAGER                                      -->
+      <!-- ================================================================= -->
+      <section class="tab-pane" id="tab-backup">
+        <div class="section-hero-banner">
+          <div>
+            <h2>Data Persistence &amp; Backups</h2>
+            <p>Save your updates directly to the project files, export JSON backups, or restore defaults.</p>
+          </div>
+        </div>
+
+        <div class="form-grid">
+          <div class="admin-card">
+            <div class="admin-card-header">
+              <div class="admin-card-title"><i class="fas fa-hard-drive"></i> Save to Project Disk</div>
+            </div>
+            <p style="margin-bottom: 16px; font-size: 14px; line-height: 1.5; color: var(--text-muted);">
+              Writes directly to <code>data/portfolio-data.json</code> on your computer so your Git repo reflects the newest updates.
+            </p>
+            <button class="btn btn-yellow" id="btn-save-disk-action" type="button" style="width: 100%;">
+              <i class="fas fa-floppy-disk"></i> Save to Project File Now
+            </button>
+          </div>
+
+          <div class="admin-card">
+            <div class="admin-card-header">
+              <div class="admin-card-title"><i class="fas fa-file-export"></i> Export / Download</div>
+            </div>
+            <p style="margin-bottom: 16px; font-size: 14px; line-height: 1.5; color: var(--text-muted);">
+              Download a complete JSON file of your portfolio data as a portable backup anytime.
+            </p>
+            <div style="display: flex; gap: 8px;">
+              <button class="btn" id="btn-download-json" type="button" style="flex: 1;">
+                <i class="fas fa-download"></i> Download JSON
+              </button>
+              <button class="btn" id="btn-copy-json" type="button" style="flex: 1;">
+                <i class="fas fa-copy"></i> Copy JSON
+              </button>
+            </div>
+          </div>
+
+          <div class="admin-card">
+            <div class="admin-card-header">
+              <div class="admin-card-title"><i class="fas fa-file-import"></i> Restore from JSON</div>
+            </div>
+            <p style="margin-bottom: 16px; font-size: 14px; line-height: 1.5; color: var(--text-muted);">
+              Import a previously exported JSON backup to immediately restore your configuration.
+            </p>
+            <label class="btn" style="width: 100%; cursor: pointer;">
+              <i class="fas fa-upload"></i> Choose JSON File
+              <input type="file" id="input-import-json" accept=".json" style="display: none;" />
+            </label>
+          </div>
+
+          <div class="admin-card" style="grid-column: 1 / -1; border-color: var(--accent-red);">
+            <div class="admin-card-header" style="background: var(--accent-yellow-light);">
+              <div class="admin-card-title"><i class="fa-brands fa-github"></i> GitHub &amp; Vercel Live Auto-Deploy</div>
+              <span class="badge" style="background: #000; color: #fff; font-size: 11px; padding: 2px 6px;">1-Click Cloud Sync</span>
+            </div>
+            <p style="margin-bottom: 14px; font-size: 14px; line-height: 1.5; color: var(--text-muted);">
+              When deployed on <b>Vercel</b>, commit updates directly to your GitHub repository. Vercel detects the commit and deploys your changes to the live site in seconds!
+            </p>
+            <div class="form-grid" style="margin-bottom: 12px;">
+              <div class="form-group">
+                <label class="form-label">GitHub Repo (owner/repo)</label>
+                <input type="text" id="gh-repo" class="form-input" placeholder="e.g. samarth163-cloud/Samarthhh" />
+              </div>
+              <div class="form-group">
+                <label class="form-label">Branch</label>
+                <input type="text" id="gh-branch" class="form-input" value="main" />
+              </div>
+              <div class="form-group full-width">
+                <label class="form-label">
+                  <span>GitHub Personal Access Token (PAT)</span>
+                  <a href="https://github.com/settings/tokens/new?scopes=repo" target="_blank" class="helper" style="color: var(--accent-red); text-decoration: underline;">Generate Token ↗</a>
+                </label>
+                <input type="password" id="gh-token" class="form-input" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx (Saved only in this browser)" />
+              </div>
+            </div>
+            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+              <button class="btn btn-primary" id="btn-gh-deploy" type="button">
+                <i class="fas fa-rocket"></i> Commit &amp; Deploy to Vercel
+              </button>
+              <button class="btn" id="btn-gh-save-config" type="button">
+                <i class="fas fa-key"></i> Save Token
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- ===================================================================== -->
+  <!-- PROJECT EDIT / ADD MODAL                                              -->
+  <!-- ===================================================================== -->
+  <div class="modal-backdrop" id="modal-project">
+    <div class="modal-window">
+      <div class="modal-header">
+        <div class="modal-title" id="modal-project-title">Edit Project</div>
+        <button class="btn btn-sm btn-ghost" id="btn-close-project-modal" type="button"><i class="fas fa-xmark fa-lg"></i></button>
+      </div>
+      <div class="modal-body">
+        <form id="form-project">
+          <input type="hidden" id="proj-edit-id" />
+          
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label">Project Title</label>
+              <input type="text" id="proj-title" class="form-input" required />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Visit Button Label</label>
+              <input type="text" id="proj-visit-label" class="form-input" placeholder="Visit / Demo / deeplink" />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Description</label>
+            <textarea id="proj-desc" class="form-textarea" rows="3" required></textarea>
+          </div>
+
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label">Image Path or URL</label>
+              <div style="display: flex; gap: 8px;">
+                <input type="text" id="proj-image" class="form-input" placeholder="assets/projects/..." />
+                <label class="btn btn-sm btn-yellow" style="cursor: pointer; white-space: nowrap;">
+                  <i class="fas fa-upload"></i>
+                  <input type="file" id="proj-image-file" accept="image/*" style="display: none;" />
+                </label>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Quick Project Images</label>
+              <select id="proj-quick-image-select" class="form-select">
+                <option value="">-- Choose Existing Asset --</option>
+                <option value="assets/projects/pishot.png">PiShot (assets/projects/pishot.png)</option>
+                <option value="assets/projects/adobe-wakatime.png">Adobe Wakatime</option>
+                <option value="assets/projects/arena.png">Arena</option>
+                <option value="assets/projects/nanodeck.jpg">NanoDeck</option>
+                <option value="assets/projects/hackamon.png">Hackamon</option>
+                <option value="assets/projects/deeplinker.png">deeplinker</option>
+                <option value="assets/projects/hack-club-stickers-manager.png">Stickers Manager</option>
+                <option value="assets/projects/unitease.png">UnitEase</option>
+                <option value="assets/projects/terminal-portfolio.png">Terminal Portfolio</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label">Source Code URL (GitHub)</label>
+              <input type="url" id="proj-source" class="form-input" placeholder="https://github.com/..." />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Demo / Live URL</label>
+              <input type="url" id="proj-visit" class="form-input" placeholder="https://..." />
+            </div>
+          </div>
+
+          <!-- Tech Stack Badges Builder -->
+          <div class="form-group">
+            <label class="form-label">
+              <span>Tech Stack Badges</span>
+              <button class="btn btn-sm btn-yellow" id="btn-add-proj-tech" type="button"><i class="fas fa-plus"></i> Add Badge</button>
+            </label>
+            <div id="proj-tech-container" class="items-list" style="gap: 8px;">
+              <!-- Dynamic tech rows -->
+            </div>
+          </div>
+
+          <!-- Mini Live Preview -->
+          <div class="mini-preview-container">
+            <div class="mini-preview-label">Card Live Preview</div>
+            <div class="card" id="proj-modal-preview" style="width: 100%; max-width: 380px; margin: 0; background: var(--bg-surface); border: 2.5px solid #000; box-shadow: 4px 4px 0 #000; padding: 16px;">
+              <img id="prev-img" src="../assets/projects/pishot.png" style="width: 100%; height: 160px; object-fit: cover; border: 2px solid #000; margin-bottom: 12px;" />
+              <b id="prev-title" style="font-family: var(--font-anton); font-size: 20px; display: block; margin-bottom: 6px;">Title</b>
+              <p id="prev-desc" style="font-size: 13px; color: var(--text-muted); margin-bottom: 10px;">Description preview</p>
+              <div id="prev-tech" style="display: flex; gap: 8px; margin-bottom: 12px;"></div>
+              <div style="display: flex; gap: 8px;">
+                <span class="btn btn-sm" id="prev-src-btn"><i class="fab fa-github"></i> View Source</span>
+                <span class="btn btn-sm btn-primary" id="prev-visit-btn"><span id="prev-visit-txt">Visit</span> <i class="fa-solid fa-link"></i></span>
+              </div>
+            </div>
+          </div>
+
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button class="btn" id="btn-cancel-project-modal" type="button">Cancel</button>
+        <button class="btn btn-primary" id="btn-save-project-modal" type="button">Save Project</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Container -->
+  <div class="toast-container" id="toast-container"></div>
+
+  <script src="admin.js"></script>
+</body>
+</html>

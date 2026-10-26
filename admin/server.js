@@ -1,0 +1,131 @@
+const http = require('http');
+const fs = require('fs');
+const path = require('path');
+const url = require('url');
+
+const PORT = process.env.PORT || 3000;
+const ROOT_DIR = path.resolve(__dirname, '..');
+const DATA_FILE = path.join(ROOT_DIR, 'data', 'portfolio-data.json');
+
+const MIME_TYPES = {
+  '.html': 'text/html; charset=utf-8',
+  '.css': 'text/css; charset=utf-8',
+  '.js': 'application/javascript; charset=utf-8',
+  '.json': 'application/json; charset=utf-8',
+  '.png': 'image/png',
+  '.jpg': 'image/jpeg',
+  '.jpeg': 'image/jpeg',
+  '.gif': 'image/gif',
+  '.svg': 'image/svg+xml',
+  '.ico': 'image/x-icon',
+  '.ttf': 'font/ttf',
+  '.woff': 'font/woff',
+  '.woff2': 'font/woff2',
+  '.txt': 'text/plain; charset=utf-8',
+  '.xml': 'application/xml',
+};
+
+const server = http.createServer((req, res) => {
+  // CORS headers for local tools
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+
+  if (req.method === 'OPTIONS') {
+    res.writeHead(204);
+    res.end();
+    return;
+  }
+
+  const parsedUrl = url.parse(req.url);
+  const pathname = decodeURIComponent(parsedUrl.pathname);
+
+  // API Route: Save Data to Disk
+  if (req.method === 'POST' && pathname === '/api/save') {
+    let body = '';
+    req.on('data', chunk => {
+      body += chunk;
+      if (body.length > 20 * 1024 * 1024) { // 20MB limit for image uploads/data
+        res.writeHead(413, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ error: 'Payload too large' }));
+        req.destroy();
+      }
+    });
+
+    req.on('end', () => {
+      try {
+        const jsonData = JSON.parse(body);
+        const dataDir = path.dirname(DATA_FILE);
+        if (!fs.existsSync(dataDir)) {
+          fs.mkdirSync(dataDir, { recursive: true });
+        }
+        fs.writeFileSync(DATA_FILE, JSON.stringify(jsonData, null, 2), 'utf-8');
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ success: true, message: 'Saved to disk successfully' }));
+        console.log(`[${new Date().toLocaleTimeString()}] Successfully updated portfolio-data.json on disk!`);
+      } catch (err) {
+        console.error('Failed to parse or save JSON:', err);
+        res.writeHead(400, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ error: 'Invalid JSON', details: err.message }));
+      }
+    });
+    return;
+  }
+
+  // API Route: Get Data
+  if (req.method === 'GET' && pathname === '/api/data') {
+    if (fs.existsSync(DATA_FILE)) {
+      const data = fs.readFileSync(DATA_FILE, 'utf-8');
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(data);
+    } else {
+      res.writeHead(404, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ error: 'Data file not found' }));
+    }
+    return;
+  }
+
+  // Static File Serving
+  let relativePath = pathname;
+  if (relativePath === '/' || relativePath === '') {
+    relativePath = '/index.html';
+  }
+
+  let filePath = path.join(ROOT_DIR, relativePath);
+
+  // If path is a directory, check for index.html
+  if (fs.existsSync(filePath) && fs.statSync(filePath).isDirectory()) {
+    filePath = path.join(filePath, 'index.html');
+  } else if (!fs.existsSync(filePath)) {
+    // Check if appending .html works (clean URLs)
+    if (fs.existsSync(filePath + '.html')) {
+      filePath = filePath + '.html';
+    } else if (fs.existsSync(path.join(filePath, 'index.html'))) {
+      filePath = path.join(filePath, 'index.html');
+    }
+  }
+
+  if (fs.existsSync(filePath) && !fs.statSync(filePath).isDirectory()) {
+    const ext = path.extname(filePath).toLowerCase();
+    const contentType = MIME_TYPES[ext] || 'application/octet-stream';
+
+    // Disable caching for dev files to ensure instant updates
+    res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+    res.writeHead(200, { 'Content-Type': contentType });
+
+    const stream = fs.createReadStream(filePath);
+    stream.pipe(res);
+  } else {
+    res.writeHead(404, { 'Content-Type': 'text/html; charset=utf-8' });
+    res.end(`<h1>404 Not Found</h1><p>The file ${pathname} was not found on this server.</p>`);
+  }
+});
+
+server.listen(PORT, () => {
+  console.log(`=======================================================`);
+  console.log(`  SAMARTH PORTFOLIO & ADMIN SERVER RUNNING!`);
+  console.log(`  Portfolio:    http://localhost:${PORT}/`);
+  console.log(`  Resume:       http://localhost:${PORT}/resume/`);
+  console.log(`  Admin Panel:  http://localhost:${PORT}/admin/`);
+  console.log(`=======================================================`);
+});

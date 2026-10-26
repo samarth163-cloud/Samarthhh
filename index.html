@@ -1,0 +1,711 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- Basic Meta Tags -->
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="I am Samarth Haveliwala, a developer building open-source software, games, and hardware-from custom cameras to web platforms! Welcome to my portfolio!"
+    />
+
+    <!-- Open Graph / Facebook Meta Tags -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Samarth's Portfolio" />
+    <meta
+      property="og:description"
+      content="I am Samarth Haveliwala, a developer building open-source software, games, and hardware-from custom cameras to web platforms! Welcome to my portfolio!"
+    />
+    <meta
+      property="og:image"
+      content="assets/Title.png"
+    />
+
+    <!-- Twitter Meta Tags -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Samarth's Portfolio" />
+    <meta
+      name="twitter:description"
+      content="I am Samarth Haveliwala, a developer building open-source software, games, and hardware-from custom cameras to web platforms! Welcome to my portfolio!"
+    />
+    <meta
+      name="twitter:image"
+      content="assets/Title.png"
+    />
+    <link
+      rel="apple-touch-icon"
+      sizes="180x180"
+      href="assets/favicon/apple-touch-icon.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="32x32"
+      href="assets/favicon/favicon-32x32.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="16x16"
+      href="assets/favicon/favicon-16x16.png"
+    />
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        // Default to Neo-Brutalist Light (Retro Paper) if not set
+        if (!localStorage.getItem("theme")) {
+          localStorage.setItem("theme", "light");
+        }
+
+        const currentTheme = localStorage.getItem("theme");
+        document.body.classList.add(currentTheme);
+      });
+    </script>
+
+    <title>Samarth's Portfolio</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Anton&family=Bebas+Neue&family=Space+Grotesk:wght@500;700;800;900&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+    <link href="style.css?v=2" rel="stylesheet" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+    />
+    <script
+      defer
+      src="https://cloud.umami.is/script.js"
+      data-website-id="1cfbc0ed-fa54-4bbd-9bf4-cd1c494abc64"
+    ></script>
+  </head>
+  <body>
+    <div id="particles-js"></div>
+    <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+
+    <div id="header-wrapper">
+      <header>
+        <button
+          id="darkmode-toggle"
+          class="darkmode-toggle"
+          aria-label="Toggle theme"
+          title="Toggle theme"
+          type="button"
+        >
+          <i class="far fa-sun light-icon"></i>
+          <i class="far fa-moon dark-icon"></i>
+        </button>
+
+        <button
+          class="menu-toggle"
+          aria-expanded="false"
+          aria-controls="site-menu"
+          type="button"
+        >
+          <i class="fas fa-bars" aria-hidden="true"></i>
+        </button>
+
+        <nav class="menu" id="site-menu">
+          <ul>
+            <li><a href="#about-me">About</a></li>
+            <li><a href="#portfolio">Projects</a></li>
+            <li><a href="#blog">Blog</a></li>
+            <li><a href="/resume/">Resume ↗</a></li>
+          </ul>
+        </nav>
+        <div class="profile-pic-container">
+          <img
+            src="assets/profile/2.jpg"
+            alt="Samarth"
+            class="profile-pic"
+            id="profile-pic"
+          />
+        </div>
+        <h1>Samarth Haveliwala</h1>
+        <p class="description">
+          I build open-source software, games, and hardware- from custom cameras
+          and devboards to web platforms.
+        </p>
+        <div class="hero-cta">
+          <a href="#portfolio" class="cta-button">
+            Explore projects <i class="fa-solid fa-arrow-down"></i>
+          </a>
+          <a href="/resume" class="cta-button">
+            Resume <i class="fa-solid fa-external-link"></i>
+          </a>
+          <p class="cta-note">[All my work is open source]</p>
+        </div>
+
+        <div class="social-links">
+          <a
+            href="https://instagram.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            ><i class="fab fa-instagram"></i
+          ></a>
+          <a
+            href="https://www.youtube.com/@DevStuff5"
+            target="_blank"
+            rel="noopener noreferrer"
+            ><i class="fab fa-youtube"></i
+          ></a>
+          <a
+            href="https://www.linkedin.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            ><i class="fab fa-linkedin"></i
+          ></a>
+          <a
+            href="https://github.com/samarth163-cloud"
+            target="_blank"
+            rel="noopener noreferrer"
+            ><i class="fab fa-github"></i
+          ></a>
+          <!--
+          <a href="https://medium.com" target="_blank" rel="noopener noreferrer"
+            ><i class="fab fa-medium"></i
+          ></a>
+          -->
+          <a
+            href="https://itch.io"
+            target="_blank"
+            rel="noopener noreferrer"
+            ><i class="fab fa-itch-io"></i
+          ></a>
+          <a
+            href="/blog/"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <i class="fa-solid fa-scroll"></i>
+          </a>
+          <a href="mailto:donsamarth163@gmail.com"
+            ><i class="far fa-envelope"></i
+          ></a>
+        </div>
+
+        <div class="scroll-down">
+          <a href="#about-me"><i class="fas fa-chevron-down"></i></a>
+        </div>
+      </header>
+    </div>
+
+    <div class="scroll-indicator">
+      <a href="#header-wrapper" aria-label="Main"></a>
+      <a href="#about-me" aria-label="About Me"></a>
+      <a href="#portfolio" aria-label="Portfolio"></a>
+      <a href="#blog" aria-label="Blog"></a>
+    </div>
+
+    <section id="about-me">
+      <h2>About Me</h2>
+      <div class="about-box">
+        <p>
+          Hi!! I am <b>Samarth</b>. I love everything tech! When I am not coding or
+          tinkering with electronics, I enjoy building creative projects, editing videos, and exploring new technologies.
+          <br />
+          I'm always happy to talk about computers and programming. Welcome to
+          my portfolio!
+        </p>
+        <p class="coding-time" aria-live="polite">
+          <i class="fas fa-code" aria-hidden="true"></i>
+          <span id="total-coding-time">Loading coding time...</span>
+        </p>
+        <h3>Some things I have done</h3>
+        <ul>
+          <li>
+            Reviewed and provided feedback on over 1300 technical projects
+            submitted by teens worldwide for
+            <a href="https://summer.hackclub.com/">Summer of Making</a>, an
+            event by <b>Hack Club</b> and <b>GitHub</b>.
+          </li>
+          <li>
+            Hosted the
+            <a
+              href="https://hackclub.slack.com/archives/C090B3T9R9R/p1751137882759709"
+              >SOM game jam</a
+            >
+            for a community of 18k+ high schoolers around the globe!
+          </li>
+          <li>
+            Organised
+            <a
+              href="https://hackclub.slack.com/archives/C01D7AHKMPF/p1768063492916589"
+              >Borked</a
+            >
+            (<a href="https://borked.hackclub.com">site</a>), a <s>game</s> Web
+            Jam for 6.7k teens! High Schoolers had to build a website with the
+            worst UI possible!
+          </li>
+        </ul>
+        <h3>Skills, Methodologies, and Tools</h3>
+        <ul>
+          <li>
+            <b>Programming/Scripting Languages:</b> JavaScript, TypeScript, C#,
+            C++, Python, HTML, CSS, Lua
+          </li>
+          <li><b>Web Development Frameworks:</b> React, Astro</li>
+          <li><b>Frontend:</b> HTML, CSS, JavaScript, React, Bootstrap</li>
+          <li><b>Backend:</b> Node.js, Express.js</li>
+          <li><b>PCB Design:</b> KiCAD, EasyEDA</li>
+          <li>
+            <b>Hardware:</b> CircuitPython, Raspberry Pi, MicroPython, Arduino
+          </li>
+          <li><b>Database:</b> MongoDB, Airtable</li>
+          <li><b>Game Development:</b> Unity, Love 2D, Phaser.js, Pygame</li>
+          <li><b>Project Management:</b> Trello</li>
+          <li><b>Source Code Management:</b> Git, GitHub</li>
+          <li><b>Communication:</b> Slack, Zoom</li>
+          <li><b>Video Editing:</b> Adobe Premiere Pro, Adobe After Effects</li>
+        </ul>
+      </div>
+    </section>
+
+    <section id="showcase">
+      <h1 class="showcase-heading"><b>Showcase</b></h1>
+
+      <section id="portfolio">
+        <h2>My Projects</h2>
+        <div class="cards">
+          <div class="card">
+            <img
+              src="assets/projects/pishot.png"
+              alt="Custom DIY Open-Source Camera"
+            />
+            <div class="card-content">
+              <b>PiShot</b>
+              <p>
+                An open-source DIY camera! Built from scratch with a Raspberry
+                Pi Zero 2W, Pi camera module, hand-wiring, and a 3D-printed
+                case. And custom firmware!
+              </p>
+            </div>
+            <div class="card-tech">
+              <span title="Microcontroller"
+                ><i class="fas fa-microchip"></i
+              ></span>
+              <span title="Python / KMK"><i class="fab fa-python"></i></span>
+              <span title="Hardware"><i class="fas fa-bolt"></i></span>
+            </div>
+            <div class="card-footer">
+              <a
+                href="https://github.com/samarth163-cloud/PiShot"
+                class="source-link"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <i class="fab fa-github"></i>
+                View Source</a
+              >
+              <a
+                href="https://www.youtube.com/watch?v=gf-RIgXnWJM"
+                class="visit-link"
+                target="_blank"
+                rel="noopener noreferrer"
+                >Demo <i class="fa-solid fa-link"></i
+              ></a>
+            </div>
+          </div>
+          <div class="card">
+            <img
+              src="assets/projects/adobe-wakatime.png"
+              alt="Adobe Wakatime"
+            />
+            <div class="card-content">
+              <b>Adobe Wakatime</b>
+              <p>
+                Unofficial Wakatime integration for Adobe Products (Photoshop,
+                Illustrator, After Effects, etc)
+              </p>
+            </div>
+            <div class="card-tech">
+              <span title="JavaScript"><i class="fab fa-js"></i></span>
+              <span title="Node.js"><i class="fab fa-node"></i></span>
+              <span title="Adobe Extensibility"
+                ><i class="fas fa-plug"></i
+              ></span>
+            </div>
+            <div class="card-footer">
+              <a
+                href="https://github.com/samarth163-cloud/adobe-wakatime"
+                class="source-link"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <i class="fab fa-github"></i>
+                View Source</a
+              >
+              <a
+                href="https://github.com/samarth163-cloud/adobe-wakatime?tab=readme-overview#installation"
+                class="visit-link"
+                target="_blank"
+                rel="noopener noreferrer"
+                >Visit <i class="fa-solid fa-link"></i
+              ></a>
+            </div>
+          </div>
+
+          <div class="card">
+            <img src="assets/projects/arena.png" alt="Arena" />
+            <div class="card-content">
+              <b>Arena</b>
+              <p>
+                An open-source project submission, voting, and gallery platform
+                for events like hackathons and game jams! Used by 500+ people
+                through Hack Club events, in partnership with GitHub.
+              </p>
+            </div>
+            <div class="card-tech">
+              <span title="React"><i class="fab fa-react"></i></span>
+              <span title="Node.js"><i class="fab fa-node"></i></span>
+              <span title="Database"><i class="fas fa-database"></i></span>
+            </div>
+            <div class="card-footer">
+              <a
+                href="https://github.com/samarth163-cloud/Arena"
+                class="source-link"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <i class="fab fa-github"></i>
+                View Source</a
+              >
+              <a
+                href="https://arena.hackclub.com/"
+                class="visit-link"
+                target="_blank"
+                rel="noopener noreferrer"
+                >Visit <i class="fa-solid fa-link"></i
+              ></a>
+            </div>
+          </div>
+
+          <div class="card">
+            <img src="assets/projects/nanodeck.jpg" alt="Custom Macropad" />
+            <div class="card-content">
+              <b>NanoDeck</b>
+              <p>
+                A fully custom open-source macropad! Built from scratch with a
+                custom PCB and firmware, hot-swap sockets, backlights, and a
+                3D-printed case.
+              </p>
+            </div>
+            <div class="card-tech">
+              <span title="Microcontroller"
+                ><i class="fas fa-microchip"></i
+              ></span>
+              <span title="Python / KMK"><i class="fab fa-python"></i></span>
+              <span title="Hardware"><i class="fas fa-bolt"></i></span>
+            </div>
+            <div class="card-footer">
+              <a
+                href="https://github.com/samarth163-cloud/hackpad/tree/main/hackpads/Nano_Deck"
+                class="source-link"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <i class="fab fa-github"></i>
+                View Source</a
+              >
+              <a
+                href="https://github.com/samarth163-cloud/hackpad/tree/main/hackpads/Nano_Deck"
+                class="visit-link"
+                target="_blank"
+                rel="noopener noreferrer"
+                >Visit <i class="fa-solid fa-link"></i
+              ></a>
+            </div>
+          </div>
+          <div class="card">
+            <img src="assets/projects/hackamon.png" alt="Hackamon" />
+            <div class="card-content">
+              <b>Hackamon</b>
+              <p>
+                An open-source Tamagotchi OS built completely from scratch!
+                Designed to work on a Raspberry Pi Pico. All the artwork is also
+                done by me!
+              </p>
+            </div>
+            <div class="card-tech">
+              <span title="Python"><i class="fab fa-python"></i></span>
+              <span title="Raspberry Pi"
+                ><i class="fab fa-raspberry-pi"></i
+              ></span>
+              <span title="Game Development"
+                ><i class="fas fa-gamepad"></i
+              ></span>
+            </div>
+            <div class="card-footer">
+              <a
+                href="https://github.com/samarth163-cloud/Hackamon"
+                class="source-link"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <i class="fab fa-github"></i>
+                View Source</a
+              >
+              <a
+                href="https://cloud-ny2cxzjoa-hack-club-bot.vercel.app/0hackamon_demo.mp4"
+                class="visit-link"
+                target="_blank"
+                rel="noopener noreferrer"
+                >Demo <i class="fa-solid fa-link"></i
+              ></a>
+            </div>
+          </div>
+          <div class="card">
+            <img src="assets/projects/deeplinker.png" alt="deeplinker" />
+            <div class="card-content">
+              <b>deeplinker</b>
+              <p>
+                A self-hosted deep-link generator for your Socials/Instagram
+                bio, with a private analytics dashboard.
+              </p>
+            </div>
+            <div class="card-tech">
+              <span title="Database"><i class="fas fa-database"></i></span>
+              <span title="React"><i class="fab fa-react"></i></span>
+              <span title="Self-host"><i class="fas fa-server"></i></span>
+            </div>
+            <div class="card-footer">
+              <a
+                href="https://github.com/samarth163-cloud/deeplinker"
+                class="source-link"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <i class="fab fa-github"></i>
+                View Source</a
+              >
+              <a
+                href="https://youtube.com/l/youtube"
+                class="visit-link"
+                target="_blank"
+                rel="noopener noreferrer"
+                >deeplink <i class="fa-solid fa-link"></i
+              ></a>
+            </div>
+          </div>
+          <div class="card">
+            <img
+              src="assets/projects/hack-club-stickers-manager.png"
+              alt="Hack Club Stickers Manager"
+            />
+            <div class="card-content">
+              <b>Hack Club Stickers Manager</b>
+              <p>
+                Manage your Hack Club stickers collection, and share it with
+                others. Used by 150+ Hack Club members!
+                <!--<br>-->
+                My
+                <a
+                  href="https://stickers.hackclub.com"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  >collection</a
+                >!
+              </p>
+            </div>
+            <div class="card-tech">
+              <span title="React"><i class="fab fa-react"></i></span>
+              <span title="Node.js"><i class="fab fa-node"></i></span>
+              <span title="Database"><i class="fas fa-database"></i></span>
+            </div>
+            <div class="card-footer">
+              <a
+                href="https://github.com/samarth163-cloud/HC-Stickers-Manager"
+                class="source-link"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <i class="fab fa-github"></i>
+                View Source</a
+              >
+              <a
+                href="https://stickers.hackclub.com/"
+                class="visit-link"
+                target="_blank"
+                rel="noopener noreferrer"
+                >Visit <i class="fa-solid fa-link"></i
+              ></a>
+            </div>
+          </div>
+          <!--
+          <div class="card">
+            <img
+              src="https://cloud-p8pfb3894-hack-club-bot.vercel.app/0dashboard.png"
+              alt="Namaz Tracker"
+            />
+            <div class="card-content">
+              <b>Namaz Tracker</b>
+              <p>A tool to track your daily prayers and progress.</p>
+            </div>
+            <div class="card-footer">
+<a
+                href="https://github.com/samarth163-cloud/Namaz-Tracker"
+                class="source-link"
+                target="_blank" rel="noopener noreferrer"
+              >
+                <i class="fab fa-github"></i>
+                View Source</a
+              >
+<a
+                href="https://github.com/samarth163-cloud/"
+                class="visit-link"
+                target="_blank" rel="noopener noreferrer"
+                >Visit <i class="fa-solid fa-link"></i
+              ></a>
+            </div>
+          </div>
+          -->
+          <div class="card">
+            <img src="assets/projects/unitease.png" alt="UnitEase" />
+            <div class="card-content">
+              <b>UnitEase</b>
+              <p>An open-source npm package for unit conversion.</p>
+            </div>
+            <div class="card-tech">
+              <span title="JavaScript"><i class="fab fa-js"></i></span>
+              <span title="Node.js"><i class="fab fa-node"></i></span>
+              <span title="npm"><i class="fab fa-npm"></i></span>
+            </div>
+            <div class="card-footer">
+              <a
+                href="https://github.com/samarth163-cloud/UnitEase"
+                class="source-link"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <i class="fab fa-github"></i>
+                View Source</a
+              >
+              <a
+                href="https://www.npmjs.com/package/unitease"
+                class="visit-link"
+                target="_blank"
+                rel="noopener noreferrer"
+                >Visit <i class="fa-solid fa-link"></i
+              ></a>
+            </div>
+          </div>
+          <div class="card">
+            <img
+              src="assets/projects/terminal-portfolio.png"
+              alt="Terminal Portfolio"
+            />
+            <div class="card-content">
+              <b>Terminal Portfolio</b>
+              <p>ssh samarth@hackclub.app</p>
+            </div>
+            <div class="card-tech">
+              <span title="Terminal"><i class="fas fa-terminal"></i></span>
+              <span title="Linux"><i class="fab fa-linux"></i></span>
+              <span title="SSH"><i class="fas fa-network-wired"></i></span>
+            </div>
+            <div class="card-footer">
+              <a
+                href="https://github.com/samarth163-cloud/Samarthhh/blob/main/portfolio.sh"
+                class="source-link"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <i class="fab fa-github"></i>
+                View Source</a
+              >
+            </div>
+          </div>
+        </div>
+      </section>
+
+
+
+      <section id="blog">
+        <div class="section-heading-column">
+          <h2>Blog</h2>
+          <a
+            href="/blog/"
+            class="view-all-link"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            View all posts
+            <i class="fa-solid fa-arrow-up-right-from-square"></i>
+          </a>
+        </div>
+        <div class="blog-cards">
+          <article class="blog-card">
+            <a
+              href="/blog/i-made-a-custom-raspberry-pi-camera/"
+              class="blog-card-link"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Read I Made a Custom Raspberry Pi Camera - Journal: PiShot"
+            >
+              <img
+                src="assets/blog/i-made-a-custom-raspberry-pi-camera.png"
+                alt="Partially assembled PiShot Raspberry Pi camera"
+              />
+              <div class="blog-card-content">
+                <p class="blog-date">February 20, 2026</p>
+                <h3>I Made a Custom Raspberry Pi Camera - Journal: PiShot</h3>
+                <p>RPi Zero 2W, camera module, &amp; custom 3D-printed case.</p>
+                <div class="blog-tags" aria-label="Post tags">
+                  <span>hardware</span>
+                  <span>raspberry pi</span>
+                  <span>camera</span>
+                </div>
+                <span class="read-post-link">
+                  Read post <i class="fa-solid fa-arrow-right"></i>
+                </span>
+              </div>
+            </a>
+          </article>
+          <article class="blog-card">
+            <a
+              href="/blog/how-i-won-my-first-game-jam/"
+              class="blog-card-link"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Read How I Won My First Game Jam"
+            >
+              <img
+                src="assets/blog/how-i-won-my-first-game-jam.png"
+                alt="Arcade game jam poster for How I Won My First Game Jam"
+              />
+              <div class="blog-card-content">
+                <p class="blog-date">November 29, 2025</p>
+                <h3>How I Won My First Game Jam</h3>
+                <p>And won with a bad game!</p>
+                <div class="blog-tags" aria-label="Post tags">
+                  <span>gamedev</span>
+                  <span>unity</span>
+                  <span>gamejam</span>
+                </div>
+                <span class="read-post-link">
+                  Read post <i class="fa-solid fa-arrow-right"></i>
+                </span>
+              </div>
+            </a>
+          </article>
+        </div>
+      </section>
+    </section>
+
+    <div class="cursor"></div>
+    <div class="cursor2"></div>
+
+    <script src="script.js"></script>
+    <script src="data-sync.js"></script>
+    <footer>
+      <p>&copy; 2024 - 2026 <b>Samarth Haveliwala</b>. All rights reserved.</p>
+
+      <a
+        href="https://github.com/samarth163-cloud/Samarthhh"
+        class="source-link"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        <i class="fab fa-github"></i>
+        like all my projects, this website is open source.</a
+      >
+    </footer>
+  </body>
+</html>

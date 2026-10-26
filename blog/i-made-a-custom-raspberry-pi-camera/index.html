@@ -1,0 +1,160 @@
+<!DOCTYPE html><html lang="en" data-astro-cid-bvzihdzo> <head><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"><!-- Global Metadata --><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="icon" type="image/svg+xml" href="/favicon.svg"><link rel="sitemap" href="/sitemap-index.xml"><link rel="alternate" type="application/rss+xml" title="Samarth" href="/rss.xml"><meta name="generator" content="Astro v5.16.0"><!-- Font preloads --><link rel="preload" href="/fonts/atkinson-regular.woff" as="font" type="font/woff" crossorigin><link rel="preload" href="/fonts/atkinson-bold.woff" as="font" type="font/woff" crossorigin><!-- Canonical URL --><link rel="canonical" href="/blog/i-made-a-custom-raspberry-pi-camera/"><!-- Primary Meta Tags --><title>I Made a Custom Raspberry Pi Camera - Journal: PiShot</title><meta name="title" content="I Made a Custom Raspberry Pi Camera - Journal: PiShot"><meta name="description" content="RPi Zero 2W, camera module, &#38; custom 3D-printed case."><!-- Open Graph Meta Tags --><meta property="og:image" content="/blog/i-made-a-custom-raspberry-pi-camera/og.png"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta property="og:type" content="article"><!-- Open Graph / Facebook --><meta property="og:type" content="website"><meta property="og:url" content="/blog/i-made-a-custom-raspberry-pi-camera/"><meta property="og:title" content="I Made a Custom Raspberry Pi Camera - Journal: PiShot"><meta property="og:description" content="RPi Zero 2W, camera module, &#38; custom 3D-printed case."><meta property="og:image" content="/blog/_astro/blog-placeholder-2.1WQRLJGH.jpg"><!-- Twitter --><meta property="twitter:card" content="summary_large_image"><meta property="twitter:url" content="/blog/i-made-a-custom-raspberry-pi-camera/"><meta property="twitter:title" content="I Made a Custom Raspberry Pi Camera - Journal: PiShot"><meta property="twitter:description" content="RPi Zero 2W, camera module, &#38; custom 3D-printed case."><meta property="twitter:image" content="/blog/_astro/blog-placeholder-2.1WQRLJGH.jpg"><!-- RSS Feed --><link rel="alternate" type="application/rss+xml" title="Samarth" href="/rss.xml"><!-- Umami Analytics --><script defer src="https://cloud.umami.is/script.js" data-website-id="d085010b-9020-4623-8650-7c7d46decbdf"></script><link rel="stylesheet" href="/blog/_astro/index.Caa4IdcK.css">
+<style>main[data-astro-cid-bvzihdzo]{width:calc(100% - 2em);max-width:100%;margin:0}.hero-image[data-astro-cid-bvzihdzo]{width:60%;margin:0 auto}.hero-image[data-astro-cid-bvzihdzo] img[data-astro-cid-bvzihdzo]{display:block;margin:0 auto;border-radius:12px;width:100%;height:auto}.prose[data-astro-cid-bvzihdzo]{width:720px;max-width:calc(100% - 2em);margin:auto;padding:1em;color:rgb(var(--gray-dark))}.title[data-astro-cid-bvzihdzo]{margin-bottom:1em;padding:1em 0;text-align:center;line-height:1}.title[data-astro-cid-bvzihdzo] h1[data-astro-cid-bvzihdzo]{margin:0 0 .5em}.date[data-astro-cid-bvzihdzo]{margin-bottom:.5em;color:rgb(var(--gray))}.last-updated-on[data-astro-cid-bvzihdzo]{font-style:italic}.post-tags[data-astro-cid-bvzihdzo]{display:flex;flex-wrap:wrap;gap:.8rem;justify-content:center;margin:1rem 0}.tag[data-astro-cid-bvzihdzo]{background:var(--overlay-bg-color);padding:.4rem .9rem;border-radius:.75rem;font-size:.85rem;color:var(--text-color);transition:all .3s ease}.tag[data-astro-cid-bvzihdzo]:hover{background:var(--link-color);color:var(--bg-color);transform:translateY(-1px)}.readingTime[data-astro-cid-bvzihdzo]{display:inline-block;margin:.75rem 0 1rem;padding:.35rem .75rem;border:1px solid var(--link-color);border-radius:999px;color:var(--link-color);font-size:.8rem;font-weight:700;letter-spacing:.02em}
+</style></head> <body data-astro-cid-bvzihdzo> <!-- Header Container --><div class="header-container" data-astro-cid-3ef6ksr2> <!-- Name in Top Left --> <div class="site-name" data-astro-cid-3ef6ksr2> <a href="/" data-astro-cid-3ef6ksr2>Samarth</a> </div> <!-- Dark Mode Toggle in Top Right --> <div id="darkmode-toggle-id" class="darkmode-toggle" aria-label="Toggle dark mode" data-astro-cid-3ef6ksr2> <i class="far fa-sun light-icon" data-astro-cid-3ef6ksr2></i> <i class="far fa-moon dark-icon" data-astro-cid-3ef6ksr2></i> </div> <!-- Navigation Menu --> <nav class="menu" data-astro-cid-3ef6ksr2> <ul data-astro-cid-3ef6ksr2> <li data-astro-cid-3ef6ksr2><a href="/" data-astro-cid-3ef6ksr2="true" data-astro-cid-eimmu3lg> Home </a> </li> <li data-astro-cid-3ef6ksr2><a href="/#about-me" data-astro-cid-3ef6ksr2="true" data-astro-cid-eimmu3lg> About </a> </li> <li data-astro-cid-3ef6ksr2><a href="/blog" data-astro-cid-3ef6ksr2="true" data-astro-cid-eimmu3lg> Blog </a> </li> <li data-astro-cid-3ef6ksr2><a href="/#portfolio" data-astro-cid-3ef6ksr2="true" data-astro-cid-eimmu3lg> Projects </a> </li> </ul> </nav> </div> <!-- Dark Mode Script --> <script type="module">const t=document.getElementById("darkmode-toggle-id");localStorage.getItem("theme")||localStorage.setItem("theme","dark");const m=localStorage.getItem("theme")||"dark";document.documentElement.setAttribute("data-theme",m);t?.addEventListener("click",()=>{const e=document.documentElement.getAttribute("data-theme")==="dark"?"light":"dark";document.documentElement.setAttribute("data-theme",e),localStorage.setItem("theme",e)});</script>  <main data-astro-cid-bvzihdzo> <article data-astro-cid-bvzihdzo> <div class="hero-image" data-astro-cid-bvzihdzo> <img src="/blog/_astro/camera-pishot-half-built.DCzzKOru_Z8FBNC.webp" alt data-astro-cid-bvzihdzo="true" loading="lazy" decoding="async" fetchpriority="auto" width="1020" height="510"> </div> <div class="prose" data-astro-cid-bvzihdzo> <div class="title" data-astro-cid-bvzihdzo> <div class="date" data-astro-cid-bvzihdzo> <time datetime="2026-02-20T00:00:00.000Z"> Feb 20, 2026 </time>  </div> <h1 data-astro-cid-bvzihdzo>I Made a Custom Raspberry Pi Camera - Journal: PiShot</h1>  <div class="post-tags" data-astro-cid-bvzihdzo> <span class="tag" data-astro-cid-bvzihdzo>hardware</span><span class="tag" data-astro-cid-bvzihdzo>raspberry pi</span><span class="tag" data-astro-cid-bvzihdzo>camera</span> </div> <div class="readingTime" data-astro-cid-bvzihdzo>12 min read</div> <hr data-astro-cid-bvzihdzo> </div>  <p>This is my complete journey of making a custom Raspberry Pi camera: <strong>PiShot</strong>.</p>
+<p>I made it with a Raspberry Pi Zero 2 W, a Pi camera module, and a custom 3D-printed case.</p>
+<p>This project is <strong>open-source</strong>, and you can check it out <strong><a href="https://github.com/samarth163-cloud/PiShot">here</a></strong>!</p>
+<p>I also made a showcase <strong><a href="https://www.youtube.com/watch?v=gf-RIgXnWJM">video</a></strong> for it!</p>
+<h3 id="total-time-spent-435-hours"><strong>Total time spent: ~43.5 hours!</strong></h3>
+<hr/>
+<h1 id="design--firmware">Design + Firmware</h1>
+<p><strong>Time spent on design: ~19 hours</strong></p>
+<h2 id="july-25th-research--wiring-diagram">July 25th: Research + Wiring Diagram</h2>
+<p>The plan is to make a Camera with a custom 3D case (with a tripod, grip, and viewfinder), using the Raspberry Pi Zero 2W, and the Pi camera module 3, and the ST7789 LCD, that stores the photos on an SD card, and you can view the last photo (and explore all the shoots) on the display!! It will be in the Cyber-shot form factor!!</p>
+<p>Started by looking up all the different Pi Camera modules and comparing their results! Settled on the Camera module 3, as it has auto focus! I will be using the Pi Zero 2W as the MCU, as it is the lowest-performance MCU that supports the camera.
+Then I made a list of all the components I would need! I decided to go with a 1500mAh 3.7V LiPo battery with an MT3608 boost converter, and a TP4056 module (with protection) to charge it! (At first, I was considering a power bank or an 18650 cell, but those are too bulky!)
+For the display, I will be using the ST7789 TFT-LCD. And a metal momentary push button (similar to <a href="https://www.adafruit.com/product/558">this</a>, but without the LED ring!) for the shutter button! And I will also place an SPDT slide switch to turn it on and off!</p>
+<p>I decided that I won’t be using a PCB, so it’s easier to place all the components in the case. So I will make a wiring diagram instead! Thus, I opened up <a href="https://app.cirkitdesigner.com/">Cirkit Designer</a>, and got to work!! <a href="https://app.cirkitdesigner.com/project/cb34b867-8320-4c2c-972f-24cbd0726ab1">This</a> is what I came up with!</p>
+<img width="1200" height="800" alt="circuit_image (1)" src="/blog/_astro/wiring-diagram.B68tWsSI.png"/>
+<p><strong>Total time spent: 3.5 hours</strong></p>
+<h2 id="july-26th-started-3d-case-design">July 26th: Started 3D Case Design</h2>
+<p>I began by finding and downloading 3D models of all the components I would be using. This process took a significant amount of time, as I had to search extensively to locate every part! After that, I started designing the case in Shapr3D on my iPad. I first created a rectangular base for the body, including a removable back. Next, I added a square hole in the centre for the camera module, and a hole at the top for the shutter button. The challenging part was designing a grip that could slide into the case and be removed easily. Developing the sliding mechanism took quite a while, but I think it turned out pretty cool!</p>
+<div style="display: flex; gap: 1rem; margin: 2rem 0; align-items: stretch; justify-content: left; flex-wrap: wrap;"><img width="284" height="428" alt="image" src="/blog/_astro/case-base.DkF-F2og.png" style="height: 320px; width: auto; max-width: 100%; border-radius: 4px;"/><img width="606" height="428" alt="image" src="/blog/_astro/case-grip.Bjc-qaEY.png" style="height: 320px; width: auto; max-width: 100%; border-radius: 4px;"/></div>
+<p>I began by placing each component into the interior of the case, ensuring that they were properly secured. I created holes on the sides and bottom for the SD card and the USB port of the Raspberry Pi. I also made an opening in the back cover for the LCD screen and added supports for all the components. However, I did not create a hole for the USB-C port, as I was still unsure about where to place it.</p>
+<div style="display: flex; flex-direction: column; gap: 1rem; margin: 2rem 0;"><div style="display: flex; gap: 1rem; align-items: stretch; justify-content: left; flex-wrap: wrap;"><img width="520" height="385" alt="image" src="/blog/_astro/case-interior-front.1CtPVLev.png" style="height: 256px; width: auto; max-width: 100%; border-radius: 4px;"/><img width="474" height="385" alt="image" src="/blog/_astro/case-interior-back.C0TL2l69.png" style="height: 256px; width: auto; max-width: 100%; border-radius: 4px;"/></div><div style="display: flex; gap: 1rem; align-items: stretch; justify-content: left; flex-wrap: wrap;"><img width="520" height="425" alt="image" src="/blog/_astro/case-interior-bottom.DT0Csc8Q.png" style="height: 280px; width: auto; max-width: 100%; border-radius: 4px;"/><img width="478" height="425" alt="image" src="/blog/_astro/case-interior-top.BoPTjcLH.png" style="height: 280px; width: auto; max-width: 100%; border-radius: 4px;"/></div></div>
+<p><strong>Total time spent: 7 hours</strong></p>
+<h2 id="july-27th-buttons--usb-c-port--tp4056-supports">July 27th: Buttons + USB C Port + TP4056 Supports</h2>
+<p>Looked through the datasheet for <a href="https://tech.alpsalpine.com/e/products/detail/SKRGAED010/">these</a> circle micro pushbuttons and noted their size, then made a cool to-size slot for them in the case!</p>
+<div style="display: flex; gap: 1rem; margin: 2rem 0; align-items: stretch; justify-content: left; flex-wrap: wrap;"><img width="464" height="454" alt="image" src="/blog/_astro/button-slot.D0ZGxyRr.png" style="height: 165px; width: auto; max-width: 100%; border-radius: 4px;"/><img width="470" height="364" alt="image" src="/blog/_astro/button-side.7E3a6ePB.png" style="height: 165px; width: auto; max-width: 100%; border-radius: 4px;"/><img width="478" height="293" alt="image" src="/blog/_astro/button-detail.CGkRLHzP.png" style="height: 165px; width: auto; max-width: 100%; border-radius: 4px;"/></div>
+<p>Then, I also made a slot for the USB-C port, and some supports for the TP4056!</p>
+<div style="display: flex; gap: 1rem; margin: 2rem 0; align-items: stretch; justify-content: left; flex-wrap: wrap;"><img width="513" height="300" alt="image" src="/blog/_astro/usb-c-port.bCmVvzRq.png" style="height: 210px; width: auto; max-width: 100%; border-radius: 4px;"/><img width="564" height="399" alt="image" src="/blog/_astro/tp4056-supports.BVHKi9Y5.png" style="height: 210px; width: auto; max-width: 100%; border-radius: 4px;"/></div>
+<p><strong>Total time spent: 2 hours</strong></p>
+<h2 id="july-28th-tripod--viewfinder">July 28th: Tripod + Viewfinder</h2>
+<p>Inspired by the removable Sony viewfinder, I also decided to make one too! It will also have a sliding mechanism like the grip! I started by making an extrusion and adding the sliding mechanism, then I made a separate rectangle body, with a rectangle hole in the middle (this will be the viewfinder). I then fillet/chamfered it to look more trapezium-ish, like a real viewfinder. And finally, I also added some nice rounded supports to rest the eye on! These were the final results!!</p>
+<div style="display: flex; gap: 1rem; margin: 2rem 0; align-items: stretch; justify-content: left; flex-wrap: wrap;"><img width="264" height="202" alt="image" src="/blog/_astro/viewfinder-front.DufWb3hr.png" style="height: 260px; width: auto; max-width: 100%; border-radius: 4px;"/><img width="304" height="248" alt="image" src="/blog/_astro/viewfinder-side.B2HEmQWn.png" style="height: 260px; width: auto; max-width: 100%; border-radius: 4px;"/></div>
+<p>Then I thought about adding support for standard tripods! And, of course, I think the sliding mechanism is super cool, so I built another bit of it on the bottom of the case, and then made a cube with a screw hole in it! Thankfully, I discovered Shapr3D’s subtract tool, or I don’t think I could have ever made the screw curve paths!! And finally rounded off the edges to make it look more polished!</p>
+<img width="306" height="255" alt="image" src="/blog/_astro/tripod-mount.DPrDdf8H.png"/>
+<p>Then I remembered I had forgotten to add space for the SPDT On/Off switch, so I added that!</p>
+<img width="145" height="97" alt="image" src="/blog/_astro/power-switch.DTA1EaKM.png"/>
+<p><strong>Total time spent: 3 hours</strong></p>
+<h2 id="july-29th-finished-design">July 29th: Finished Design</h2>
+<p>The only thing left now was some final polishing- wait, I forgot to make space for a rechargeable battery!! So I imported a model of an 18650 cell, and tried to make space for it! But I couldn’t :(. So finally I split my case (front, back, grip, everything) into two parts, increased its height by 5mm, and then joined it once again! So now my case was 5mm taller, and I could fit the battery inside too! And then I had to move around all the slots like front buttons, screen, camera hole, etc, around to centre them again and make them look nice!</p>
+<div style="display: flex; flex-direction: column; gap: 1rem; margin: 2rem 0;"><div style="display: flex; gap: 1rem; align-items: stretch; justify-content: left; flex-wrap: wrap;"><img width="430" height="379" alt="image" src="/blog/_astro/battery-space.DUsZwZIt.png" style="height: 310px; width: auto; max-width: 100%; border-radius: 4px;"/><img width="382" height="379" alt="image" src="/blog/_astro/resized-case.B59xNuc3.png" style="height: 310px; width: auto; max-width: 100%; border-radius: 4px;"/></div><div style="display: flex; gap: 1rem; align-items: stretch; justify-content: flex-start; flex-wrap: wrap;"><img width="468" height="442" alt="image" src="/blog/_astro/repositioned-front.C8Mc26Ig.png" style="height: 313px; width: auto; max-width: 100%; border-radius: 4px;"/><img width="514" height="442" alt="image" src="/blog/_astro/repositioned-back.BlfAy7Lk.png" style="height: 313px; width: auto; max-width: 100%; border-radius: 4px;"/></div></div>
+<p>And then I also added some text to the front of the camera, for <em>personalisation</em>!</p>
+<img width="398" height="277" alt="image" src="/blog/_astro/front-personalization.tLwTEhwO.png"/>
+<p>Final 3D design!!</p>
+<div style="display: flex; gap: 1rem; margin: 2rem 0; align-items: stretch; justify-content: left; flex-wrap: wrap;"><img width="474" height="407" alt="image" src="/blog/_astro/final-design-front.DpB6tOCD.png" style="height: 310px; width: auto; max-width: 100%; border-radius: 4px;"/><img width="420" height="407" alt="image" src="/blog/_astro/final-design-back.PivAdFch.png" style="height: 310px; width: auto; max-width: 100%; border-radius: 4px;"/></div>
+<p><strong>Total time spent: 2.5 hours</strong></p>
+<h2 id="july-30th-made-firmware">July 30th: Made Firmware</h2>
+<p>Got to work on coding the firmware for the Pi! I have never before used a Pi Zero 2w, but it was super easy to code for it because, well, it’s a full Linux computer! So no flashing or stuff, I just have to make a Python file and add it to run on boot!</p>
+<p>Right now, I randomly assigned the GPIO pins in the code because I don’t know what pin I might end up using for what. The script <del>should</del> will: display a splash screen, wait for shutter button press, capture image from camera, and save it to SD card with a timestamped filename!</p>
+<p><strong>Total time spent: 1 hour</strong></p>
+<h1 id="irl-building">IRL Building!!</h1>
+<p><strong>Time spent on soldering/building: ~24.5 hours</strong></p>
+<h2 id="august-20th-finished-building-prototype">August 20th: Finished Building Prototype</h2>
+<p>All of the parts arrived today except for the Pi Zero W camera ribbon cable and the 3D case. So I decided to start and make a breadboard prototype to make sure everything works, and also just to make everything with the camera functionality, so I only need to connect the camera when the cable arrives!</p>
+<p>First, I flashed an SD card with Pi OS, with SSH enabled, and put that into the Pi Zero 2W! Then I SSHed into it! And it was really fun! I might even have got lost playing with all the different settings and testing out the different RPi features like RPi connect c:! The interface was interesting! Then I used nano for the first time to code, and it was pretty easy to use after learning the shortcuts (though selection is pretty hard).</p>
+<img width="1978" height="1088" alt="WindowsTerminal_ovPsQCGSl1" src="/blog/_astro/prototype-terminal.BYbs_4ZI.png"/>
+<p>After that, I looked up the pin layout for the Pi Zero 2 W, attached my shutter and pushbuttons, and my OLED. The buttons worked fine, but it took a lot of time to make the LED work! And after a lot of going back and forth, debugging the LED, I found out that it was not a 128x64 SSD1306, but a 132x64 SH1106. So I downloaded its libraries, updated my code, and it started working!</p>
+<p>Then I brought out my soldering iron and got to work soldering the power components! I think everything was correctly set up, but I didn’t connect it to the Pi just yet, because I don’t know what output voltage the MT3608 is set to, as I don’t have a multimeter, and don’t want to fry my Pi Zero 2 W.</p>
+<p>Now I just have to wait for the Pi Zero 2 W camera ribbon cable to arrive!!</p>
+<p><strong>Total time spent: 4.5 hours</strong></p>
+<hr/>
+<p><em>The parts took a lot of time to arrive, so I didn’t get to work on the project for a while. But now that they have arrived, I can finally continue working on it! So <strong>6 months later…</strong></em></p>
+<hr/>
+<h2 id="february-7th-case-revisions">February 7th: Case Revisions</h2>
+<p>Worked on the case again! Improved the sliding mechanism, and took tolerance into account this time so it wouldn’t be so tight. Also added little holes on each side of the case for a lanyard/keychain!</p>
+<img alt="Keychain holes on the case" src="/blog/_astro/case-keychain-holes.bgq2G1MM.png" style="width: 100%; max-width: 500px; height: auto;"/>
+<p>And updated all the text planes, going for 0.2mm minimum extrusions and
+intrusions this time!</p>
+<div style="display: flex; gap: 1rem; margin: 2rem 0; align-items: stretch; justify-content: left; flex-wrap: wrap;"><img alt="Case text plane detail" src="/blog/_astro/case-text-plane-detail.BXMPnJb5.png" style="height: 290px; width: auto; max-width: 100%; border-radius: 4px;"/><img alt="Case text plane detail 2" src="/blog/_astro/case-text-plane-detail-2.B3pm8L7T.png" style="height: 290px; width: auto; max-width: 100%; border-radius: 4px;"/></div>
+<p><strong>Total time spent: 2 hours</strong></p>
+<h2 id="february-9th-first-breadboard-prototype">February 9th: First Breadboard Prototype</h2>
+<p>Got out all the components I would need and made a basic breadboard prototype! Ran the Python script on the Pi, and it worked!</p>
+<img alt="Breadboard prototype" src="/blog/_astro/breadboard-prototype.KEILC1t_.jpg" style="width: 100%; max-width: 500px; height: auto;"/>
+<p>I didn’t include the LiPo and the charging module for this — it’s directly
+powered through USB for now. Will wire that up next! Here are some pictures I
+took with the camera:</p>
+<div style="display: flex; gap: 1rem; margin: 2rem 0; align-items: stretch; justify-content: left; flex-wrap: wrap;"><img alt="Test photo from the prototype" src="/blog/_astro/prototype-test-photo.DalMUXk6.jpg" style="height: 250px; width: auto; max-width: 100%; border-radius: 4px;"/><img alt="Test photo from the prototype 2" src="/blog/_astro/prototype-test-photo-2.GO2m-FDQ.png" style="height: 250px; width: auto; max-width: 100%; border-radius: 4px;"/></div>
+<p>Now I am going to solder it all together, and wire the power components next!</p>
+<p><strong>Total time spent: 4 hours</strong></p>
+<h2 id="february-9th-later-charging-module-wont-cooperate">February 9th (later): Charging Module Won’t Cooperate</h2>
+<p>Soldered the LiPo to the TP4056, and that to the boost converter (MT3608), but it doesn’t work. Tested both modules with a multimeter, but I can’t read any voltage. The LiPo is charged, so I think the TP4056 might be defective. Also tried powering the charging module with a USB cable, but it doesn’t light up. Even tried replacing it with another one (I bought 2 TP4056s from the same place), but that one also doesn’t work.</p>
+<img alt="Non-working TP4056 setup" src="/blog/_astro/non-working-tp4056.hmYLstdN.png" style="width: 100%; max-width: 500px; height: auto;"/>
+<p>Ordered new ones and will wait for them to arrive. That’s it for today, will
+assemble the camera without the power bit tomorrow, or work on the case instead!</p>
+<p><strong>Total time spent: 2.5 hours</strong></p>
+<h2 id="february-12th-rebuilding-the-power-circuit">February 12th: Rebuilding the Power Circuit</h2>
+<p>Finally got the new TP4056 and MT3608 modules delivered today! Removed all the solder and wires from the previous components, and wired the new TP4056!</p>
+<img alt="New TP4056 wired up" src="/blog/_astro/new-tp4056-wired.Bf7WhP9a.png" style="width: 100%; max-width: 500px; height: auto;"/>
+<p>And it worked!</p>
+<img alt="Working TP4056" src="/blog/_astro/working-tp4056.CDGlXwAn.png" style="width: 30%; max-width: 500px; height: auto;"/>
+<p>However, when I moved the components around to test the MT3608 boost converter,
+all of the wires came apart. So I started from scratch again, this time using
+some longer wires (cut up from some jumper wires I had).</p>
+<img alt="Rewired with longer jumper wires" src="/blog/_astro/rewired-longer-jumpers.CrZD9ljN.png" style="width: 100%; max-width: 500px; height: auto;"/>
+<p>This time, the solder held! So I brought out my multimeter to set the boost
+converter to the right voltage (5.1V for the Pi). But it refused to go above 4V,
+no matter how much I rotated the potentiometer.</p>
+<img alt="Multimeter reading below 4V" src="/blog/_astro/multimeter-below-4v.DNYCMQbb.png" style="width: 100%; max-width: 500px; height: auto;"/>
+<p>So I decided to replace the MT3608 with a new one, testing it before soldering
+this time, and it showed a greater voltage. Completed wiring it all together,
+and successfully set it to 5.1V!!</p>
+<img alt="Boost converter set to 5.1V" src="/blog/_astro/boost-converter-5-1v.CRNi9FzQ.png" style="width: 100%; max-width: 500px; height: auto;"/>
+<p>Also added a switch between the TP4056 and MT3608, which will act as the main
+power switch for the camera!! Next, I’m going to wire this module to the Pi Zero
+2W, and hopefully it will work!! Most of my time today was spent soldering, then
+unsoldering, then resoldering — I’m starting to hate soldering 😭!</p>
+<p><strong>Total time spent: 4 hours</strong></p>
+<h2 id="february-16th-revising-the-case-after-the-first-print">February 16th: Revising the Case After the First Print</h2>
+<p>Printed the 3D models I had made!</p>
+<div style="display: flex; gap: 1rem; margin: 2rem 0; align-items: stretch; justify-content: left; flex-wrap: wrap;"><img alt="First printed case parts" src="/blog/_astro/first-printed-case-parts.ATEztUou.png" style="height: 188px; width: auto; max-width: 100%; border-radius: 4px;"/><img alt="First printed case parts 2" src="/blog/_astro/first-printed-case-parts-2.GBtS3V3W.png" style="height: 188px; width: auto; max-width: 100%; border-radius: 4px;"/></div>
+<p>The sliding mechanisms for the viewfinder and grip worked, but were a bit tight,
+so I decided to sand them. Tried fitting all the components inside, but sadly
+the LiPo is a bit big, and the Pi Zero 2W and camera module don’t fit perfectly
+in their slots. So I took some measurements (with a ruler — I don’t have a
+calliper) and edited the 3D models!</p>
+<p>First, I increased the depth, to make some
+space for wires and stuff.</p>
+<img alt="Increased case depth" src="/blog/_astro/increased-case-depth.C485h9nL.png" style="width: 100%; max-width: 500px; height: auto;"/>
+<p>Then I reduced the size of the sliding mechanism to make it work without
+sanding, since I was printing another revision anyway.</p>
+<img alt="Revised sliding mechanism" src="/blog/_astro/revised-sliding-mechanism.DHYZHGTa.png" style="width: 100%; max-width: 500px; height: auto;"/>
+<p>I also increased the size of the keychain holes, because they were too small.</p>
+<img alt="Larger keychain holes" src="/blog/_astro/larger-keychain-holes.DijKSM6D.png" style="width: 100%; max-width: 500px; height: auto;"/>
+<p>Made sure only the main body was affected by these changes, and not any of the
+attachable stuff, so I won’t have to reprint that. Now time to wait for the new
+print!!</p>
+<p><strong>Total time spent: 2.5 hours</strong></p>
+<h2 id="february-20th-everything-fits-in-the-new-case">February 20th: Everything Fits in the New Case</h2>
+<p>Printed the new case!! Also, the bits I had soldered seemed to be coming off, so I taped them down with electrical tape too.</p>
+<img alt="Soldered joints reinforced with electrical tape" src="/blog/_astro/electrical-tape-reinforcement.S1UWt-Rg.png" style="width: 100%; max-width: 500px; height: auto;"/>
+<p>Then I started placing everything in the new case! (And used some tape to hold
+stuff down.)</p>
+<img alt="Placing components in the new case" src="/blog/_astro/placing-components.BZPVGCHa.png" style="width: 100%; max-width: 500px; height: auto;"/>
+<p>And everything fit perfectly! The shutter button even screwed into place.</p>
+<div style="display: flex; gap: 1rem; margin: 2rem 0; align-items: stretch; justify-content: left; flex-wrap: wrap;"><img alt="Components fitted in the case" src="/blog/_astro/components-fitted.BAHw8uEb.png" style="height: 280px; width: auto; max-width: 100%; border-radius: 4px;"/><img alt="Shutter button screwed in place" src="/blog/_astro/shutter-button-fitted.B-qWYmrv.png" style="height: 280px; width: auto; max-width: 100%; border-radius: 4px;"/><img alt="Assembled case view" src="/blog/_astro/assembled-case-view.OEYt6dxj.png" style="height: 280px; width: auto; max-width: 100%; border-radius: 4px;"/></div>
+<p>Now I’m flashing an SD card with Pi OS for the Pi Zero 2W, since I lost the
+previous card, and then I’ll test out the camera!!</p>
+<img alt="Flashing a new SD card" src="/blog/_astro/flashing-sd-card.DmfEecsI.png" style="width: 100%; max-width: 500px; height: auto;"/>
+<p><strong>Total time spent: 2.5 hours</strong></p>
+<h2 id="february-20th-later-its-alive">February 20th (later): It’s Alive!</h2>
+<p>Flashed the SD card with Pi OS!</p>
+<img alt="Raspberry Pi Imager flashing the SD card" src="/blog/_astro/raspberry-pi-imager.Dy3BJ41Q.png" style="width: 100%; max-width: 500px; height: auto;"/>
+<p>Then I added the script, and after a bit of debugging, swapping and installing
+different libraries, the script worked!</p>
+<img alt="Terminal showing the working script" src="/blog/_astro/working-script-terminal.CtnUH1_q.png" style="width: 100%; max-width: 500px; height: auto;"/>
+<p>However, the shutter button was a bit buggy, so I also wired a small button too!</p>
+<img alt="Extra wired shutter button" src="/blog/_astro/extra-shutter-button.Cu8a4rZX.png" style="width: 100%; max-width: 500px; height: auto;"/>
+<p>And now I have my completed camera!!</p>
+<img alt="Completed PiShot camera" src="/blog/_astro/completed-pishot-camera.CvN5fvAO.png" style="width: 100%; max-width: 500px; height: auto;"/>
+<p>And it works!!! Here are some of the pictures I captured using it!!</p>
+<div style="display: flex; gap: 1rem; margin: 2rem 0; align-items: stretch; justify-content: left; flex-wrap: wrap;"><img alt="Photo taken with PiShot" src="/blog/_astro/pishot-photo-1.3Mw6nFZT.png" style="height: 210px; width: auto; max-width: 100%; border-radius: 4px;"/><img alt="Photo taken with PiShot 2" src="/blog/_astro/pishot-photo-2.CGPzJlhY.png" style="height: 210px; width: auto; max-width: 100%; border-radius: 4px;"/></div>
+<p><strong>Total time spent: 2.5 hours</strong></p>
+<hr/>
+<p>And that’s it!</p>
+<p>My completed custom Raspberry Pi camera, PiShot!</p>
+<p>It was a fun journey, and I learned a lot about 3D design, soldering, and coding for the Raspberry Pi.</p>
+<p>And btw, this project is open-source, so you can check out the source code or 3D files <strong><a href="https://github.com/samarth163-cloud/PiShot">here</a></strong>!</p>
+<p>I also made a short showcase <strong><a href="https://www.youtube.com/watch?v=gf-RIgXnWJM">video</a></strong> for the camera!</p>
+<p>I hope you enjoyed reading about my process as much as I enjoyed making it! <em>(was kind of a long read, sorry!!)</em></p>  </div> </article> </main> <footer class="site-footer" data-astro-cid-sz7xmlte> <div class="footer-content" data-astro-cid-sz7xmlte> <p class="copyright" data-astro-cid-sz7xmlte>&copy; 2026 <b data-astro-cid-sz7xmlte> <a href="/" data-astro-cid-sz7xmlte>Samarth</a>.
+</b> </p> <div class="social-links" data-astro-cid-sz7xmlte> <a href="https://github.com/samarth163-cloud" target="_blank" aria-label="GitHub" data-astro-cid-sz7xmlte> <i class="fab fa-github" data-astro-cid-sz7xmlte></i> </a> <a href="https://www.linkedin.com" target="_blank" aria-label="LinkedIn" data-astro-cid-sz7xmlte> <i class="fab fa-linkedin" data-astro-cid-sz7xmlte></i> </a> <a href="https://www.youtube.com/@DevStuff5" target="_blank" aria-label="YouTube" data-astro-cid-sz7xmlte> <i class="fab fa-youtube" data-astro-cid-sz7xmlte></i> </a> <a href="https://instagram.com" target="_blank" aria-label="Instagram" data-astro-cid-sz7xmlte> <i class="fab fa-instagram" data-astro-cid-sz7xmlte></i> </a> <a href="mailto:donsamarth163@gmail.com" target="_blank" aria-label="Email" data-astro-cid-sz7xmlte> <i class="far fa-envelope" data-astro-cid-sz7xmlte></i> </a> </div> </div> </footer>  </body></html>

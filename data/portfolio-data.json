@@ -1,0 +1,395 @@
+{
+  "general": {
+    "name": "Samarth Haveliwala",
+    "shortName": "Samarth",
+    "role": "Developer & Open Source Creator",
+    "description": "I build open-source software, games, and hardware- from custom cameras and devboards to web platforms.",
+    "ctaText": "Explore projects",
+    "ctaSubtext": "[All my work is open source]",
+    "profilePic": "assets/profile/2.jpg",
+    "socials": [
+      {
+        "name": "Instagram",
+        "url": "https://instagram.com/",
+        "icon": "fab fa-instagram"
+      },
+      {
+        "name": "YouTube",
+        "url": "https://www.youtube.com/",
+        "icon": "fab fa-youtube"
+      },
+      {
+        "name": "LinkedIn",
+        "url": "https://www.linkedin.com/",
+        "icon": "fab fa-linkedin"
+      },
+      {
+        "name": "GitHub",
+        "url": "https://github.com/",
+        "icon": "fab fa-github"
+      },
+      {
+        "name": "Itch.io",
+        "url": "https://itch.io/",
+        "icon": "fab fa-itch-io"
+      },
+      {
+        "name": "Blog",
+        "url": "/#blog",
+        "icon": "fa-solid fa-scroll"
+      },
+      {
+        "name": "Email",
+        "url": "mailto:samarth@example.com",
+        "icon": "far fa-envelope"
+      }
+    ]
+  },
+  "about": {
+    "bio": "Hi!! I am <b>Samarth</b>, a developer passionate about building software, games, and hardware. I love everything tech! When I am not coding or tinkering with electronics, I enjoy editing videos and exploring new technologies.<br /><br />I'm always happy to talk about computers and programming. Welcome to my portfolio!",
+    "hackatimeUser": "Samarth",
+    "showCodingStats": false,
+    "highlights": [
+      {
+        "id": "som",
+        "text": "Reviewed and provided feedback on over 1300 technical projects submitted by teens worldwide for <a href=\"https://summer.hackclub.com/\" target=\"_blank\" rel=\"noopener noreferrer\">Summer of Making</a>, an event by <b>Hack Club</b> and <b>GitHub</b>."
+      },
+      {
+        "id": "som-jam",
+        "text": "Hosted the <a href=\"https://hackclub.slack.com/archives/C090B3T9R9R/p1751137882759709\" target=\"_blank\" rel=\"noopener noreferrer\">SOM game jam</a> for a community of 18k+ high schoolers around the globe!"
+      },
+      {
+        "id": "borked",
+        "text": "Organised <a href=\"https://hackclub.slack.com/archives/C01D7AHKMPF/p1768063492916589\" target=\"_blank\" rel=\"noopener noreferrer\">Borked</a> (<a href=\"https://borked.hackclub.com\" target=\"_blank\" rel=\"noopener noreferrer\">site</a>), a <s>game</s> Web Jam for 6.7k teens! High Schoolers had to build a website with the worst UI possible!"
+      }
+    ],
+    "skillsCategories": [
+      {
+        "category": "Programming/Scripting Languages",
+        "skills": "JavaScript, TypeScript, C#, C++, Python, HTML, CSS, Lua"
+      },
+      {
+        "category": "Web Development Frameworks",
+        "skills": "React, Astro"
+      },
+      {
+        "category": "Frontend",
+        "skills": "HTML, CSS, JavaScript, React, Bootstrap"
+      },
+      {
+        "category": "Backend",
+        "skills": "Node.js, Express.js"
+      },
+      {
+        "category": "PCB Design",
+        "skills": "KiCAD, EasyEDA"
+      },
+      {
+        "category": "Hardware",
+        "skills": "CircuitPython, Raspberry Pi, MicroPython, Arduino"
+      },
+      {
+        "category": "Database",
+        "skills": "MongoDB, Airtable"
+      },
+      {
+        "category": "Game Development",
+        "skills": "Unity, Love 2D, Phaser.js, Pygame"
+      },
+      {
+        "category": "Project Management",
+        "skills": "Trello"
+      },
+      {
+        "category": "Source Code Management",
+        "skills": "Git, GitHub"
+      },
+      {
+        "category": "Communication",
+        "skills": "Slack, Zoom"
+      },
+      {
+        "category": "Video Editing",
+        "skills": "Adobe Premiere Pro, Adobe After Effects"
+      }
+    ]
+  },
+  "projects": [
+    {
+      "id": "pishot",
+      "title": "PiShot",
+      "description": "An open-source DIY camera! Built from scratch with a Raspberry Pi Zero 2W, Pi camera module, hand-wiring, and a 3D-printed case. And custom firmware!",
+      "image": "assets/projects/pishot.png",
+      "sourceUrl": "https://github.com/samarth163-cloud/PiShot",
+      "visitUrl": "https://www.youtube.com/watch?v=gf-RIgXnWJM",
+      "visitLabel": "Demo",
+      "featured": true,
+      "tech": [
+        { "name": "Microcontroller", "icon": "fas fa-microchip" },
+        { "name": "Python / KMK", "icon": "fab fa-python" },
+        { "name": "Hardware", "icon": "fas fa-bolt" }
+      ]
+    },
+    {
+      "id": "adobe-wakatime",
+      "title": "Adobe Wakatime",
+      "description": "Unofficial Wakatime integration for Adobe Products (Photoshop, Illustrator, After Effects, etc)",
+      "image": "assets/projects/adobe-wakatime.png",
+      "sourceUrl": "https://github.com/samarth163-cloud/adobe-wakatime",
+      "visitUrl": "https://github.com/samarth163-cloud/adobe-wakatime?tab=readme-overview#installation",
+      "visitLabel": "Visit",
+      "featured": true,
+      "tech": [
+        { "name": "JavaScript", "icon": "fab fa-js" },
+        { "name": "Node.js", "icon": "fab fa-node" },
+        { "name": "Adobe Extensibility", "icon": "fas fa-plug" }
+      ]
+    },
+    {
+      "id": "arena",
+      "title": "Arena",
+      "description": "An open-source project submission, voting, and gallery platform for events like hackathons and game jams! Used by 500+ people through Hack Club events, in partnership with GitHub.",
+      "image": "assets/projects/arena.png",
+      "sourceUrl": "https://github.com/samarth163-cloud/Arena",
+      "visitUrl": "https://arena.hackclub.com/",
+      "visitLabel": "Visit",
+      "featured": true,
+      "tech": [
+        { "name": "React", "icon": "fab fa-react" },
+        { "name": "Node.js", "icon": "fab fa-node" },
+        { "name": "Database", "icon": "fas fa-database" }
+      ]
+    },
+    {
+      "id": "nanodeck",
+      "title": "NanoDeck",
+      "description": "A fully custom open-source macropad! Built from scratch with a custom PCB and firmware, hot-swap sockets, backlights, and a 3D-printed case.",
+      "image": "assets/projects/nanodeck.jpg",
+      "sourceUrl": "https://github.com/samarth163-cloud/hackpad/tree/main/hackpads/Nano_Deck",
+      "visitUrl": "https://github.com/samarth163-cloud/hackpad/tree/main/hackpads/Nano_Deck",
+      "visitLabel": "Visit",
+      "featured": true,
+      "tech": [
+        { "name": "Microcontroller", "icon": "fas fa-microchip" },
+        { "name": "Python / KMK", "icon": "fab fa-python" },
+        { "name": "Hardware", "icon": "fas fa-bolt" }
+      ]
+    },
+    {
+      "id": "hackamon",
+      "title": "Hackamon",
+      "description": "An open-source Tamagotchi OS built completely from scratch! Designed to work on a Raspberry Pi Pico. All the artwork is also done by me!",
+      "image": "assets/projects/hackamon.png",
+      "sourceUrl": "https://github.com/samarth163-cloud/Hackamon",
+      "visitUrl": "https://cloud-ny2cxzjoa-hack-club-bot.vercel.app/0hackamon_demo.mp4",
+      "visitLabel": "Demo",
+      "featured": true,
+      "tech": [
+        { "name": "Python", "icon": "fab fa-python" },
+        { "name": "Raspberry Pi", "icon": "fab fa-raspberry-pi" },
+        { "name": "Game Development", "icon": "fas fa-gamepad" }
+      ]
+    },
+    {
+      "id": "deeplinker",
+      "title": "deeplinker",
+      "description": "A self-hosted deep-link generator for your Socials/Instagram bio, with a private analytics dashboard.",
+      "image": "assets/projects/deeplinker.png",
+      "sourceUrl": "https://github.com/samarth163-cloud/deeplinker",
+      "visitUrl": "https://youtube.com/l/youtube",
+      "visitLabel": "deeplink",
+      "featured": true,
+      "tech": [
+        { "name": "Database", "icon": "fas fa-database" },
+        { "name": "React", "icon": "fab fa-react" },
+        { "name": "Self-host", "icon": "fas fa-server" }
+      ]
+    },
+    {
+      "id": "hc-stickers-manager",
+      "title": "Hack Club Stickers Manager",
+      "description": "Manage your Hack Club stickers collection, and share it with others. Used by 150+ Hack Club members! My <a href=\"https://stickers.hackclub.com\" target=\"_blank\" rel=\"noopener noreferrer\">collection</a>!",
+      "image": "assets/projects/hack-club-stickers-manager.png",
+      "sourceUrl": "https://github.com/samarth163-cloud/HC-Stickers-Manager",
+      "visitUrl": "https://stickers.hackclub.com/",
+      "visitLabel": "Visit",
+      "featured": true,
+      "tech": [
+        { "name": "React", "icon": "fab fa-react" },
+        { "name": "Node.js", "icon": "fab fa-node" },
+        { "name": "Database", "icon": "fas fa-database" }
+      ]
+    },
+    {
+      "id": "unitease",
+      "title": "UnitEase",
+      "description": "An open-source npm package for unit conversion.",
+      "image": "assets/projects/unitease.png",
+      "sourceUrl": "https://github.com/samarth163-cloud/UnitEase",
+      "visitUrl": "https://www.npmjs.com/package/unitease",
+      "visitLabel": "Visit",
+      "featured": true,
+      "tech": [
+        { "name": "JavaScript", "icon": "fab fa-js" },
+        { "name": "Node.js", "icon": "fab fa-node" },
+        { "name": "npm", "icon": "fab fa-npm" }
+      ]
+    },
+    {
+      "id": "terminal-portfolio",
+      "title": "Terminal Portfolio",
+      "description": "ssh samarth@hackclub.app",
+      "image": "assets/projects/terminal-portfolio.png",
+      "sourceUrl": "https://github.com/samarth163-cloud/Samarthhh/blob/main/portfolio.sh",
+      "visitUrl": "",
+      "visitLabel": "",
+      "featured": true,
+      "tech": [
+        { "name": "Terminal", "icon": "fas fa-terminal" },
+        { "name": "Linux", "icon": "fab fa-linux" },
+        { "name": "SSH", "icon": "fas fa-network-wired" }
+      ]
+    }
+  ],
+  "blog": [
+    {
+      "id": "pishot-camera-blog",
+      "title": "I Made a Custom Raspberry Pi Camera - Journal: PiShot",
+      "description": "RPi Zero 2W, camera module, & custom 3D-printed case.",
+      "date": "February 20, 2026",
+      "url": "/blog/i-made-a-custom-raspberry-pi-camera/",
+      "image": "assets/blog/i-made-a-custom-raspberry-pi-camera.png",
+      "tags": ["hardware", "raspberry pi", "camera"]
+    },
+    {
+      "id": "first-game-jam-blog",
+      "title": "How I Won My First Game Jam",
+      "description": "And won with a bad game!",
+      "date": "November 29, 2025",
+      "url": "/blog/how-i-won-my-first-game-jam/",
+      "image": "assets/blog/how-i-won-my-first-game-jam.png",
+      "tags": ["gamedev", "unity", "gamejam"]
+    }
+  ],
+  "resume": {
+    "header": {
+      "eyebrow": "resume.txt",
+      "name": "Samarth Haveliwala",
+      "headline": "Developer building open-source software, games and hardware.",
+      "location": "India",
+      "contacts": [
+        {
+          "label": "Email",
+          "url": "mailto:samarth@example.com",
+          "icon": "fas fa-envelope"
+        },
+        {
+          "label": "GitHub",
+          "url": "https://github.com/",
+          "icon": "fab fa-github"
+        },
+        {
+          "label": "LinkedIn",
+          "url": "https://www.linkedin.com/",
+          "icon": "fab fa-linkedin"
+        },
+        {
+          "label": "YouTube",
+          "url": "https://www.youtube.com/",
+          "icon": "fab fa-youtube"
+        },
+        {
+          "label": "Instagram",
+          "url": "https://instagram.com/",
+          "icon": "fab fa-instagram"
+        }
+      ]
+    },
+    "introduction": "I build open-source software, games, and hardware- from custom cameras and devboards to web platforms. My work spans full-stack development, game development, and hardware prototyping, with projects used by thousands of people across the Hack Club and Rune communities.",
+    "statsNote": "Live coding activity from Hackatime.",
+    "experience": [
+      {
+        "id": "hackclub-sad",
+        "title": "Hack Club - Special Activities Division",
+        "period": "2024 - Present · Remote - Volunteer",
+        "bullets": [
+          "Helped organize <a href=\"https://summer.hackclub.com\" target=\"_blank\" rel=\"noopener noreferrer\">Summer of Making</a>, a coding and hardware hackathon by <b>Hack Club</b> and <b>GitHub</b>, with 25,000+ teen participants worldwide making real technical projects.",
+          "Built an open-source submission and peer-voting platform, and hosted the <a href=\"https://hackclub.slack.com/archives/C090B3T9R9R/p1751137882759709\" target=\"_blank\" rel=\"noopener noreferrer\">Summer of Making game jam</a>, serving 18,000+ teens. Also organized <a href=\"https://hackclub.slack.com/archives/C01D7AHKMPF/p1768063492916589\" target=\"_blank\" rel=\"noopener noreferrer\">Borked</a>, a web-development challenge for 6,700+ teens."
+        ]
+      },
+      {
+        "id": "testerwork-qa",
+        "title": "Tester Work - QA Tester & Content Writer",
+        "period": "2021 - 2024 · Remote",
+        "bullets": [
+          "Tested apps for companies including <b>Facebook (Meta)</b>, <b>Matterport</b>, and <b>Deezer</b>.",
+          "Wrote 4 software-testing articles for the company blog, reaching 50,000+ views."
+        ]
+      },
+      {
+        "id": "reflectoring-writer",
+        "title": "Reflectoring.io — Technical Content Writer",
+        "period": "2023 · Remote",
+        "bullets": [
+          "Authored an article on TypeScript that reached 100,000+ views."
+        ]
+      },
+      {
+        "id": "markmun-media",
+        "title": "Benchmark School System — Secretary, Media & Marketing",
+        "period": "2022 - 2023 · Islamabad, Pakistan",
+        "bullets": [
+          "Managed the MarkMUN 2023 Instagram account and grew its view rate past 1,000.",
+          "Led the Media team, and managed video editing and footage processing for MarkMUN '23 and produced the school end-of-year recap video."
+        ]
+      }
+    ],
+    "projects": [
+      {
+        "id": "res-rune",
+        "title": "Multiplayer Games on Rune",
+        "meta": "2023 · Rune SDK",
+        "description": "Shipped six multiplayer games on Rune, reaching <b>1 million+ combined plays</b>, <b>247,000+ players</b>, and <b>17,000+ hours played</b>."
+      },
+      {
+        "id": "res-arena",
+        "title": "Arena",
+        "meta": "2025 · React, Node.js",
+        "description": "Built an open-source submission, voting, and gallery platform for hackathons and game jams, used by 500+ people through Hack Club events."
+      },
+      {
+        "id": "res-pishot",
+        "title": "PiShot",
+        "meta": "2026 · Raspberry Pi, Python",
+        "description": "Designed and built an open-source DIY camera with hand-wired electronics, a 3D-printed case, and custom firmware."
+      },
+      {
+        "id": "res-hackamon",
+        "title": "Hackamon",
+        "meta": "2025 · Python, Raspberry Pi, Pygame, CircuitPython",
+        "description": "Built an open-source virtual-pet operating system for Raspberry Pi Pico devices, including the software, pixel art, and custom hardware support.<br />Featured in the <b>Hack Club 2025 magazine</b>, with other cool open-source projects made by teens in 2025."
+      },
+      {
+        "id": "res-stickers",
+        "title": "Hack Club Stickers Manager",
+        "meta": "2025 · React, Node.js",
+        "description": "Built an open-source sticker-collection manager using the Hack Club sticker API, used by 150+ community members."
+      }
+    ],
+    "education": [
+      {
+        "id": "res-edu-benchmark",
+        "institution": "Benchmark School System",
+        "meta": "O Levels · 2021 - 2024",
+        "description": "<b>Straight 9 A's</b>: <b>7 A*</b> and <b>2 A</b>."
+      }
+    ],
+    "recognition": [
+      "Won multiple international hackathons, including <b>1st place</b> in the High Seas Game Development Hackathon and <b>2nd place</b> in Arcade Game Jam.",
+      "Had two projects featured in the <b>Hack Club 2025 magazine</b>, reaching 13,000+ readers, and many indie game developers and prominent tech influencers; distributed at <a href=\"https://www.opensauce.com\" target=\"_blank\" rel=\"noopener noreferrer\">Open Sauce</a>, and at <b>GitHub HQ</b> during <a href=\"https://flagship.hackclub.com\" target=\"_blank\" rel=\"noopener noreferrer\">Campfire Flagship</a>.",
+      "Invited to fully sponsored week-long <b>hackathons</b> in Shanghai (2025) and Singapore (2026).",
+      "Earned <b>gold</b> medals in <b>IKLC</b>, <b>ICATS Science Contest</b>, and <b>IBIC</b>; qualified for the Hippo English Olympiad regional round held in Turkey."
+    ],
+    "skills": "JavaScript · TypeScript · Python · C# · C++ · React · Astro · Node.js · HTML/CSS · Unity · Raspberry Pi · Arduino · KiCad · MongoDB · Git/GitHub"
+  }
+}
