@@ -10,8 +10,17 @@ function escapeHtml(str) {
     .replace(/"/g, '&quot;');
 }
 
+function normalizeAssetUrl(url) {
+  if (!url) return '';
+  url = String(url).trim();
+  if (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('data:') || url.startsWith('/')) {
+    return url;
+  }
+  return '/' + url;
+}
+
 function renderPostHtml(post) {
-  const coverImg = post.coverImage || post.image || '';
+  const coverImg = normalizeAssetUrl(post.coverImage || post.image || '');
   const icon = post.icon || '📝';
   const tags = Array.isArray(post.tags) ? post.tags : (post.tags ? String(post.tags).split(',').map(t => t.trim()) : []);
   const tagsHtml = tags.map(t => `<span class="tag">#${escapeHtml(t)}</span>`).join(' ');
@@ -92,7 +101,7 @@ function renderPostHtml(post) {
     <article>
       ${coverImg ? `
       <div class="article-cover">
-        <img src="${escapeHtml(coverImg)}" alt="${escapeHtml(post.title)}" loading="eager" />
+        <img src="${escapeHtml(coverImg)}" alt="${escapeHtml(post.title)}" loading="eager" onerror="this.src='/favicon.ico'" />
       </div>` : ''}
 
       <header class="article-header">
@@ -180,7 +189,7 @@ function renderIndexHtml(blogList) {
   const cardsHtml = blogList.map(post => {
     const slug = post.slug || (post.url ? post.url.replace(/^\/blog\//, '').replace(/\/$/, '') : '');
     const postUrl = post.url || `/blog/${slug}/`;
-    const imgUrl = post.coverImage || post.image || '/assets/blog/how-i-won-my-first-game-jam.png';
+    const imgUrl = normalizeAssetUrl(post.coverImage || post.image || '/assets/blog/how-i-won-my-first-game-jam.png');
     const tags = Array.isArray(post.tags) ? post.tags : (post.tags ? String(post.tags).split(',').map(t => t.trim()) : []);
     const tagsDataAttr = tags.join(',').toLowerCase();
     const icon = post.icon || '📝';

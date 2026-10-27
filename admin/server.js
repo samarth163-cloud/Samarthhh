@@ -165,13 +165,10 @@ const server = http.createServer((req, res) => {
     relativePath = '/index.html';
   }
 
-  // Handle relative asset paths requested from /admin/
-  if (relativePath.startsWith('/admin/assets/')) {
-    relativePath = relativePath.replace('/admin/assets/', '/assets/');
-  } else if (relativePath.startsWith('/admin/data/')) {
-    relativePath = relativePath.replace('/admin/data/', '/data/');
-  } else if (relativePath.startsWith('/admin/fonts/')) {
-    relativePath = relativePath.replace('/admin/fonts/', '/fonts/');
+  // Handle relative asset paths requested from nested pages (e.g. /admin/, /blog/, /blog/new-article-8833/)
+  const nestedMatch = relativePath.match(/^(?:.*)\/(assets|data|fonts|favicon\.ico)(.*)$/);
+  if (nestedMatch && !relativePath.startsWith('/' + nestedMatch[1])) {
+    relativePath = '/' + nestedMatch[1] + nestedMatch[2];
   }
 
   let filePath = path.join(ROOT_DIR, relativePath);
