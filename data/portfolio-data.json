@@ -73,7 +73,7 @@
         "text": "Organised <a href=\"https://hackclub.slack.com/archives/C01D7AHKMPF/p1768063492916589\" target=\"_blank\" rel=\"noopener noreferrer\">Borked</a> (<a href=\"https://borked.hackclub.com\" target=\"_blank\" rel=\"noopener noreferrer\">site</a>), a <s>game</s> Web Jam for 6.7k teens! High Schoolers had to build a website with the worst UI possible!"
       }
     ],
-    "hackatimeUser": "lol",
+    "hackatimeUser": "Samarth",
     "showCodingStats": true,
     "skillsCategories": [
       {
@@ -545,5 +545,5 @@
       "description": "ssh samarth@hackclub.app"
     }
   ],
-  "_updatedAt": 1793136258512
+  "_updatedAt": 1793136289023
 }
