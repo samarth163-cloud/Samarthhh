@@ -1,6 +1,94 @@
-<!DOCTYPE html><html lang="en" data-astro-cid-bvzihdzo> <head><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"><!-- Global Metadata --><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="icon" type="image/svg+xml" href="/favicon.svg"><link rel="sitemap" href="/sitemap-index.xml"><link rel="alternate" type="application/rss+xml" title="Samarth" href="/rss.xml"><meta name="generator" content="Astro v5.16.0"><!-- Font preloads --><link rel="preload" href="/fonts/atkinson-regular.woff" as="font" type="font/woff" crossorigin><link rel="preload" href="/fonts/atkinson-bold.woff" as="font" type="font/woff" crossorigin><!-- Canonical URL --><link rel="canonical" href="/blog/i-made-a-custom-raspberry-pi-camera/"><!-- Primary Meta Tags --><title>I Made a Custom Raspberry Pi Camera - Journal: PiShot</title><meta name="title" content="I Made a Custom Raspberry Pi Camera - Journal: PiShot"><meta name="description" content="RPi Zero 2W, camera module, &#38; custom 3D-printed case."><!-- Open Graph Meta Tags --><meta property="og:image" content="/blog/i-made-a-custom-raspberry-pi-camera/og.png"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta property="og:type" content="article"><!-- Open Graph / Facebook --><meta property="og:type" content="website"><meta property="og:url" content="/blog/i-made-a-custom-raspberry-pi-camera/"><meta property="og:title" content="I Made a Custom Raspberry Pi Camera - Journal: PiShot"><meta property="og:description" content="RPi Zero 2W, camera module, &#38; custom 3D-printed case."><meta property="og:image" content="/blog/_astro/blog-placeholder-2.1WQRLJGH.jpg"><!-- Twitter --><meta property="twitter:card" content="summary_large_image"><meta property="twitter:url" content="/blog/i-made-a-custom-raspberry-pi-camera/"><meta property="twitter:title" content="I Made a Custom Raspberry Pi Camera - Journal: PiShot"><meta property="twitter:description" content="RPi Zero 2W, camera module, &#38; custom 3D-printed case."><meta property="twitter:image" content="/blog/_astro/blog-placeholder-2.1WQRLJGH.jpg"><!-- RSS Feed --><link rel="alternate" type="application/rss+xml" title="Samarth" href="/rss.xml"><!-- Umami Analytics --><script defer src="https://cloud.umami.is/script.js" data-website-id="d085010b-9020-4623-8650-7c7d46decbdf"></script><link rel="stylesheet" href="/blog/_astro/index.Caa4IdcK.css">
-<style>main[data-astro-cid-bvzihdzo]{width:calc(100% - 2em);max-width:100%;margin:0}.hero-image[data-astro-cid-bvzihdzo]{width:60%;margin:0 auto}.hero-image[data-astro-cid-bvzihdzo] img[data-astro-cid-bvzihdzo]{display:block;margin:0 auto;border-radius:12px;width:100%;height:auto}.prose[data-astro-cid-bvzihdzo]{width:720px;max-width:calc(100% - 2em);margin:auto;padding:1em;color:rgb(var(--gray-dark))}.title[data-astro-cid-bvzihdzo]{margin-bottom:1em;padding:1em 0;text-align:center;line-height:1}.title[data-astro-cid-bvzihdzo] h1[data-astro-cid-bvzihdzo]{margin:0 0 .5em}.date[data-astro-cid-bvzihdzo]{margin-bottom:.5em;color:rgb(var(--gray))}.last-updated-on[data-astro-cid-bvzihdzo]{font-style:italic}.post-tags[data-astro-cid-bvzihdzo]{display:flex;flex-wrap:wrap;gap:.8rem;justify-content:center;margin:1rem 0}.tag[data-astro-cid-bvzihdzo]{background:var(--overlay-bg-color);padding:.4rem .9rem;border-radius:.75rem;font-size:.85rem;color:var(--text-color);transition:all .3s ease}.tag[data-astro-cid-bvzihdzo]:hover{background:var(--link-color);color:var(--bg-color);transform:translateY(-1px)}.readingTime[data-astro-cid-bvzihdzo]{display:inline-block;margin:.75rem 0 1rem;padding:.35rem .75rem;border:1px solid var(--link-color);border-radius:999px;color:var(--link-color);font-size:.8rem;font-weight:700;letter-spacing:.02em}
-</style></head> <body data-astro-cid-bvzihdzo> <!-- Header Container --><div class="header-container" data-astro-cid-3ef6ksr2> <!-- Name in Top Left --> <div class="site-name" data-astro-cid-3ef6ksr2> <a href="/" data-astro-cid-3ef6ksr2>Samarth</a> </div> <!-- Dark Mode Toggle in Top Right --> <div id="darkmode-toggle-id" class="darkmode-toggle" aria-label="Toggle dark mode" data-astro-cid-3ef6ksr2> <i class="far fa-sun light-icon" data-astro-cid-3ef6ksr2></i> <i class="far fa-moon dark-icon" data-astro-cid-3ef6ksr2></i> </div> <!-- Navigation Menu --> <nav class="menu" data-astro-cid-3ef6ksr2> <ul data-astro-cid-3ef6ksr2> <li data-astro-cid-3ef6ksr2><a href="/" data-astro-cid-3ef6ksr2="true" data-astro-cid-eimmu3lg> Home </a> </li> <li data-astro-cid-3ef6ksr2><a href="/#about-me" data-astro-cid-3ef6ksr2="true" data-astro-cid-eimmu3lg> About </a> </li> <li data-astro-cid-3ef6ksr2><a href="/blog" data-astro-cid-3ef6ksr2="true" data-astro-cid-eimmu3lg> Blog </a> </li> <li data-astro-cid-3ef6ksr2><a href="/#portfolio" data-astro-cid-3ef6ksr2="true" data-astro-cid-eimmu3lg> Projects </a> </li> </ul> </nav> </div> <!-- Dark Mode Script --> <script type="module">const t=document.getElementById("darkmode-toggle-id");localStorage.getItem("theme")||localStorage.setItem("theme","dark");const m=localStorage.getItem("theme")||"dark";document.documentElement.setAttribute("data-theme",m);t?.addEventListener("click",()=>{const e=document.documentElement.getAttribute("data-theme")==="dark"?"light":"dark";document.documentElement.setAttribute("data-theme",e),localStorage.setItem("theme",e)});</script>  <main data-astro-cid-bvzihdzo> <article data-astro-cid-bvzihdzo> <div class="hero-image" data-astro-cid-bvzihdzo> <img src="/blog/_astro/camera-pishot-half-built.DCzzKOru_Z8FBNC.webp" alt data-astro-cid-bvzihdzo="true" loading="lazy" decoding="async" fetchpriority="auto" width="1020" height="510"> </div> <div class="prose" data-astro-cid-bvzihdzo> <div class="title" data-astro-cid-bvzihdzo> <div class="date" data-astro-cid-bvzihdzo> <time datetime="2026-02-20T00:00:00.000Z"> Feb 20, 2026 </time>  </div> <h1 data-astro-cid-bvzihdzo>I Made a Custom Raspberry Pi Camera - Journal: PiShot</h1>  <div class="post-tags" data-astro-cid-bvzihdzo> <span class="tag" data-astro-cid-bvzihdzo>hardware</span><span class="tag" data-astro-cid-bvzihdzo>raspberry pi</span><span class="tag" data-astro-cid-bvzihdzo>camera</span> </div> <div class="readingTime" data-astro-cid-bvzihdzo>12 min read</div> <hr data-astro-cid-bvzihdzo> </div>  <p>This is my complete journey of making a custom Raspberry Pi camera: <strong>PiShot</strong>.</p>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>I Made a Custom Raspberry Pi Camera - Journal: PiShot // Samarth Blog</title>
+  <meta name="title" content="I Made a Custom Raspberry Pi Camera - Journal: PiShot" />
+  <meta name="description" content="RPi Zero 2W, camera module, &amp; custom 3D-printed case." />
+  <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+  <link rel="shortcut icon" href="/favicon.ico" />
+  <link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon/favicon-32x32.png" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/assets/favicon/apple-touch-icon.png" />
+  <link rel="canonical" href="/blog/i-made-a-custom-raspberry-pi-camera/" />
+  
+  <!-- Open Graph -->
+  <meta property="og:type" content="article" />
+  <meta property="og:url" content="/blog/i-made-a-custom-raspberry-pi-camera/" />
+  <meta property="og:title" content="I Made a Custom Raspberry Pi Camera - Journal: PiShot" />
+  <meta property="og:description" content="RPi Zero 2W, camera module, &amp; custom 3D-printed case." />
+  <meta property="og:image" content="/blog/_astro/camera-pishot-half-built.DCzzKOru.png" />
+
+  <!-- Fonts & Icons -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Anton&family=Space+Grotesk:wght@400;500;600;700;800&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <link rel="stylesheet" href="/blog/blog.css" />
+
+  <!-- Theme init -->
+  <script>
+    (function() {
+      const savedTheme = localStorage.getItem("theme") || "light";
+      document.documentElement.setAttribute("data-theme", savedTheme);
+      if (savedTheme === "dark") {
+        document.documentElement.classList.add("dark");
+      }
+    })();
+  </script>
+</head>
+<body>
+
+  <!-- Site Header -->
+  <header class="site-header">
+    <div class="header-inner">
+      <div class="site-name">
+        <a href="/">Samarth <span class="site-badge">BLOG</span></a>
+      </div>
+      
+      <nav class="menu" aria-label="Main Navigation">
+        <ul>
+          <li><a href="/">Home</a></li>
+          <li><a href="/#about-me">About</a></li>
+          <li><a href="/blog" class="active">Blog</a></li>
+          <li><a href="/#portfolio">Projects</a></li>
+        </ul>
+      </nav>
+
+      <div class="header-actions">
+        <button id="darkmode-toggle-id" class="darkmode-toggle" type="button" aria-label="Toggle dark mode" title="Toggle Theme">
+          <i class="fas fa-sun light-icon"></i>
+          <i class="fas fa-moon dark-icon"></i>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Article Main -->
+  <main class="article-main">
+    <div class="back-to-blog">
+      <a href="/blog/" class="back-link"><i class="fas fa-arrow-left"></i> Back to all articles</a>
+    </div>
+
+    <article>
+      
+      <div class="article-cover">
+        <img src="/blog/_astro/camera-pishot-half-built.DCzzKOru.png" alt="I Made a Custom Raspberry Pi Camera - Journal: PiShot" loading="eager" />
+      </div>
+
+      <header class="article-header">
+        <div class="article-meta-row">
+          <span class="meta-item"><i class="far fa-calendar-alt"></i> February 20, 2026</span>
+          <span class="readingTime"><i class="far fa-clock"></i> 12 min read</span>
+          <div class="post-tags">
+            <span class="tag">hardware</span><span class="tag">raspberry pi</span><span class="tag">camera</span>
+          </div>
+        </div>
+        <h1>I Made a Custom Raspberry Pi Camera - Journal: PiShot</h1>
+      </header>
+
+      <div class="prose">
+        <p>This is my complete journey of making a custom Raspberry Pi camera: <strong>PiShot</strong>.</p>
 <p>I made it with a Raspberry Pi Zero 2 W, a Pi camera module, and a custom 3D-printed case.</p>
 <p>This project is <strong>open-source</strong>, and you can check it out <strong><a href="https://github.com/samarth163-cloud/PiShot">here</a></strong>!</p>
 <p>I also made a showcase <strong><a href="https://www.youtube.com/watch?v=gf-RIgXnWJM">video</a></strong> for it!</p>
@@ -156,5 +244,61 @@ different libraries, the script worked!</p>
 <p>It was a fun journey, and I learned a lot about 3D design, soldering, and coding for the Raspberry Pi.</p>
 <p>And btw, this project is open-source, so you can check out the source code or 3D files <strong><a href="https://github.com/samarth163-cloud/PiShot">here</a></strong>!</p>
 <p>I also made a short showcase <strong><a href="https://www.youtube.com/watch?v=gf-RIgXnWJM">video</a></strong> for the camera!</p>
-<p>I hope you enjoyed reading about my process as much as I enjoyed making it! <em>(was kind of a long read, sorry!!)</em></p>  </div> </article> </main> <footer class="site-footer" data-astro-cid-sz7xmlte> <div class="footer-content" data-astro-cid-sz7xmlte> <p class="copyright" data-astro-cid-sz7xmlte>&copy; 2026 <b data-astro-cid-sz7xmlte> <a href="/" data-astro-cid-sz7xmlte>Samarth</a>.
-</b> </p> <div class="social-links" data-astro-cid-sz7xmlte> <a href="https://github.com/samarth163-cloud" target="_blank" aria-label="GitHub" data-astro-cid-sz7xmlte> <i class="fab fa-github" data-astro-cid-sz7xmlte></i> </a> <a href="https://www.linkedin.com" target="_blank" aria-label="LinkedIn" data-astro-cid-sz7xmlte> <i class="fab fa-linkedin" data-astro-cid-sz7xmlte></i> </a> <a href="https://www.youtube.com/@DevStuff5" target="_blank" aria-label="YouTube" data-astro-cid-sz7xmlte> <i class="fab fa-youtube" data-astro-cid-sz7xmlte></i> </a> <a href="https://instagram.com" target="_blank" aria-label="Instagram" data-astro-cid-sz7xmlte> <i class="fab fa-instagram" data-astro-cid-sz7xmlte></i> </a> <a href="mailto:donsamarth163@gmail.com" target="_blank" aria-label="Email" data-astro-cid-sz7xmlte> <i class="far fa-envelope" data-astro-cid-sz7xmlte></i> </a> </div> </div> </footer>  </body></html>
+<p>I hope you enjoyed reading about my process as much as I enjoyed making it! <em>(was kind of a long read, sorry!!)</em></p>
+      </div>
+
+      <!-- Author Bio -->
+      <section class="author-bio-card">
+        <img src="/assets/profile/1.jpg" alt="Samarth" class="author-bio-avatar" onerror="this.src='/favicon.ico'" />
+        <div class="author-bio-content">
+          <h3>Written by Samarth Haveliwala</h3>
+          <p>Developer building open-source software, games, and hardware — from custom cameras to interactive web platforms.</p>
+          <div class="author-bio-links">
+            <a href="https://github.com/samarth163-cloud" target="_blank" rel="noopener noreferrer"><i class="fab fa-github"></i> GitHub</a>
+            <a href="https://www.youtube.com/@DevStuff5" target="_blank" rel="noopener noreferrer"><i class="fab fa-youtube"></i> YouTube</a>
+            <a href="/blog/"><i class="fas fa-book-open"></i> All Articles</a>
+          </div>
+        </div>
+      </section>
+    </article>
+  </main>
+
+  <!-- Site Footer -->
+  <footer class="site-footer">
+    <div class="footer-content">
+      <p class="copyright">&copy; 2026 <b><a href="/">Samarth</a></b>. Open source portfolio.</p>
+      <div class="social-links">
+        <a href="https://github.com/samarth163-cloud" target="_blank" rel="noopener noreferrer" aria-label="GitHub"><i class="fab fa-github"></i></a>
+        <a href="https://www.linkedin.com" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+        <a href="https://www.youtube.com/@DevStuff5" target="_blank" rel="noopener noreferrer" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
+        <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+        <a href="mailto:donsamarth163@gmail.com" aria-label="Email"><i class="far fa-envelope"></i></a>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    const themeBtn = document.getElementById("darkmode-toggle-id");
+    function applyTheme(theme) {
+      document.documentElement.setAttribute("data-theme", theme);
+      if (theme === "dark") {
+        document.documentElement.classList.add("dark");
+        document.body.classList.add("dark");
+      } else {
+        document.documentElement.classList.remove("dark");
+        document.body.classList.remove("dark");
+      }
+      localStorage.setItem("theme", theme);
+    }
+    const currentTheme = localStorage.getItem("theme") || "light";
+    applyTheme(currentTheme);
+
+    if (themeBtn) {
+      themeBtn.addEventListener("click", () => {
+        const next = document.documentElement.getAttribute("data-theme") === "dark" ? "light" : "dark";
+        applyTheme(next);
+      });
+    }
+  </script>
+</body>
+</html>

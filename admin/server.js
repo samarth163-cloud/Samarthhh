@@ -2,6 +2,7 @@ const http = require('http');
 const fs = require('fs');
 const path = require('path');
 const url = require('url');
+const { syncBlogFiles } = require('./blog-sync');
 
 const PORT = process.env.PORT || 3000;
 const ROOT_DIR = path.resolve(__dirname, '..');
@@ -60,6 +61,15 @@ const server = http.createServer((req, res) => {
           fs.mkdirSync(dataDir, { recursive: true });
         }
         fs.writeFileSync(DATA_FILE, JSON.stringify(jsonData, null, 2), 'utf-8');
+
+        // Sync and re-generate blog HTML files on disk
+        if (jsonData.blog && Array.isArray(jsonData.blog)) {
+          try {
+            syncBlogFiles(jsonData, ROOT_DIR);
+          } catch (blogErr) {
+            console.warn('Could not sync blog files on disk:', blogErr);
+          }
+        }
 
         // Sync browser title and favicon into index.html on disk
         // Sync browser title into index.html on disk

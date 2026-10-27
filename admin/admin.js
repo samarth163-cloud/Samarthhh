@@ -1811,121 +1811,821 @@
   }
 
   // =========================================================================
-  // TAB 5: BLOG
+  // =========================================================================
+  // TAB 5: BLOG & NOTION STUDIO CONTROLLER
   // =========================================================================
 
+  let currentBlogIndex = 0;
+  let notionSearchQuery = "";
+  let isSlashMenuOpen = false;
+
   function renderBlogTab() {
-    const container = document.getElementById("blog-cards-container");
-    if (!container) return;
-    const blogList = state.blog || [];
-    container.innerHTML = blogList
-      .map(
-        (b, idx) => `
-      <div class="sub-item-card" data-blog-idx="${idx}">
-        <div class="sub-item-header">
-          <span style="font-family: var(--font-anton); font-size: 16px;">${escapeHtml(
-            b.title || "Blog Post"
-          )}</span>
-          <button type="button" class="btn btn-sm btn-danger btn-remove-blog" data-blog-idx="${idx}"><i class="fas fa-trash"></i></button>
-        </div>
-        <div class="form-grid">
-          <div class="form-group">
-            <label class="form-label">Article Title</label>
-            <input type="text" class="form-input b-title" value="${escapeHtml(b.title || "")}" />
-          </div>
-          <div class="form-group">
-            <label class="form-label">Publish Date</label>
-            <input type="text" class="form-input b-date" value="${escapeHtml(b.date || "")}" />
-          </div>
-          <div class="form-group">
-            <label class="form-label">Article URL</label>
-            <input type="text" class="form-input b-url" value="${escapeHtml(b.url || "")}" />
-          </div>
-          <div class="form-group">
-            <label class="form-label">Image Thumbnail URL</label>
-            <input type="text" class="form-input b-image" value="${escapeHtml(b.image || "")}" />
-          </div>
-          <div class="form-group full-width">
-            <label class="form-label">Excerpt / Description</label>
-            <input type="text" class="form-input b-desc" value="${escapeHtml(b.description || "")}" />
-          </div>
-          <div class="form-group full-width">
-            <label class="form-label">Tags (comma separated)</label>
-            <input type="text" class="form-input b-tags" value="${escapeHtml(
-              (b.tags || []).join(", ")
-            )}" />
-          </div>
-        </div>
-      </div>`
-      )
-      .join("");
+    if (!Array.isArray(state.blog)) state.blog = [];
+    const blogList = state.blog;
 
-    container.querySelectorAll(".b-title").forEach((inp) => {
-      inp.addEventListener("input", (e) => {
-        const idx = parseInt(inp.closest("[data-blog-idx]").getAttribute("data-blog-idx"), 10);
-        state.blog[idx].title = e.target.value;
-      });
-    });
-    container.querySelectorAll(".b-date").forEach((inp) => {
-      inp.addEventListener("input", (e) => {
-        const idx = parseInt(inp.closest("[data-blog-idx]").getAttribute("data-blog-idx"), 10);
-        state.blog[idx].date = e.target.value;
-      });
-    });
-    container.querySelectorAll(".b-url").forEach((inp) => {
-      inp.addEventListener("input", (e) => {
-        const idx = parseInt(inp.closest("[data-blog-idx]").getAttribute("data-blog-idx"), 10);
-        state.blog[idx].url = e.target.value;
-      });
-    });
-    container.querySelectorAll(".b-image").forEach((inp) => {
-      inp.addEventListener("input", (e) => {
-        const idx = parseInt(inp.closest("[data-blog-idx]").getAttribute("data-blog-idx"), 10);
-        state.blog[idx].image = e.target.value;
-      });
-    });
-    container.querySelectorAll(".b-desc").forEach((inp) => {
-      inp.addEventListener("input", (e) => {
-        const idx = parseInt(inp.closest("[data-blog-idx]").getAttribute("data-blog-idx"), 10);
-        state.blog[idx].description = e.target.value;
-      });
-    });
-    container.querySelectorAll(".b-tags").forEach((inp) => {
-      inp.addEventListener("input", (e) => {
-        const idx = parseInt(inp.closest("[data-blog-idx]").getAttribute("data-blog-idx"), 10);
-        state.blog[idx].tags = e.target.value
-          .split(",")
-          .map((t) => t.trim())
-          .filter(Boolean);
-      });
-    });
+    // Update count badges
+    const totalCount = blogList.length;
+    const navCountBlog = document.getElementById("nav-count-blog");
+    if (navCountBlog) navCountBlog.textContent = `${totalCount} posts`;
+    const totalCountSpan = document.getElementById("notion-nav-total-count");
+    if (totalCountSpan) totalCountSpan.textContent = totalCount;
 
-    container.querySelectorAll(".btn-remove-blog").forEach((btn) => {
-      btn.addEventListener("click", () => {
-        const idx = parseInt(btn.getAttribute("data-blog-idx"), 10);
-        state.blog.splice(idx, 1);
+    // Filter posts for search
+    const filtered = blogList.map((p, originalIdx) => ({ post: p, idx: originalIdx }))
+      .filter(({ post }) => {
+        if (!notionSearchQuery) return true;
+        const q = notionSearchQuery.toLowerCase();
+        const titleMatch = (post.title || "").toLowerCase().includes(q);
+        const tagsMatch = (Array.isArray(post.tags) ? post.tags.join(" ") : (post.tags || "")).toLowerCase().includes(q);
+        return titleMatch || tagsMatch;
+      });
+
+    // Render left sidebar list
+    const listContainer = document.getElementById("notion-posts-list-container");
+    if (listContainer) {
+      if (filtered.length === 0) {
+        listContainer.innerHTML = `
+          <div style="text-align: center; padding: 24px 12px; color: var(--text-muted); font-size: 13px;">
+            <i class="fas fa-inbox" style="font-size: 24px; margin-bottom: 6px; display: block; opacity: 0.5;"></i>
+            ${notionSearchQuery ? "No matching articles found." : "No articles yet."}
+          </div>`;
+      } else {
+        listContainer.innerHTML = filtered.map(({ post, idx }) => {
+          const isActive = idx === currentBlogIndex;
+          const thumb = post.coverImage || post.image || "/assets/blog/how-i-won-my-first-game-jam.png";
+          const tags = Array.isArray(post.tags) ? post.tags : (post.tags ? String(post.tags).split(",") : []);
+          const tagPill = tags.length > 0 ? tags[0] : "";
+          const featuredStar = post.featured ? `<i class="fas fa-star notion-card-featured-star" title="Highlighted on homepage"></i>` : "";
+
+          return `
+            <div class="notion-post-card ${isActive ? "active" : ""}" data-post-idx="${idx}">
+              <img src="${escapeHtml(thumb)}" class="notion-card-thumb" onerror="this.src='/favicon.ico'" alt="Thumbnail" />
+              <div class="notion-card-info">
+                <div class="notion-card-title">${escapeHtml(post.title || "Untitled Post")}</div>
+                <div class="notion-card-meta">
+                  <span>${escapeHtml(post.date || "Draft")}</span>
+                  ${tagPill ? `<span>• #${escapeHtml(tagPill)}</span>` : ""}
+                  ${featuredStar}
+                </div>
+              </div>
+              <button type="button" class="btn-card-del-post" data-del-idx="${idx}" title="Delete article">
+                <i class="fas fa-trash"></i>
+              </button>
+            </div>`;
+        }).join("");
+
+        // Attach click listeners to cards
+        listContainer.querySelectorAll(".notion-post-card").forEach(card => {
+          card.addEventListener("click", (e) => {
+            if (e.target.closest(".btn-card-del-post")) return;
+            const targetIdx = parseInt(card.getAttribute("data-post-idx"), 10);
+            if (!isNaN(targetIdx) && targetIdx !== currentBlogIndex) {
+              currentBlogIndex = targetIdx;
+              renderBlogTab();
+            }
+          });
+        });
+
+        // Attach delete listeners
+        listContainer.querySelectorAll(".btn-card-del-post").forEach(delBtn => {
+          delBtn.addEventListener("click", (e) => {
+            e.stopPropagation();
+            const targetIdx = parseInt(delBtn.getAttribute("data-del-idx"), 10);
+            const targetPost = state.blog[targetIdx];
+            const title = targetPost ? (targetPost.title || "this post") : "this post";
+            if (confirm(`Are you sure you want to delete "${title}"?`)) {
+              state.blog.splice(targetIdx, 1);
+              if (currentBlogIndex >= state.blog.length) {
+                currentBlogIndex = Math.max(0, state.blog.length - 1);
+              }
+              renderBlogTab();
+              showToast("Article removed.", "info");
+              triggerAutoSave();
+            }
+          });
+        });
+      }
+    }
+
+    // Load active post into editor
+    loadPostIntoNotionEditor(currentBlogIndex);
+  }
+
+  function loadPostIntoNotionEditor(idx) {
+    if (!Array.isArray(state.blog) || state.blog.length === 0) {
+      // Create a default initial post if empty
+      state.blog = [{
+        id: "post-" + Date.now(),
+        title: "Untitled Post",
+        slug: "untitled-post",
+        description: "A short summary of this article...",
+        date: "February 2026",
+        readingTime: "3 min read",
+        image: "assets/blog/how-i-won-my-first-game-jam.png",
+        coverImage: "assets/blog/how-i-won-my-first-game-jam.png",
+        tags: ["tech", "development"],
+        featured: false,
+        contentHtml: "<p>Start writing your new article here, or type <b>'/'</b> for Notion blocks...</p>"
+      }];
+      currentBlogIndex = 0;
+    }
+
+    if (idx < 0 || idx >= state.blog.length) {
+      idx = 0;
+      currentBlogIndex = 0;
+    }
+
+    const post = state.blog[idx];
+
+    // Status Badge & Pill stats
+    const statusBadge = document.getElementById("notion-active-status-badge");
+    if (statusBadge) statusBadge.textContent = `Editing: ${post.title || "Untitled"}`;
+
+    // Cover Image
+    const coverImg = document.getElementById("notion-cover-image-preview");
+    if (coverImg) {
+      coverImg.src = post.coverImage || post.image || "/blog/_astro/arcade-jam-poster.DT7rkVUv.png";
+    }
+
+    // Title Input
+    const titleInput = document.getElementById("notion-input-title");
+    if (titleInput) {
+      titleInput.value = post.title || "";
+    }
+
+    // Properties
+    const propDate = document.getElementById("notion-prop-date");
+    if (propDate) propDate.value = post.date || "";
+
+    const propReading = document.getElementById("notion-prop-reading-time");
+    if (propReading) propReading.value = post.readingTime || "";
+
+    const propTags = document.getElementById("notion-prop-tags");
+    if (propTags) {
+      propTags.value = Array.isArray(post.tags) ? post.tags.join(", ") : (post.tags || "");
+    }
+
+    const propSlug = document.getElementById("notion-prop-slug");
+    if (propSlug) {
+      const slugVal = post.slug || (post.url ? post.url.replace(/^\/blog\//, '').replace(/\/$/, '') : '');
+      propSlug.value = slugVal;
+    }
+
+    const propThumb = document.getElementById("notion-prop-thumbnail");
+    if (propThumb) propThumb.value = post.image || "";
+
+    const propExcerpt = document.getElementById("notion-prop-excerpt");
+    if (propExcerpt) propExcerpt.value = post.description || "";
+
+    const propFeatured = document.getElementById("notion-prop-featured");
+    if (propFeatured) propFeatured.checked = !!post.featured;
+
+    // View post link
+    const viewPostLink = document.getElementById("btn-view-current-post-link");
+    if (viewPostLink) {
+      const slug = post.slug || (post.url ? post.url.replace(/^\/blog\//, '').replace(/\/$/, '') : '');
+      viewPostLink.href = `/blog/${slug}/`;
+    }
+
+    // Canvas Content
+    const canvas = document.getElementById("notion-editor-canvas");
+    if (canvas) {
+      canvas.innerHTML = post.contentHtml || "<p>Type '/' for commands or start writing...</p>";
+      updateNotionStats();
+    }
+
+    // Update live preview if active
+    const previewWrapper = document.getElementById("notion-preview-wrapper");
+    if (previewWrapper && previewWrapper.style.display !== "none") {
+      renderNotionLivePreview();
+    }
+  }
+
+  function updateNotionStats() {
+    const canvas = document.getElementById("notion-editor-canvas");
+    if (!canvas) return;
+    const text = canvas.innerText || "";
+    const words = text.trim() ? text.trim().split(/\s+/).length : 0;
+    
+    const wordCounter = document.getElementById("notion-word-counter");
+    if (wordCounter) wordCounter.innerHTML = `<i class="fas fa-pen-nib"></i> ${words} words`;
+
+    const estimatedMins = Math.max(1, Math.ceil(words / 200));
+    const readingPill = document.getElementById("notion-reading-pill");
+    if (readingPill) readingPill.innerHTML = `<i class="far fa-clock"></i> ${estimatedMins} min read`;
+  }
+
+  function renderNotionLivePreview() {
+    const target = document.getElementById("notion-preview-article-target");
+    if (!target) return;
+    const post = state.blog[currentBlogIndex] || {};
+    const cover = post.coverImage || post.image || "";
+    const tags = Array.isArray(post.tags) ? post.tags : (post.tags ? String(post.tags).split(",") : []);
+    const tagsHtml = tags.map(t => `<span class="tag">${escapeHtml(t.trim())}</span>`).join("");
+
+    target.innerHTML = `
+      <article>
+        ${cover ? `<div class="article-cover"><img src="${escapeHtml(cover)}" alt="Cover" /></div>` : ""}
+        <header class="article-header">
+          <div class="article-meta-row">
+            <span class="meta-item"><i class="far fa-calendar-alt"></i> ${escapeHtml(post.date || "Today")}</span>
+            <span class="readingTime"><i class="far fa-clock"></i> ${escapeHtml(post.readingTime || "3 min read")}</span>
+            <div class="post-tags">${tagsHtml}</div>
+          </div>
+          <h1>${escapeHtml(post.title || "Untitled Article")}</h1>
+        </header>
+        <div class="prose">
+          ${post.contentHtml || "<p>No content written yet.</p>"}
+        </div>
+        <section class="author-bio-card">
+          <img src="/assets/profile/1.jpg" alt="Samarth" class="author-bio-avatar" onerror="this.src='/favicon.ico'" />
+          <div class="author-bio-content">
+            <h3>Written by Samarth Haveliwala</h3>
+            <p>Developer building open-source software, games, and hardware — from custom cameras to interactive web platforms.</p>
+            <div class="author-bio-links">
+              <a href="https://github.com/samarth163-cloud" target="_blank"><i class="fab fa-github"></i> GitHub</a>
+              <a href="/blog/"><i class="fas fa-book-open"></i> All Articles</a>
+            </div>
+          </div>
+        </section>
+      </article>`;
+  }
+
+  // Setup Notion Studio Event Listeners
+  function initNotionStudioEvents() {
+    // Search input
+    const searchInput = document.getElementById("notion-posts-search");
+    if (searchInput) {
+      searchInput.addEventListener("input", (e) => {
+        notionSearchQuery = e.target.value.trim();
         renderBlogTab();
-        updateCounters();
       });
+    }
+
+    // Add New Post buttons
+    const btnNewTop = document.getElementById("btn-create-new-blog");
+    const btnNewBottom = document.getElementById("btn-nav-add-post");
+    const createPostAction = () => {
+      const now = new Date();
+      const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+      const dateStr = `${monthNames[now.getMonth()]} ${now.getDate()}, ${now.getFullYear()}`;
+      const newSlug = `new-article-${Date.now().toString().slice(-4)}`;
+
+      const newPost = {
+        id: "post-" + Date.now(),
+        title: "Untitled Article",
+        slug: newSlug,
+        url: `/blog/${newSlug}/`,
+        description: "A short summary of this article...",
+        date: dateStr,
+        readingTime: "3 min read",
+        image: "assets/blog/how-i-won-my-first-game-jam.png",
+        coverImage: "assets/blog/how-i-won-my-first-game-jam.png",
+        tags: ["tech", "development"],
+        featured: false,
+        contentHtml: "<p>Start typing your new article here, or type <b>'/'</b> for Notion blocks...</p>"
+      };
+
+      if (!Array.isArray(state.blog)) state.blog = [];
+      state.blog.unshift(newPost);
+      currentBlogIndex = 0;
+      renderBlogTab();
+      showToast("Created new draft article!", "success");
+
+      const titleInput = document.getElementById("notion-input-title");
+      if (titleInput) {
+        titleInput.focus();
+        titleInput.select();
+      }
+      triggerAutoSave();
+    };
+
+    if (btnNewTop) btnNewTop.addEventListener("click", createPostAction);
+    if (btnNewBottom) btnNewBottom.addEventListener("click", createPostAction);
+
+    // View Modes toggle (Canvas vs Preview)
+    const btnModeCanvas = document.getElementById("btn-mode-canvas");
+    const btnModePreview = document.getElementById("btn-mode-preview");
+    const canvasWrapper = document.getElementById("notion-canvas-wrapper");
+    const previewWrapper = document.getElementById("notion-preview-wrapper");
+
+    if (btnModeCanvas && btnModePreview && canvasWrapper && previewWrapper) {
+      btnModeCanvas.addEventListener("click", () => {
+        btnModeCanvas.classList.add("active");
+        btnModePreview.classList.remove("active");
+        canvasWrapper.style.display = "";
+        previewWrapper.style.display = "none";
+      });
+
+      btnModePreview.addEventListener("click", () => {
+        btnModePreview.classList.add("active");
+        btnModeCanvas.classList.remove("active");
+        canvasWrapper.style.display = "none";
+        previewWrapper.style.display = "block";
+        renderNotionLivePreview();
+      });
+    }
+
+    // Save Current Post button
+    const btnSavePost = document.getElementById("btn-save-current-post");
+    if (btnSavePost) {
+      btnSavePost.addEventListener("click", () => {
+        performMasterSave();
+      });
+    }
+
+    // Delete Current Post button
+    const btnDelCurrent = document.getElementById("btn-delete-current-post");
+    if (btnDelCurrent) {
+      btnDelCurrent.addEventListener("click", () => {
+        if (!state.blog || state.blog.length === 0) return;
+        const post = state.blog[currentBlogIndex];
+        const title = post ? (post.title || "this article") : "this article";
+        if (confirm(`Delete article "${title}"?`)) {
+          state.blog.splice(currentBlogIndex, 1);
+          currentBlogIndex = Math.max(0, currentBlogIndex - 1);
+          renderBlogTab();
+          showToast("Article deleted.", "info");
+          triggerAutoSave();
+        }
+      });
+    }
+
+    // Title editing in real time
+    const titleInput = document.getElementById("notion-input-title");
+    if (titleInput) {
+      titleInput.addEventListener("input", (e) => {
+        if (!state.blog[currentBlogIndex]) return;
+        const val = e.target.value;
+        state.blog[currentBlogIndex].title = val;
+        
+        // Auto-generate slug if it's default or matches title
+        const currentSlug = state.blog[currentBlogIndex].slug;
+        if (!currentSlug || currentSlug.startsWith("untitled") || currentSlug.startsWith("new-article")) {
+          const autoSlug = val.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+          if (autoSlug) {
+            state.blog[currentBlogIndex].slug = autoSlug;
+            state.blog[currentBlogIndex].url = `/blog/${autoSlug}/`;
+            const slugInput = document.getElementById("notion-prop-slug");
+            if (slugInput) slugInput.value = autoSlug;
+          }
+        }
+
+        // Update card in sidebar in real-time
+        const activeCard = document.querySelector(`.notion-post-card[data-post-idx="${currentBlogIndex}"] .notion-card-title`);
+        if (activeCard) activeCard.textContent = val || "Untitled Post";
+
+        const statusBadge = document.getElementById("notion-active-status-badge");
+        if (statusBadge) statusBadge.textContent = `Editing: ${val || "Untitled"}`;
+      });
+    }
+
+    // Property inputs real-time binding
+    const propDate = document.getElementById("notion-prop-date");
+    if (propDate) {
+      propDate.addEventListener("input", (e) => {
+        if (state.blog[currentBlogIndex]) {
+          state.blog[currentBlogIndex].date = e.target.value;
+        }
+      });
+    }
+
+    const btnSetToday = document.getElementById("btn-prop-set-today");
+    if (btnSetToday && propDate) {
+      btnSetToday.addEventListener("click", () => {
+        const now = new Date();
+        const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+        const todayStr = `${monthNames[now.getMonth()]} ${now.getDate()}, ${now.getFullYear()}`;
+        propDate.value = todayStr;
+        if (state.blog[currentBlogIndex]) {
+          state.blog[currentBlogIndex].date = todayStr;
+        }
+      });
+    }
+
+    const propReading = document.getElementById("notion-prop-reading-time");
+    if (propReading) {
+      propReading.addEventListener("input", (e) => {
+        if (state.blog[currentBlogIndex]) {
+          state.blog[currentBlogIndex].readingTime = e.target.value;
+        }
+      });
+    }
+
+    const btnAutocalc = document.getElementById("btn-prop-autocalc");
+    if (btnAutocalc && propReading) {
+      btnAutocalc.addEventListener("click", () => {
+        const canvas = document.getElementById("notion-editor-canvas");
+        const text = canvas ? (canvas.innerText || "") : "";
+        const words = text.trim() ? text.trim().split(/\s+/).length : 0;
+        const mins = Math.max(1, Math.ceil(words / 200)) + " min read";
+        propReading.value = mins;
+        if (state.blog[currentBlogIndex]) {
+          state.blog[currentBlogIndex].readingTime = mins;
+        }
+        showToast(`Calculated reading time: ${mins}`, "info");
+      });
+    }
+
+    const propTags = document.getElementById("notion-prop-tags");
+    if (propTags) {
+      propTags.addEventListener("input", (e) => {
+        if (state.blog[currentBlogIndex]) {
+          state.blog[currentBlogIndex].tags = e.target.value.split(",").map(t => t.trim()).filter(Boolean);
+        }
+      });
+    }
+
+    const propSlug = document.getElementById("notion-prop-slug");
+    if (propSlug) {
+      propSlug.addEventListener("input", (e) => {
+        if (state.blog[currentBlogIndex]) {
+          const cleanSlug = e.target.value.toLowerCase().replace(/[^a-z0-9_-]/g, "");
+          state.blog[currentBlogIndex].slug = cleanSlug;
+          state.blog[currentBlogIndex].url = `/blog/${cleanSlug}/`;
+        }
+      });
+    }
+
+    const propThumb = document.getElementById("notion-prop-thumbnail");
+    if (propThumb) {
+      propThumb.addEventListener("input", (e) => {
+        if (state.blog[currentBlogIndex]) {
+          state.blog[currentBlogIndex].image = e.target.value;
+          state.blog[currentBlogIndex].coverImage = e.target.value;
+          const coverImg = document.getElementById("notion-cover-image-preview");
+          if (coverImg) coverImg.src = e.target.value;
+        }
+      });
+    }
+
+    const propExcerpt = document.getElementById("notion-prop-excerpt");
+    if (propExcerpt) {
+      propExcerpt.addEventListener("input", (e) => {
+        if (state.blog[currentBlogIndex]) {
+          state.blog[currentBlogIndex].description = e.target.value;
+        }
+      });
+    }
+
+    const propFeatured = document.getElementById("notion-prop-featured");
+    if (propFeatured) {
+      propFeatured.addEventListener("change", (e) => {
+        if (state.blog[currentBlogIndex]) {
+          state.blog[currentBlogIndex].featured = e.target.checked;
+          renderBlogTab();
+        }
+      });
+    }
+
+    // Cover Image Buttons
+    const btnCoverUpload = document.getElementById("btn-trigger-cover-upload");
+    const coverFileInput = document.getElementById("notion-cover-file-input");
+    if (btnCoverUpload && coverFileInput) {
+      btnCoverUpload.addEventListener("click", () => coverFileInput.click());
+      coverFileInput.addEventListener("change", async (e) => {
+        const file = e.target.files && e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = async () => {
+          const base64Data = reader.result.split(",")[1];
+          try {
+            const resp = await fetch("/api/upload-image", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                filename: `cover-${Date.now()}-${file.name}`,
+                base64Data,
+                folder: "assets/blog"
+              })
+            });
+            const res = await resp.json();
+            if (res.success && res.path) {
+              const fullPath = `/${res.path}`.replace(/\/+/g, "/");
+              if (state.blog[currentBlogIndex]) {
+                state.blog[currentBlogIndex].coverImage = fullPath;
+                state.blog[currentBlogIndex].image = fullPath;
+                const coverImg = document.getElementById("notion-cover-image-preview");
+                if (coverImg) coverImg.src = fullPath;
+                if (propThumb) propThumb.value = fullPath;
+                showToast("Cover image updated!", "success");
+              }
+            }
+          } catch (err) {
+            console.error(err);
+            showToast("Failed to upload cover image.", "error");
+          }
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+
+    const btnCoverUrl = document.getElementById("btn-enter-cover-url");
+    if (btnCoverUrl) {
+      btnCoverUrl.addEventListener("click", () => {
+        const url = prompt("Enter image URL for post cover banner:", state.blog[currentBlogIndex]?.coverImage || "");
+        if (url && state.blog[currentBlogIndex]) {
+          state.blog[currentBlogIndex].coverImage = url;
+          state.blog[currentBlogIndex].image = url;
+          const coverImg = document.getElementById("notion-cover-image-preview");
+          if (coverImg) coverImg.src = url;
+          if (propThumb) propThumb.value = url;
+          showToast("Cover URL updated!", "success");
+        }
+      });
+    }
+
+    const btnRemoveCover = document.getElementById("btn-remove-cover");
+    if (btnRemoveCover) {
+      btnRemoveCover.addEventListener("click", () => {
+        if (state.blog[currentBlogIndex]) {
+          state.blog[currentBlogIndex].coverImage = "";
+          state.blog[currentBlogIndex].image = "";
+          const coverImg = document.getElementById("notion-cover-image-preview");
+          if (coverImg) coverImg.src = "/blog/_astro/arcade-jam-poster.DT7rkVUv.png";
+          if (propThumb) propThumb.value = "";
+          showToast("Cover removed.", "info");
+        }
+      });
+    }
+
+    // Thumbnail upload button in properties
+    const btnUploadThumb = document.getElementById("btn-upload-thumbnail");
+    const thumbFileInput = document.getElementById("notion-thumbnail-file-input");
+    if (btnUploadThumb && thumbFileInput) {
+      btnUploadThumb.addEventListener("click", () => thumbFileInput.click());
+      thumbFileInput.addEventListener("change", async (e) => {
+        const file = e.target.files && e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = async () => {
+          const base64Data = reader.result.split(",")[1];
+          try {
+            const resp = await fetch("/api/upload-image", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                filename: `thumb-${Date.now()}-${file.name}`,
+                base64Data,
+                folder: "assets/blog"
+              })
+            });
+            const res = await resp.json();
+            if (res.success && res.path) {
+              const fullPath = `/${res.path}`.replace(/\/+/g, "/");
+              if (state.blog[currentBlogIndex]) {
+                state.blog[currentBlogIndex].image = fullPath;
+                if (propThumb) propThumb.value = fullPath;
+                showToast("Thumbnail updated!", "success");
+              }
+            }
+          } catch (err) {
+            console.error(err);
+            showToast("Failed to upload thumbnail.", "error");
+          }
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+
+    // Canvas Input Sync
+    const canvas = document.getElementById("notion-editor-canvas");
+    if (canvas) {
+      canvas.addEventListener("input", () => {
+        if (state.blog[currentBlogIndex]) {
+          state.blog[currentBlogIndex].contentHtml = canvas.innerHTML;
+          updateNotionStats();
+        }
+      });
+
+      // Slash command detection
+      canvas.addEventListener("keyup", (e) => {
+        if (e.key === "/") {
+          openNotionSlashMenu();
+        } else if (e.key === "Escape") {
+          closeNotionSlashMenu();
+        }
+      });
+    }
+
+    // Formatting Toolbar Buttons
+    const toolbar = document.getElementById("notion-toolbar");
+    if (toolbar) {
+      toolbar.querySelectorAll("[data-cmd]").forEach(btn => {
+        btn.addEventListener("click", () => {
+          const cmd = btn.getAttribute("data-cmd");
+          document.execCommand(cmd, false, null);
+          if (canvas && state.blog[currentBlogIndex]) {
+            state.blog[currentBlogIndex].contentHtml = canvas.innerHTML;
+          }
+        });
+      });
+
+      const blockSelect = document.getElementById("notion-format-block");
+      if (blockSelect) {
+        blockSelect.addEventListener("change", (e) => {
+          const tag = e.target.value;
+          document.execCommand("formatBlock", false, `<${tag}>`);
+          if (canvas && state.blog[currentBlogIndex]) {
+            state.blog[currentBlogIndex].contentHtml = canvas.innerHTML;
+          }
+        });
+      }
+
+      const btnCallout = document.getElementById("btn-insert-callout");
+      if (btnCallout) {
+        btnCallout.addEventListener("click", () => {
+          insertNotionCallout();
+        });
+      }
+
+      const btnCode = document.getElementById("btn-insert-code");
+      if (btnCode) {
+        btnCode.addEventListener("click", () => {
+          insertNotionCodeBlock();
+        });
+      }
+
+      const btnDivider = document.getElementById("btn-insert-divider");
+      if (btnDivider) {
+        btnDivider.addEventListener("click", () => {
+          document.execCommand("insertHorizontalRule", false, null);
+          if (canvas && state.blog[currentBlogIndex]) {
+            state.blog[currentBlogIndex].contentHtml = canvas.innerHTML;
+          }
+        });
+      }
+
+      const btnLink = document.getElementById("btn-insert-link");
+      if (btnLink) {
+        btnLink.addEventListener("click", () => {
+          const url = prompt("Enter URL link:");
+          if (url) {
+            document.execCommand("createLink", false, url);
+            if (canvas && state.blog[currentBlogIndex]) {
+              state.blog[currentBlogIndex].contentHtml = canvas.innerHTML;
+            }
+          }
+        });
+      }
+
+      // Inline Image insertion
+      const btnImage = document.getElementById("btn-insert-image");
+      const inlineImgInput = document.getElementById("notion-inline-image-input");
+      if (btnImage && inlineImgInput) {
+        btnImage.addEventListener("click", () => inlineImgInput.click());
+        inlineImgInput.addEventListener("change", async (e) => {
+          const file = e.target.files && e.target.files[0];
+          if (!file) return;
+          const reader = new FileReader();
+          reader.onload = async () => {
+            const base64Data = reader.result.split(",")[1];
+            try {
+              const resp = await fetch("/api/upload-image", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  filename: `article-img-${Date.now()}-${file.name}`,
+                  base64Data,
+                  folder: "assets/blog"
+                })
+              });
+              const res = await resp.json();
+              if (res.success && res.path) {
+                const fullPath = `/${res.path}`.replace(/\/+/g, "/");
+                document.execCommand("insertHTML", false, `<img src="${fullPath}" alt="Image" /><p><br></p>`);
+                if (canvas && state.blog[currentBlogIndex]) {
+                  state.blog[currentBlogIndex].contentHtml = canvas.innerHTML;
+                }
+                showToast("Image inserted into post!", "success");
+              }
+            } catch (err) {
+              console.error(err);
+              showToast("Failed to upload image.", "error");
+            }
+          };
+          reader.readAsDataURL(file);
+        });
+      }
+    }
+
+    // Notion Slash Menu Items
+    const slashMenu = document.getElementById("notion-slash-menu");
+    if (slashMenu) {
+      slashMenu.querySelectorAll(".slash-item").forEach(item => {
+        item.addEventListener("click", () => {
+          const action = item.getAttribute("data-action");
+          handleNotionSlashAction(action);
+          closeNotionSlashMenu();
+        });
+      });
+    }
+
+    // Close slash menu on outside click
+    document.addEventListener("click", (e) => {
+      if (isSlashMenuOpen && !e.target.closest("#notion-slash-menu")) {
+        closeNotionSlashMenu();
+      }
     });
   }
 
-  const btnAddBlog = document.getElementById("btn-add-blog-card");
-  if (btnAddBlog) {
-    btnAddBlog.addEventListener("click", () => {
-      if (!Array.isArray(state.blog)) state.blog = [];
-      state.blog.push({
-        id: "post-" + Date.now(),
-        title: "New Journal Entry",
-        date: "October 2026",
-        description: "Article overview and technical insights.",
-        url: "/blog/",
-        image: "assets/blog/i-made-a-custom-raspberry-pi-camera.png",
-        tags: ["tech", "coding"],
-      });
-      renderBlogTab();
-      updateCounters();
-    });
+  function openNotionSlashMenu() {
+    const slashMenu = document.getElementById("notion-slash-menu");
+    const canvas = document.getElementById("notion-editor-canvas");
+    if (!slashMenu || !canvas) return;
+
+    const selection = window.getSelection();
+    if (selection && selection.rangeCount > 0) {
+      const range = selection.getRangeAt(0);
+      const rect = range.getBoundingClientRect();
+      const canvasRect = canvas.getBoundingClientRect();
+
+      slashMenu.style.top = `${Math.min(rect.bottom - canvasRect.top + 30, canvasRect.height - 200)}px`;
+      slashMenu.style.left = `${Math.max(20, rect.left - canvasRect.left)}px`;
+      slashMenu.style.display = "block";
+      isSlashMenuOpen = true;
+    }
+  }
+
+  function closeNotionSlashMenu() {
+    const slashMenu = document.getElementById("notion-slash-menu");
+    if (slashMenu) {
+      slashMenu.style.display = "none";
+      isSlashMenuOpen = false;
+    }
+  }
+
+  function handleNotionSlashAction(action) {
+    const canvas = document.getElementById("notion-editor-canvas");
+    if (!canvas) return;
+    canvas.focus();
+
+    // Clean up trailing slash
+    document.execCommand("delete", false, null);
+
+    switch (action) {
+      case "h1":
+        document.execCommand("formatBlock", false, "<h1>");
+        break;
+      case "h2":
+        document.execCommand("formatBlock", false, "<h2>");
+        break;
+      case "h3":
+        document.execCommand("formatBlock", false, "<h3>");
+        break;
+      case "text":
+        document.execCommand("formatBlock", false, "<p>");
+        break;
+      case "bullet":
+        document.execCommand("insertUnorderedList", false, null);
+        break;
+      case "number":
+        document.execCommand("insertOrderedList", false, null);
+        break;
+      case "callout":
+        insertNotionCallout();
+        break;
+      case "code":
+        insertNotionCodeBlock();
+        break;
+      case "quote":
+        document.execCommand("formatBlock", false, "<blockquote>");
+        break;
+      case "divider":
+        document.execCommand("insertHorizontalRule", false, null);
+        break;
+      case "image":
+        const imgInput = document.getElementById("notion-inline-image-input");
+        if (imgInput) imgInput.click();
+        break;
+    }
+
+    if (state.blog[currentBlogIndex]) {
+      state.blog[currentBlogIndex].contentHtml = canvas.innerHTML;
+    }
+  }
+
+  function insertNotionCallout() {
+    const canvas = document.getElementById("notion-editor-canvas");
+    const calloutHtml = `
+      <div class="notion-callout" contenteditable="true">
+        <span class="notion-callout-icon">💡</span>
+        <div class="notion-callout-text"><b>Tip:</b> Add your important note or key takeaway here...</div>
+      </div><p><br></p>`;
+    document.execCommand("insertHTML", false, calloutHtml);
+    if (canvas && state.blog[currentBlogIndex]) {
+      state.blog[currentBlogIndex].contentHtml = canvas.innerHTML;
+    }
+  }
+
+  function insertNotionCodeBlock() {
+    const canvas = document.getElementById("notion-editor-canvas");
+    const codeHtml = `
+      <pre class="notion-code-block" contenteditable="true"><code>// Write your code snippet here\nfunction example() {\n  return "Samarth Blog";\n}</code></pre><p><br></p>`;
+    document.execCommand("insertHTML", false, codeHtml);
+    if (canvas && state.blog[currentBlogIndex]) {
+      state.blog[currentBlogIndex].contentHtml = canvas.innerHTML;
+    }
   }
 
   // =========================================================================
@@ -2473,6 +3173,9 @@
   if (btnGhDeploy) {
     btnGhDeploy.addEventListener("click", () => triggerGlobalDeploy(false));
   }
+
+  // Init Notion Studio Events
+  initNotionStudioEvents();
 
   // Init
   loadInitialData();

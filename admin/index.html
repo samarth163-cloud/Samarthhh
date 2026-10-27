@@ -181,8 +181,8 @@
         </li>
         <li class="admin-nav-item">
           <button class="admin-nav-link" data-tab="tab-blog" type="button">
-            <span class="link-left"><i class="fas fa-newspaper"></i> Blog Cards</span>
-            <span class="nav-counter" id="nav-count-blog">2</span>
+            <span class="link-left"><i class="fas fa-newspaper"></i> Blog Studio</span>
+            <span class="nav-counter" id="nav-count-blog">2 posts</span>
           </button>
         </li>
         <li class="admin-nav-item">
@@ -632,25 +632,321 @@
       </section>
 
       <!-- ================================================================= -->
-      <!-- TAB 5: BLOG CARDS MANAGER                                         -->
+      <!-- ================================================================= -->
+      <!-- TAB 5: BLOG & NOTION STUDIO                                       -->
       <!-- ================================================================= -->
       <section class="tab-pane" id="tab-blog">
         <div class="section-hero-banner">
           <div>
-            <h2>Homepage Blog Cards</h2>
-            <p>Select which journal articles or blog posts are highlighted on your portfolio homepage.</p>
+            <h2><i class="fas fa-feather-pointed" style="color: var(--accent-red); margin-right: 6px;"></i> Blog &amp; Notion Studio</h2>
+            <p>Write, edit, and publish rich Notion-style blog posts. Manage articles, markdown formatting, and featured highlights.</p>
           </div>
-          <button class="btn btn-primary" id="btn-add-blog-card" type="button">
-            <i class="fas fa-plus"></i> Add Blog Card
-          </button>
+          <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+            <button class="btn btn-primary" id="btn-create-new-blog" type="button">
+              <i class="fas fa-plus"></i> New Blog Post
+            </button>
+            <a href="/blog/" target="_blank" class="btn btn-yellow">
+              <i class="fas fa-arrow-up-right-from-square"></i> View Live Blog ↗
+            </a>
+          </div>
         </div>
 
-        <div class="admin-card">
-          <div class="admin-card-header">
-            <div class="admin-card-title"><i class="fas fa-rss"></i> Highlighted Posts</div>
+        <div class="notion-studio-container">
+          
+          <!-- LEFT COLUMN: Post Navigator / Sidebar -->
+          <div class="notion-posts-nav">
+            <div class="notion-nav-header">
+              <div class="notion-nav-title">
+                <i class="fas fa-book-bookmark"></i> All Articles (<span id="notion-nav-total-count">2</span>)
+              </div>
+              <input type="text" id="notion-posts-search" class="form-input" placeholder="Search posts..." />
+            </div>
+
+            <div class="notion-posts-list" id="notion-posts-list-container">
+              <!-- Dynamically populated post cards with thumbnail, title, date, featured pin, and delete button -->
+            </div>
+
+            <button type="button" class="btn btn-sm btn-yellow" id="btn-nav-add-post" style="width: 100%; margin-top: 10px;">
+              <i class="fas fa-plus"></i> Add New Post Draft
+            </button>
           </div>
-          <div id="blog-cards-container" class="items-list">
-            <!-- Dynamically populated blog cards -->
+
+          <!-- RIGHT COLUMN: Notion Workspace Canvas -->
+          <div class="notion-editor-workspace">
+            
+            <!-- Editor Top Control Bar -->
+            <div class="notion-editor-topbar">
+              <div class="topbar-left">
+                <span class="badge" style="background: var(--accent-red); color: #fff; font-size: 11px;" id="notion-active-status-badge">Editing: PiShot</span>
+                <span class="notion-stats-pill" id="notion-word-counter"><i class="fas fa-pen-nib"></i> 0 words</span>
+                <span class="notion-stats-pill" id="notion-reading-pill"><i class="far fa-clock"></i> 1 min read</span>
+              </div>
+
+              <div class="topbar-center">
+                <div class="notion-view-modes">
+                  <button type="button" class="view-mode-btn active" id="btn-mode-canvas">
+                    <i class="fas fa-pen-to-square"></i> Notion Canvas
+                  </button>
+                  <button type="button" class="view-mode-btn" id="btn-mode-preview">
+                    <i class="fas fa-eye"></i> Live Preview
+                  </button>
+                </div>
+              </div>
+
+              <div class="topbar-right">
+                <button type="button" class="btn btn-sm btn-yellow" id="btn-save-current-post" title="Save post to portfolio-data.json and disk">
+                  <i class="fas fa-floppy-disk"></i> Save Post
+                </button>
+                <a href="/blog/" target="_blank" class="btn btn-sm" id="btn-view-current-post-link" title="Open post on website">
+                  <i class="fas fa-external-link-alt"></i> View
+                </a>
+                <button type="button" class="btn btn-sm btn-danger" id="btn-delete-current-post" title="Delete this post">
+                  <i class="fas fa-trash"></i>
+                </button>
+              </div>
+            </div>
+
+            <!-- CANVAS VIEW (The Notion Document) -->
+            <div class="notion-document-card" id="notion-canvas-wrapper">
+              
+              <!-- Notion Page Cover Box -->
+              <div class="notion-cover-wrapper" id="notion-cover-container">
+                <img id="notion-cover-image-preview" src="/assets/blog/i-made-a-custom-raspberry-pi-camera.png" alt="Cover Banner" onerror="this.src='/blog/_astro/camera-pishot-half-built.DCzzKOru.png'" />
+                <div class="notion-cover-actions">
+                  <button type="button" class="notion-cover-btn" id="btn-trigger-cover-upload">
+                    <i class="fas fa-image"></i> Change Cover
+                  </button>
+                  <button type="button" class="notion-cover-btn" id="btn-enter-cover-url">
+                    <i class="fas fa-link"></i> Cover URL
+                  </button>
+                  <button type="button" class="notion-cover-btn" id="btn-remove-cover">
+                    <i class="fas fa-trash"></i> Remove
+                  </button>
+                </div>
+                <input type="file" id="notion-cover-file-input" accept="image/*" style="display: none;" />
+              </div>
+
+              <!-- Main Document Header -->
+              <div class="notion-doc-header">
+                <!-- Large Notion Page Title -->
+                <input type="text" id="notion-input-title" class="notion-page-title-input" placeholder="Untitled Article..." />
+                
+                <!-- Notion Page Properties Drawer -->
+                <div class="notion-properties-panel">
+                  <div class="notion-prop-row">
+                    <span class="prop-label"><i class="far fa-calendar-alt"></i> Publish Date</span>
+                    <div class="prop-value">
+                      <input type="text" id="notion-prop-date" class="form-input prop-input" placeholder="e.g. February 20, 2026" />
+                      <button type="button" class="btn-micro" id="btn-prop-set-today" title="Set to Today">Today</button>
+                    </div>
+                  </div>
+
+                  <div class="notion-prop-row">
+                    <span class="prop-label"><i class="far fa-clock"></i> Reading Time</span>
+                    <div class="prop-value">
+                      <input type="text" id="notion-prop-reading-time" class="form-input prop-input" placeholder="e.g. 8 min read" />
+                      <button type="button" class="btn-micro" id="btn-prop-autocalc" title="Auto calculate reading time based on word count">⚡ Auto</button>
+                    </div>
+                  </div>
+
+                  <div class="notion-prop-row">
+                    <span class="prop-label"><i class="fas fa-tags"></i> Tags</span>
+                    <div class="prop-value">
+                      <input type="text" id="notion-prop-tags" class="form-input prop-input" placeholder="hardware, raspberry pi, camera" />
+                    </div>
+                  </div>
+
+                  <div class="notion-prop-row">
+                    <span class="prop-label"><i class="fas fa-link"></i> URL Slug</span>
+                    <div class="prop-value">
+                      <div class="slug-preview-box">
+                        <span class="slug-prefix">/blog/</span>
+                        <input type="text" id="notion-prop-slug" class="slug-input" placeholder="article-slug" />
+                        <span class="slug-suffix">/</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="notion-prop-row">
+                    <span class="prop-label"><i class="far fa-image"></i> Thumbnail Path</span>
+                    <div class="prop-value">
+                      <input type="text" id="notion-prop-thumbnail" class="form-input prop-input" placeholder="assets/blog/thumbnail.png" />
+                      <button type="button" class="btn-micro" id="btn-upload-thumbnail">Upload</button>
+                      <input type="file" id="notion-thumbnail-file-input" accept="image/*" style="display: none;" />
+                    </div>
+                  </div>
+
+                  <div class="notion-prop-row full-width">
+                    <span class="prop-label"><i class="fas fa-align-left"></i> Excerpt / Summary</span>
+                    <div class="prop-value">
+                      <textarea id="notion-prop-excerpt" class="form-textarea prop-textarea" rows="2" placeholder="Brief 1-2 sentence description for homepage cards and social previews..."></textarea>
+                    </div>
+                  </div>
+
+                  <div class="notion-prop-row full-width highlight-row">
+                    <label class="notion-featured-checkbox-label">
+                      <input type="checkbox" id="notion-prop-featured" />
+                      <span class="checkbox-custom"></span>
+                      <span class="label-text">
+                        <strong><i class="fas fa-star" style="color: var(--accent-yellow);"></i> Highlight on Portfolio Homepage</strong>
+                        <span class="subtext">(Displays this article in the 2 featured blog cards on the main portfolio page)</span>
+                      </span>
+                    </label>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Notion Sticky Formatting Bar -->
+              <div class="notion-toolbar" id="notion-toolbar">
+                <div class="toolbar-group">
+                  <select id="notion-format-block" class="toolbar-select" title="Change Block Style">
+                    <option value="p">Paragraph</option>
+                    <option value="h1">Heading 1</option>
+                    <option value="h2">Heading 2</option>
+                    <option value="h3">Heading 3</option>
+                    <option value="blockquote">Quote Block</option>
+                    <option value="pre">Code Snippet</option>
+                  </select>
+                </div>
+
+                <div class="toolbar-divider"></div>
+
+                <div class="toolbar-group">
+                  <button type="button" class="toolbar-btn" data-cmd="bold" title="Bold (Ctrl+B)"><b>B</b></button>
+                  <button type="button" class="toolbar-btn" data-cmd="italic" title="Italic (Ctrl+I)"><i>I</i></button>
+                  <button type="button" class="toolbar-btn" data-cmd="underline" title="Underline (Ctrl+U)"><u>U</u></button>
+                  <button type="button" class="toolbar-btn" data-cmd="strikeThrough" title="Strikethrough"><s>S</s></button>
+                </div>
+
+                <div class="toolbar-divider"></div>
+
+                <div class="toolbar-group">
+                  <button type="button" class="toolbar-btn" data-cmd="insertUnorderedList" title="Bulleted List"><i class="fas fa-list-ul"></i></button>
+                  <button type="button" class="toolbar-btn" data-cmd="insertOrderedList" title="Numbered List"><i class="fas fa-list-ol"></i></button>
+                  <button type="button" class="toolbar-btn" id="btn-insert-callout" title="Insert Notion Callout Box"><i class="fas fa-lightbulb"></i> Callout</button>
+                  <button type="button" class="toolbar-btn" id="btn-insert-code" title="Insert Code Block"><i class="fas fa-code"></i> Code</button>
+                  <button type="button" class="toolbar-btn" id="btn-insert-divider" title="Insert Horizontal Divider"><i class="fas fa-minus"></i> Divider</button>
+                </div>
+
+                <div class="toolbar-divider"></div>
+
+                <div class="toolbar-group">
+                  <button type="button" class="toolbar-btn" id="btn-insert-link" title="Insert Link"><i class="fas fa-link"></i> Link</button>
+                  <button type="button" class="toolbar-btn" id="btn-insert-image" title="Insert Image into post"><i class="fas fa-image"></i> Image</button>
+                  <input type="file" id="notion-inline-image-input" accept="image/*" style="display: none;" />
+                </div>
+
+                <div class="toolbar-divider"></div>
+
+                <div class="toolbar-group">
+                  <button type="button" class="toolbar-btn" data-cmd="removeFormat" title="Clear Formatting"><i class="fas fa-eraser"></i></button>
+                </div>
+
+                <div class="toolbar-hint">
+                  <span class="hint-pill">Type <code>/</code> for commands</span>
+                </div>
+              </div>
+
+              <!-- Notion Slash Command Menu -->
+              <div class="notion-slash-menu" id="notion-slash-menu" style="display: none;">
+                <div class="slash-header">BASIC BLOCKS</div>
+                <button type="button" class="slash-item" data-action="h1">
+                  <i class="fas fa-heading"></i>
+                  <div>
+                    <strong>Heading 1</strong>
+                    <span>Large section title</span>
+                  </div>
+                </button>
+                <button type="button" class="slash-item" data-action="h2">
+                  <i class="fas fa-heading" style="font-size: 0.85em;"></i>
+                  <div>
+                    <strong>Heading 2</strong>
+                    <span>Medium section subtitle</span>
+                  </div>
+                </button>
+                <button type="button" class="slash-item" data-action="h3">
+                  <i class="fas fa-heading" style="font-size: 0.7em;"></i>
+                  <div>
+                    <strong>Heading 3</strong>
+                    <span>Small subsection header</span>
+                  </div>
+                </button>
+                <button type="button" class="slash-item" data-action="text">
+                  <i class="fas fa-paragraph"></i>
+                  <div>
+                    <strong>Text</strong>
+                    <span>Standard paragraph block</span>
+                  </div>
+                </button>
+                <button type="button" class="slash-item" data-action="bullet">
+                  <i class="fas fa-list-ul"></i>
+                  <div>
+                    <strong>Bulleted List</strong>
+                    <span>Create a bullet list</span>
+                  </div>
+                </button>
+                <button type="button" class="slash-item" data-action="number">
+                  <i class="fas fa-list-ol"></i>
+                  <div>
+                    <strong>Numbered List</strong>
+                    <span>Create an ordered list</span>
+                  </div>
+                </button>
+                <button type="button" class="slash-item" data-action="callout">
+                  <i class="fas fa-lightbulb" style="color: #f59e0b;"></i>
+                  <div>
+                    <strong>Callout Box</strong>
+                    <span>Highlight tips, notes, or warnings</span>
+                  </div>
+                </button>
+                <button type="button" class="slash-item" data-action="code">
+                  <i class="fas fa-code"></i>
+                  <div>
+                    <strong>Code Block</strong>
+                    <span>Formatted code snippet</span>
+                  </div>
+                </button>
+                <button type="button" class="slash-item" data-action="quote">
+                  <i class="fas fa-quote-left"></i>
+                  <div>
+                    <strong>Quote</strong>
+                    <span>Capture a quote or citation</span>
+                  </div>
+                </button>
+                <button type="button" class="slash-item" data-action="divider">
+                  <i class="fas fa-minus"></i>
+                  <div>
+                    <strong>Divider</strong>
+                    <span>Visually divide blocks</span>
+                  </div>
+                </button>
+                <button type="button" class="slash-item" data-action="image">
+                  <i class="fas fa-image"></i>
+                  <div>
+                    <strong>Image</strong>
+                    <span>Upload or embed image</span>
+                  </div>
+                </button>
+              </div>
+
+              <!-- Notion ContentEditable Canvas -->
+              <div class="notion-canvas" id="notion-editor-canvas" contenteditable="true" spellcheck="true" placeholder="Start typing your article here, or type '/' for Notion blocks...">
+                <!-- Dynamic post prose content -->
+              </div>
+            </div>
+
+            <!-- LIVE PREVIEW VIEW (Toggled when in Preview Mode) -->
+            <div class="notion-preview-wrapper" id="notion-preview-wrapper" style="display: none;">
+              <div class="preview-banner">
+                <span><i class="fas fa-eye"></i> LIVE PREVIEW — This is exactly how the article renders on your blog website:</span>
+              </div>
+              <div class="preview-container">
+                <main class="article-main" id="notion-preview-article-target">
+                  <!-- Real-time rendered article preview -->
+                </main>
+              </div>
+            </div>
+
           </div>
         </div>
       </section>
