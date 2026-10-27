@@ -301,6 +301,13 @@
   "projects": [
     {
       "id": "samarth-s-portfolio",
+      "title": "Samarth's Portfolio",
+      "description": "An open-source DIY camera! Built from scratch with a Raspberry Pi Zero 2W, Pi camera module, hand-wiring, and a 3D-printed case. And custom firmware!",
+      "image": "https://npzqpcagdtnfuqhyngro.supabase.co/storage/v1/object/public/portfolio-assets/Samarth's%20Portfolio.png",
+      "sourceUrl": "https://github.com/samarth163-cloud/PiShot",
+      "visitUrl": "https://www.youtube.com/watch?v=gf-RIgXnWJM",
+      "visitLabel": "Demo",
+      "featured": true,
       "tech": [
         {
           "icon": "fas fa-microchip",
@@ -314,14 +321,7 @@
           "icon": "fas fa-bolt",
           "name": "Hardware"
         }
-      ],
-      "image": "https://npzqpcagdtnfuqhyngro.supabase.co/storage/v1/object/public/portfolio-assets/pishot.png",
-      "title": "Samarth's Portfolio",
-      "featured": true,
-      "visitUrl": "https://www.youtube.com/watch?v=gf-RIgXnWJM",
-      "sourceUrl": "https://github.com/samarth163-cloud/PiShot",
-      "visitLabel": "Demo",
-      "description": "An open-source DIY camera! Built from scratch with a Raspberry Pi Zero 2W, Pi camera module, hand-wiring, and a 3D-printed case. And custom firmware!"
+      ]
     },
     {
       "id": "adobe-wakatime",
@@ -516,5 +516,5 @@
       "description": "ssh samarth@hackclub.app"
     }
   ],
-  "_updatedAt": 1793129530444
+  "_updatedAt": 1793129702134
 }
