@@ -123,6 +123,10 @@
           <span class="dot"></span>
           <span id="sync-status-text">Live Sync Active</span>
         </div>
+        <div class="sync-status supabase-status" id="supabase-status-badge" style="background: rgba(36, 180, 126, 0.15); border: 1.5px solid #24b47e; color: #24b47e; cursor: pointer;" title="Supabase Cloud Database Connected">
+          <span class="dot" style="background: #24b47e; box-shadow: 0 0 8px #24b47e;"></span>
+          <span id="supabase-status-text">Supabase Cloud</span>
+        </div>
       </div>
 
       <div class="header-actions">
@@ -1068,6 +1072,50 @@
               <i class="fas fa-upload"></i> Choose JSON File
               <input type="file" id="input-import-json" accept=".json" style="display: none;" />
             </label>
+          </div>
+
+          <!-- Supabase Realtime Cloud Sync Card -->
+          <div class="admin-card" style="grid-column: 1 / -1; border-color: #24b47e; box-shadow: 4px 4px 0 #24b47e;">
+            <div class="admin-card-header" style="background: rgba(36, 180, 126, 0.15);">
+              <div class="admin-card-title">
+                <i class="fas fa-bolt" style="color: #24b47e;"></i> Supabase Realtime Cloud Database
+              </div>
+              <span class="badge" id="supabase-card-badge" style="background: #24b47e; color: #000; font-weight: 800; font-size: 11px; padding: 2px 8px;">CONNECTED &amp; READY</span>
+            </div>
+            <p style="margin-bottom: 14px; font-size: 14px; line-height: 1.5; color: var(--text-muted);">
+              Aapka portfolio data <b>Supabase Cloud</b> par instantly sync hota hai. Har baar jab aap <b>Save (Ctrl+S)</b> dabate hain, changes bina kisi delay ke database me 0.1 second me save ho jate hain!
+            </p>
+            <div class="form-grid" style="margin-bottom: 12px;">
+              <div class="form-group">
+                <label class="form-label">Supabase Project URL</label>
+                <input type="text" id="supabase-url" class="form-input" value="https://npzqpcagdtnfuqhyngro.supabase.co" />
+              </div>
+              <div class="form-group">
+                <label class="form-label">Database Table</label>
+                <input type="text" id="supabase-table" class="form-input" value="portfolio_data" readonly style="opacity: 0.8; font-family: var(--font-mono); background: var(--bg-card);" />
+              </div>
+              <div class="form-group full-width">
+                <label class="form-label" style="display: flex; justify-content: space-between;">
+                  <span>Supabase Public Anon Key</span>
+                  <span class="helper" style="color: #24b47e; font-weight: 700;"><i class="fas fa-check-circle"></i> Connected</span>
+                </label>
+                <input type="password" id="supabase-key" class="form-input" value="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5wenFwY2FnZHRuZnVxaHluZ3JvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTMxMjEzOTEsImV4cCI6MjEwODY5NzM5MX0.N20yyXXnX-ddUDo43ynQOe6f0r6ZoeK4w1MUpPzs37Y" />
+              </div>
+            </div>
+            <div style="display: flex; gap: 10px; flex-wrap: wrap; align-items: center;">
+              <button class="btn btn-primary" id="btn-supabase-sync-now" type="button" style="background: #24b47e; border-color: #000; color: #000; font-weight: 800;">
+                <i class="fas fa-cloud-arrow-up"></i> Sync Current Data to Supabase
+              </button>
+              <button class="btn" id="btn-supabase-pull-now" type="button">
+                <i class="fas fa-cloud-arrow-down"></i> Pull Latest from Supabase
+              </button>
+              <button class="btn" id="btn-supabase-test-conn" type="button">
+                <i class="fas fa-plug-circle-check"></i> Test Connection
+              </button>
+              <button class="btn" id="btn-supabase-save-config" type="button">
+                <i class="fas fa-key"></i> Save Credentials
+              </button>
+            </div>
           </div>
 
           <div class="admin-card" style="grid-column: 1 / -1; border-color: var(--accent-red);">

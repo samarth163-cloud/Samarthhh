@@ -10,6 +10,9 @@
   const DATA_URL = "/data/portfolio-data.json";
   const CHANNEL_NAME = "samarth_portfolio_sync";
 
+  const SUPABASE_URL = "https://npzqpcagdtnfuqhyngro.supabase.co";
+  const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5wenFwY2FnZHRuZnVxaHluZ3JvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTMxMjEzOTEsImV4cCI6MjEwODY5NzM5MX0.N20yyXXnX-ddUDo43ynQOe6f0r6ZoeK4w1MUpPzs37Y";
+
   let broadcastChannel = null;
   try {
     if (typeof BroadcastChannel !== "undefined") {
@@ -19,7 +22,7 @@
     console.warn("BroadcastChannel not supported", e);
   }
 
-  // Load data: sync server data across all devices globally
+  // Load data: sync server data and Supabase cloud across all devices globally
   async function loadData() {
     let serverData = null;
     try {
@@ -31,18 +34,39 @@
       console.warn("Could not fetch fresh server data", e);
     }
 
+    // Try Supabase Cloud Database for real-time changes
+    let supabaseData = null;
+    try {
+      const sbRes = await fetch(`${SUPABASE_URL}/rest/v1/portfolio_data?id=eq.main&select=*`, {
+        headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}` }
+      });
+      if (sbRes.ok) {
+        const rows = await sbRes.json();
+        if (rows && rows.length > 0 && rows[0].data) {
+          supabaseData = rows[0].data;
+        }
+      }
+    } catch (e) {
+      // Supabase network failure or offline
+    }
+
+    let loaded = serverData;
+    const serverTime = serverData ? (serverData._updatedAt || 0) : 0;
+    const supabaseTime = supabaseData ? (supabaseData._updatedAt || 0) : 0;
+
+    if (supabaseTime > serverTime) {
+      loaded = supabaseData;
+    }
+
     try {
       const localStr = localStorage.getItem(STORAGE_KEY) || localStorage.getItem(LEGACY_KEY);
       if (localStr) {
         const local = JSON.parse(localStr);
-        // If server data exists, compare timestamps
-        if (serverData) {
-          const serverTime = serverData._updatedAt || 0;
-          const localTime = local._updatedAt || 0;
-          if (serverTime >= localTime) {
-            try { localStorage.setItem(STORAGE_KEY, JSON.stringify(serverData)); } catch(e){}
-            return serverData;
-          }
+        const localTime = local._updatedAt || 0;
+        const bestTime = loaded ? (loaded._updatedAt || 0) : 0;
+        if (bestTime >= localTime) {
+          try { localStorage.setItem(STORAGE_KEY, JSON.stringify(loaded)); } catch(e){}
+          return loaded;
         }
         return local;
       }
@@ -50,9 +74,9 @@
       console.warn("Could not read from localStorage", e);
     }
 
-    if (serverData) {
-      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(serverData)); } catch(e){}
-      return serverData;
+    if (loaded) {
+      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(loaded)); } catch(e){}
+      return loaded;
     }
 
     return null;

@@ -18,6 +18,119 @@
     console.warn("BroadcastChannel unavailable", e);
   }
 
+  // =========================================================================
+  // SUPABASE REALTIME CLOUD CONFIGURATION & SYNC ENGINE
+  // =========================================================================
+  const DEFAULT_SUPABASE_URL = "https://npzqpcagdtnfuqhyngro.supabase.co";
+  const DEFAULT_SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5wenFwY2FnZHRuZnVxaHluZ3JvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTMxMjEzOTEsImV4cCI6MjEwODY5NzM5MX0.N20yyXXnX-ddUDo43ynQOe6f0r6ZoeK4w1MUpPzs37Y";
+  const SUPABASE_STORAGE_URL_KEY = "samarth_supabase_url";
+  const SUPABASE_STORAGE_KEY = "samarth_supabase_key";
+
+  function getSupabaseConfig() {
+    return {
+      url: (localStorage.getItem(SUPABASE_STORAGE_URL_KEY) || DEFAULT_SUPABASE_URL).trim(),
+      key: (localStorage.getItem(SUPABASE_STORAGE_KEY) || DEFAULT_SUPABASE_KEY).trim(),
+    };
+  }
+
+  function updateSupabaseStatusBadge(isConnected, message) {
+    const badge = document.getElementById("supabase-status-badge");
+    const text = document.getElementById("supabase-status-text");
+    const cardBadge = document.getElementById("supabase-card-badge");
+    if (isConnected) {
+      if (badge) {
+        badge.style.display = "inline-flex";
+        badge.style.background = "rgba(36, 180, 126, 0.15)";
+        badge.style.borderColor = "#24b47e";
+        badge.style.color = "#24b47e";
+      }
+      if (text) text.textContent = message || "Supabase Cloud";
+      if (cardBadge) {
+        cardBadge.textContent = "CONNECTED & READY";
+        cardBadge.style.background = "#24b47e";
+        cardBadge.style.color = "#000";
+      }
+    } else {
+      if (text) text.textContent = message || "Supabase Offline";
+      if (badge) {
+        badge.style.background = "rgba(239, 68, 68, 0.15)";
+        badge.style.borderColor = "#ef4444";
+        badge.style.color = "#ef4444";
+      }
+      if (cardBadge) {
+        cardBadge.textContent = "DISCONNECTED";
+        cardBadge.style.background = "#ef4444";
+        cardBadge.style.color = "#fff";
+      }
+    }
+  }
+
+  async function syncToSupabase(silent = false) {
+    const config = getSupabaseConfig();
+    if (!config.url || !config.key) return false;
+
+    try {
+      const endpoint = `${config.url.replace(/\/+$/, "")}/rest/v1/portfolio_data`;
+      const res = await fetch(endpoint, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "apikey": config.key,
+          "Authorization": `Bearer ${config.key}`,
+          "Prefer": "resolution=merge-duplicates,return=representation"
+        },
+        body: JSON.stringify({
+          id: "main",
+          data: state,
+          updated_at: new Date().toISOString()
+        })
+      });
+
+      if (res.ok) {
+        updateSupabaseStatusBadge(true, "Supabase Synced");
+        if (!silent) showToast("Synchronized with Supabase Cloud Database! ☁️", "success");
+        return true;
+      } else {
+        const errText = await res.text();
+        console.warn("Supabase sync failed:", res.status, errText);
+        updateSupabaseStatusBadge(false, "Supabase Error");
+        if (!silent) showToast("Supabase sync warning: " + res.statusText, "error");
+        return false;
+      }
+    } catch (err) {
+      console.warn("Supabase network error:", err);
+      updateSupabaseStatusBadge(false, "Supabase Offline");
+      if (!silent) showToast("Supabase network error: " + err.message, "error");
+      return false;
+    }
+  }
+
+  async function fetchFromSupabase() {
+    const config = getSupabaseConfig();
+    if (!config.url || !config.key) return null;
+
+    try {
+      const endpoint = `${config.url.replace(/\/+$/, "")}/rest/v1/portfolio_data?id=eq.main&select=*`;
+      const res = await fetch(endpoint, {
+        headers: {
+          "apikey": config.key,
+          "Authorization": `Bearer ${config.key}`
+        }
+      });
+      if (res.ok) {
+        const rows = await res.json();
+        if (rows && rows.length > 0 && rows[0].data) {
+          updateSupabaseStatusBadge(true, "Supabase Cloud");
+          return rows[0].data;
+        }
+      }
+    } catch (err) {
+      console.warn("Could not fetch from Supabase:", err);
+      updateSupabaseStatusBadge(false, "Supabase Offline");
+    }
+    return null;
+  }
+
   // Master State
   let state = {
     general: {},
@@ -197,6 +310,22 @@
     if (!loaded && serverData) {
       loaded = serverData;
       try { localStorage.setItem(STORAGE_KEY, JSON.stringify(serverData)); } catch(e){}
+    }
+
+    // Always attempt fresh sync from Supabase Cloud
+    try {
+      const supabaseData = await fetchFromSupabase();
+      if (supabaseData) {
+        const supabaseTime = supabaseData._updatedAt || 0;
+        const currentLoadedTime = loaded ? (loaded._updatedAt || 0) : 0;
+        if (supabaseTime >= currentLoadedTime || !loaded) {
+          loaded = supabaseData;
+          try { localStorage.setItem(STORAGE_KEY, JSON.stringify(supabaseData)); } catch(e){}
+          console.log("Loaded latest state from Supabase Cloud Database!");
+        }
+      }
+    } catch (e) {
+      console.warn("Supabase initial fetch bypassed:", e);
     }
 
     if (loaded) {
@@ -2799,20 +2928,23 @@
         // Static server running
       }
 
-      const hasToken = !!localStorage.getItem("gh_deploy_token");
-      if (serverSaved) {
-        showToast("Changes saved to disk & portfolio updated live!", "success");
-      } else if (hasToken) {
-        showToast("Saved locally & deploying globally to all devices...", "info");
-      } else {
-        showToast("Saved in this browser! Click 'Deploy to All Devices 🌐' to sync with other laptops/phones.", "success");
-      }
-
       // Pulse save button
       const btnSave = document.getElementById("btn-save-master");
       if (btnSave) {
         btnSave.classList.add("btn-yellow");
         setTimeout(() => btnSave.classList.remove("btn-yellow"), 600);
+      }
+
+      // Save instantly to Supabase Cloud Database in background
+      syncToSupabase(true).catch(e => console.warn("Supabase background save failed", e));
+
+      const hasToken = !!localStorage.getItem("gh_deploy_token");
+      if (serverSaved) {
+        showToast("Changes saved to Supabase Cloud, disk & live portfolio! ☁️", "success");
+      } else if (hasToken) {
+        showToast("Saved to Supabase Cloud & deploying globally...", "info");
+      } else {
+        showToast("Changes saved to Supabase Cloud & browser! ☁️", "success");
       }
 
       // Auto-trigger global deploy if token is present
@@ -3313,6 +3445,99 @@
 
   if (btnGhDeploy) {
     btnGhDeploy.addEventListener("click", () => triggerGlobalDeploy(false));
+  }
+
+  // =========================================================================
+  // SUPABASE BACKUP TAB UI CONTROLS & LISTENERS
+  // =========================================================================
+  const supabaseUrlInput = document.getElementById("supabase-url");
+  const supabaseKeyInput = document.getElementById("supabase-key");
+  const btnSupabaseSyncNow = document.getElementById("btn-supabase-sync-now");
+  const btnSupabasePullNow = document.getElementById("btn-supabase-pull-now");
+  const btnSupabaseTestConn = document.getElementById("btn-supabase-test-conn");
+  const btnSupabaseSaveConfig = document.getElementById("btn-supabase-save-config");
+  const supabaseHeaderBadge = document.getElementById("supabase-status-badge");
+
+  if (supabaseUrlInput) supabaseUrlInput.value = localStorage.getItem(SUPABASE_STORAGE_URL_KEY) || DEFAULT_SUPABASE_URL;
+  if (supabaseKeyInput) supabaseKeyInput.value = localStorage.getItem(SUPABASE_STORAGE_KEY) || DEFAULT_SUPABASE_KEY;
+
+  if (btnSupabaseSaveConfig) {
+    btnSupabaseSaveConfig.addEventListener("click", async () => {
+      const url = (supabaseUrlInput?.value || "").trim();
+      const key = (supabaseKeyInput?.value || "").trim();
+      if (!url || !key) {
+        showToast("Kripya Supabase URL aur Key dono enter karein.", "error");
+        return;
+      }
+      localStorage.setItem(SUPABASE_STORAGE_URL_KEY, url);
+      localStorage.setItem(SUPABASE_STORAGE_KEY, key);
+      showToast("Supabase credentials saved locally!", "success");
+      await syncToSupabase(false);
+    });
+  }
+
+  if (btnSupabaseTestConn) {
+    btnSupabaseTestConn.addEventListener("click", async () => {
+      btnSupabaseTestConn.disabled = true;
+      btnSupabaseTestConn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Testing...`;
+      try {
+        const config = getSupabaseConfig();
+        const res = await fetch(`${config.url.replace(/\/+$/, "")}/rest/v1/portfolio_data?select=id`, {
+          headers: { apikey: config.key, Authorization: `Bearer ${config.key}` }
+        });
+        if (res.ok) {
+          updateSupabaseStatusBadge(true, "Supabase Online");
+          showToast("✓ Supabase Connected Successfully! Database & Table active.", "success");
+        } else {
+          updateSupabaseStatusBadge(false, "Connection Failed");
+          showToast("Connection failed: " + res.status + " " + res.statusText, "error");
+        }
+      } catch (err) {
+        updateSupabaseStatusBadge(false, "Network Error");
+        showToast("Supabase connection error: " + err.message, "error");
+      } finally {
+        btnSupabaseTestConn.disabled = false;
+        btnSupabaseTestConn.innerHTML = `<i class="fas fa-plug-circle-check"></i> Test Connection`;
+      }
+    });
+  }
+
+  if (btnSupabaseSyncNow) {
+    btnSupabaseSyncNow.addEventListener("click", async () => {
+      btnSupabaseSyncNow.disabled = true;
+      btnSupabaseSyncNow.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Syncing...`;
+      await syncToSupabase(false);
+      btnSupabaseSyncNow.disabled = false;
+      btnSupabaseSyncNow.innerHTML = `<i class="fas fa-cloud-arrow-up"></i> Sync Current Data to Supabase`;
+    });
+  }
+
+  if (btnSupabasePullNow) {
+    btnSupabasePullNow.addEventListener("click", async () => {
+      if (confirm("Supabase Cloud se latest data download karein? Local unsaved changes overwrite ho sakte hain.")) {
+        btnSupabasePullNow.disabled = true;
+        btnSupabasePullNow.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Pulling...`;
+        const fresh = await fetchFromSupabase();
+        if (fresh) {
+          state = fresh;
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+          renderAllTabs();
+          updateCounters();
+          showToast("Pulled and reloaded latest data from Supabase Cloud! ☁️", "success");
+        } else {
+          showToast("Could not pull fresh data from Supabase", "error");
+        }
+        btnSupabasePullNow.disabled = false;
+        btnSupabasePullNow.innerHTML = `<i class="fas fa-cloud-arrow-down"></i> Pull Latest from Supabase`;
+      }
+    });
+  }
+
+  if (supabaseHeaderBadge) {
+    supabaseHeaderBadge.addEventListener("click", () => {
+      const backupTabBtn = document.querySelector('[data-tab="tab-backup"]');
+      if (backupTabBtn) backupTabBtn.click();
+    });
   }
 
   // Init Notion Studio Events
