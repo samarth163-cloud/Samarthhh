@@ -171,8 +171,8 @@
       "dot": "green",
       "text": "Available for opportunities & freelance",
       "type": "available",
-      "subtext": "Open to internships, open-source & contract work",
-      "visible": false
+      "subtext": "",
+      "visible": true
     },
     "visible": true,
     "projects": [
@@ -571,5 +571,5 @@
       "description": "ssh samarth@hackclub.app"
     }
   ],
-  "_updatedAt": 1793137525228
+  "_updatedAt": 1793137564925
 }
