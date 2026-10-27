@@ -241,8 +241,8 @@
       {
         "id": "edu-1793131062535",
         "meta": "2024 - 2026",
-        "description": "Bachelor of Computer Applications (BCA)",
-        "institution": "Veer Narmad South Gujarat University (VNSGU), Surat"
+        "description": "Veer Narmad South Gujarat University (VNSGU), Surat",
+        "institution": "Bachelor of Computer Applications (BCA)"
       }
     ],
     "statsNote": "Live coding activity from Hackatime.",
@@ -572,5 +572,5 @@
       "description": "ssh samarth@hackclub.app"
     }
   ],
-  "_updatedAt": 1793138935478
+  "_updatedAt": 1793139116076
 }
