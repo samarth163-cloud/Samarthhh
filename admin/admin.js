@@ -597,28 +597,23 @@
     });
   }
 
-  // Upload custom image
+  // Upload custom image direct to Supabase Storage
   if (projImageFile) {
-    projImageFile.addEventListener("change", (e) => {
-      const file = e.target.files[0];
+    projImageFile.addEventListener("change", async (e) => {
+      const file = e.target.files && e.target.files[0];
       if (file) {
-        let targetPath = (projImage?.value || "").trim().replace(/^\//, "");
-        if (!targetPath || targetPath.startsWith("data:")) {
-          const titleSlug = (projTitle?.value || "project").toLowerCase().replace(/[^a-z0-9]/g, "-");
-          targetPath = `assets/projects/${titleSlug}.png`;
+        try {
+          showToast(`Uploading "${file.name}" to Supabase Database...`, "info");
+          const res = await uploadSupabaseStorageFile(file);
+          if (res && res.url) {
+            projImage.value = res.url;
+            updateModalPreview(res.url);
+            showToast("✓ Image uploaded & saved to Supabase Database!", "success");
+          }
+        } catch (err) {
+          console.error(err);
+          showToast("Upload failed: " + err.message, "error");
         }
-
-        const reader = new FileReader();
-        reader.onload = (ev) => {
-          const fullDataUrl = ev.target.result;
-          const rawBase64 = fullDataUrl.split(",")[1];
-          pendingImageUploads[targetPath] = rawBase64;
-
-          projImage.value = targetPath;
-          updateModalPreview(fullDataUrl);
-          showToast(`Image loaded! Name will stay "${targetPath}". Save/Deploy will overwrite file on GitHub.`, "info");
-        };
-        reader.readAsDataURL(file);
       }
     });
   }
@@ -1707,94 +1702,52 @@
     }
   }
 
-  // Upload new avatar file
+  // Upload new avatar file direct to Supabase Storage
   const avatarUploadInput = document.getElementById("avatar-file-upload-input");
   if (avatarUploadInput) {
     avatarUploadInput.addEventListener("change", async (e) => {
-      const file = e.target.files[0];
+      const file = e.target.files && e.target.files[0];
       if (!file) return;
 
-      const reader = new FileReader();
-      reader.onload = async (ev) => {
-        const dataUrl = ev.target.result;
-        const rawBase64 = dataUrl.split(",")[1];
-        const ext = file.name.split(".").pop() || "jpg";
-        const filename = `avatar-${Date.now()}.${ext}`;
-        const targetPath = `assets/profile/${filename}`;
-
-        try {
-          const res = await fetch("/api/upload-image", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ filename, base64Data: rawBase64, folder: "assets/profile" }),
-          });
-          if (res.ok) {
-            const data = await res.json();
-            const savedPath = data.path || targetPath;
-            state.general.avatars.push(savedPath);
-            pendingImageUploads[savedPath] = rawBase64;
-          } else {
-            pendingImageUploads[targetPath] = rawBase64;
-            state.general.avatars.push(dataUrl);
-          }
-        } catch {
-          pendingImageUploads[targetPath] = rawBase64;
-          state.general.avatars.push(dataUrl);
+      try {
+        showToast("Uploading avatar to Supabase Database...", "info");
+        const res = await uploadSupabaseStorageFile(file);
+        if (res && res.url) {
+          if (!Array.isArray(state.general.avatars)) state.general.avatars = [];
+          state.general.avatars.push(res.url);
+          renderAvatarGallery();
+          performMasterSave();
+          showToast("✓ New avatar saved in Supabase Database!", "success");
         }
-
-        renderAvatarGallery();
-        showToast("New avatar added to sequence!", "success");
-      };
-      reader.readAsDataURL(file);
+      } catch (err) {
+        console.error(err);
+        showToast("Supabase avatar upload failed: " + err.message, "error");
+      }
     });
   }
 
-  // Replace avatar file
+  // Replace avatar file direct in Supabase Storage
   const avatarReplaceInput = document.getElementById("avatar-file-replace-input");
   if (avatarReplaceInput) {
     avatarReplaceInput.addEventListener("change", async (e) => {
-      const file = e.target.files[0];
+      const file = e.target.files && e.target.files[0];
       if (!file || replacingAvatarIdx < 0 || replacingAvatarIdx >= state.general.avatars.length) return;
 
-      const reader = new FileReader();
-      reader.onload = async (ev) => {
-        const dataUrl = ev.target.result;
-        const rawBase64 = dataUrl.split(",")[1];
-        const oldPath = state.general.avatars[replacingAvatarIdx];
-        const ext = file.name.split(".").pop() || "jpg";
-        const filename =
-          oldPath && !oldPath.startsWith("data:") && !oldPath.startsWith("http")
-            ? oldPath.split("/").pop()
-            : `avatar-${Date.now()}.${ext}`;
-        const targetPath = `assets/profile/${filename}`;
-
-        try {
-          const res = await fetch("/api/upload-image", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ filename, base64Data: rawBase64, folder: "assets/profile" }),
-          });
-          if (res.ok) {
-            const data = await res.json();
-            const newPath = data.path || targetPath;
-            if (state.general.profilePic === oldPath) state.general.profilePic = newPath;
-            state.general.avatars[replacingAvatarIdx] = newPath;
-            pendingImageUploads[newPath] = rawBase64;
-          } else {
-            if (state.general.profilePic === oldPath) state.general.profilePic = dataUrl;
-            state.general.avatars[replacingAvatarIdx] = dataUrl;
-            pendingImageUploads[targetPath] = rawBase64;
-          }
-        } catch {
-          if (state.general.profilePic === oldPath) state.general.profilePic = dataUrl;
-          state.general.avatars[replacingAvatarIdx] = dataUrl;
-          pendingImageUploads[targetPath] = rawBase64;
+      try {
+        showToast("Uploading replacement to Supabase Database...", "info");
+        const res = await uploadSupabaseStorageFile(file);
+        if (res && res.url) {
+          const oldPath = state.general.avatars[replacingAvatarIdx];
+          if (state.general.profilePic === oldPath) state.general.profilePic = res.url;
+          state.general.avatars[replacingAvatarIdx] = res.url;
+          renderAvatarGallery();
+          performMasterSave();
+          showToast(`✓ Avatar #${replacingAvatarIdx + 1} replaced in Supabase!`, "success");
         }
-
-        renderAvatarGallery();
-        showToast(`Avatar #${replacingAvatarIdx + 1} replaced successfully!`, "success");
-      };
-      reader.readAsDataURL(file);
+      } catch (err) {
+        console.error(err);
+        showToast("Replace avatar error: " + err.message, "error");
+      }
     });
   }
 
@@ -2560,37 +2513,24 @@
       coverFileInput.addEventListener("change", async (e) => {
         const file = e.target.files && e.target.files[0];
         if (!file) return;
-        const reader = new FileReader();
-        reader.onload = async () => {
-          const base64Data = reader.result.split(",")[1];
-          try {
-            const resp = await fetch("/api/upload-image", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({
-                filename: `cover-${Date.now()}-${file.name}`,
-                base64Data,
-                folder: "assets/blog"
-              })
-            });
-            const res = await resp.json();
-            if (res.success && res.path) {
-              const fullPath = `/${res.path}`.replace(/\/+/g, "/");
-              if (state.blog[currentBlogIndex]) {
-                state.blog[currentBlogIndex].coverImage = fullPath;
-                state.blog[currentBlogIndex].image = fullPath;
-                const coverImg = document.getElementById("notion-cover-image-preview");
-                if (coverImg) coverImg.src = fullPath;
-                if (propThumb) propThumb.value = fullPath;
-                showToast("Cover image updated!", "success");
-              }
+        try {
+          showToast("Uploading cover to Supabase Database...", "info");
+          const res = await uploadSupabaseStorageFile(file);
+          if (res && res.url) {
+            if (state.blog[currentBlogIndex]) {
+              state.blog[currentBlogIndex].coverImage = res.url;
+              state.blog[currentBlogIndex].image = res.url;
+              const coverImg = document.getElementById("notion-cover-image-preview");
+              if (coverImg) coverImg.src = res.url;
+              if (propThumb) propThumb.value = res.url;
+              performMasterSave();
+              showToast("✓ Cover image saved in Supabase Database!", "success");
             }
-          } catch (err) {
-            console.error(err);
-            showToast("Failed to upload cover image.", "error");
           }
-        };
-        reader.readAsDataURL(file);
+        } catch (err) {
+          console.error(err);
+          showToast("Failed to upload cover: " + err.message, "error");
+        }
       });
     }
 
@@ -2631,34 +2571,21 @@
       thumbFileInput.addEventListener("change", async (e) => {
         const file = e.target.files && e.target.files[0];
         if (!file) return;
-        const reader = new FileReader();
-        reader.onload = async () => {
-          const base64Data = reader.result.split(",")[1];
-          try {
-            const resp = await fetch("/api/upload-image", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({
-                filename: `thumb-${Date.now()}-${file.name}`,
-                base64Data,
-                folder: "assets/blog"
-              })
-            });
-            const res = await resp.json();
-            if (res.success && res.path) {
-              const fullPath = `/${res.path}`.replace(/\/+/g, "/");
-              if (state.blog[currentBlogIndex]) {
-                state.blog[currentBlogIndex].image = fullPath;
-                if (propThumb) propThumb.value = fullPath;
-                showToast("Thumbnail updated!", "success");
-              }
+        try {
+          showToast("Uploading thumbnail to Supabase Database...", "info");
+          const res = await uploadSupabaseStorageFile(file);
+          if (res && res.url) {
+            if (state.blog[currentBlogIndex]) {
+              state.blog[currentBlogIndex].image = res.url;
+              if (propThumb) propThumb.value = res.url;
+              performMasterSave();
+              showToast("✓ Thumbnail saved in Supabase Database!", "success");
             }
-          } catch (err) {
-            console.error(err);
-            showToast("Failed to upload thumbnail.", "error");
           }
-        };
-        reader.readAsDataURL(file);
+        } catch (err) {
+          console.error(err);
+          showToast("Failed to upload thumbnail: " + err.message, "error");
+        }
       });
     }
 
@@ -2751,34 +2678,20 @@
         inlineImgInput.addEventListener("change", async (e) => {
           const file = e.target.files && e.target.files[0];
           if (!file) return;
-          const reader = new FileReader();
-          reader.onload = async () => {
-            const base64Data = reader.result.split(",")[1];
-            try {
-              const resp = await fetch("/api/upload-image", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                  filename: `article-img-${Date.now()}-${file.name}`,
-                  base64Data,
-                  folder: "assets/blog"
-                })
-              });
-              const res = await resp.json();
-              if (res.success && res.path) {
-                const fullPath = `/${res.path}`.replace(/\/+/g, "/");
-                document.execCommand("insertHTML", false, `<img src="${fullPath}" alt="Image" /><p><br></p>`);
-                if (canvas && state.blog[currentBlogIndex]) {
-                  state.blog[currentBlogIndex].contentHtml = canvas.innerHTML;
-                }
-                showToast("Image inserted into post!", "success");
+          try {
+            showToast("Uploading image to Supabase Database...", "info");
+            const res = await uploadSupabaseStorageFile(file);
+            if (res && res.url) {
+              document.execCommand("insertHTML", false, `<img src="${res.url}" alt="${escapeHtml(file.name)}" /><p><br></p>`);
+              if (canvas && state.blog[currentBlogIndex]) {
+                state.blog[currentBlogIndex].contentHtml = canvas.innerHTML;
               }
-            } catch (err) {
-              console.error(err);
-              showToast("Failed to upload image.", "error");
+              showToast("✓ Image inserted & saved in Supabase Database!", "success");
             }
-          };
-          reader.readAsDataURL(file);
+          } catch (err) {
+            console.error(err);
+            showToast("Failed to upload image: " + err.message, "error");
+          }
         });
       }
     }
@@ -3174,77 +3087,9 @@
       // GitHub authentication header: 'token' for classic PAT (ghp_), 'Bearer' for fine-grained
       const authHeader = token.startsWith("github_pat_") ? `Bearer ${token}` : `token ${token}`;
 
-      // Overwrite any pending uploaded image files directly on GitHub (keep same filenames)
-      const pendingPaths = Object.keys(pendingImageUploads);
-      for (const imgPath of pendingPaths) {
-        try {
-          if (btnGlobal) {
-            btnGlobal.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Overwriting ${imgPath}...`;
-          }
-          const imgBase64 = pendingImageUploads[imgPath];
-
-          // Get current SHA of the image file on GitHub (if it exists)
-          let imgSha = null;
-          try {
-            const shaRes = await fetch(
-              `https://api.github.com/repos/${repo}/contents/${imgPath}?ref=${branch}&_nocache=${Date.now()}`,
-              {
-                cache: "no-store",
-                headers: { Authorization: authHeader, Accept: "application/vnd.github.v3+json" }
-              }
-            );
-            if (shaRes.ok) {
-              const shaData = await shaRes.json();
-              imgSha = shaData.sha;
-            }
-          } catch (e) {}
-
-          // Commit image binary directly to GitHub at that exact path
-          let imgCommitRes = await fetch(`https://api.github.com/repos/${repo}/contents/${imgPath}`, {
-            method: "PUT",
-            headers: {
-              Authorization: authHeader,
-              Accept: "application/vnd.github.v3+json",
-              "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-              message: `Overwrite image ${imgPath} via Admin Panel [Global Sync]`,
-              content: imgBase64,
-              branch: branch,
-              ...(imgSha ? { sha: imgSha } : {})
-            })
-          });
-
-          // Auto-retry on 409 conflict
-          if (!imgCommitRes.ok && imgCommitRes.status === 409) {
-            const conflictData = await imgCommitRes.json().catch(() => ({}));
-            const match = (conflictData.message || "").match(/does not match ([a-f0-9]{40})/);
-            if (match) {
-              imgCommitRes = await fetch(`https://api.github.com/repos/${repo}/contents/${imgPath}`, {
-                method: "PUT",
-                headers: {
-                  Authorization: authHeader,
-                  Accept: "application/vnd.github.v3+json",
-                  "Content-Type": "application/json"
-                },
-                body: JSON.stringify({
-                  message: `Overwrite image ${imgPath} via Admin Panel [Global Sync]`,
-                  content: imgBase64,
-                  branch: branch,
-                  sha: match[1]
-                })
-              });
-            }
-          }
-
-          if (imgCommitRes.ok) {
-            delete pendingImageUploads[imgPath];
-            persistPendingImages();
-          }
-        } catch (imgErr) {
-          console.error(`Error uploading image ${imgPath}:`, imgErr);
-        }
-      }
+      // Images are stored directly in Supabase Cloud Storage (not on GitHub), keeping repository fast and lightweight!
+      pendingImageUploads = {};
+      persistPendingImages();
 
       // 1. Get current file SHA with cache-buster
       let currentSha = null;
