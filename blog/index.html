@@ -82,6 +82,8 @@
     <!-- Tag Filter Bar -->
     <div class="blog-filter-bar" id="filter-bar">
       <button class="filter-chip active" data-tag="all">All Articles</button>
+      <button class="filter-chip" data-tag="tech">#tech</button>
+      <button class="filter-chip" data-tag="development">#development</button>
       <button class="filter-chip" data-tag="hardware">#hardware</button>
       <button class="filter-chip" data-tag="raspberry pi">#raspberry pi</button>
       <button class="filter-chip" data-tag="camera">#camera</button>
@@ -93,6 +95,33 @@
     <!-- Blog Posts List -->
     <div class="blog-list" id="posts-container">
       
+      <!-- Article: Untitled Article -->
+      <article class="blog-card" data-tags="tech,development">
+        <a href="/blog/new-article-8833/" class="card-link" aria-label="Read Untitled Article">
+          <div class="card-layout">
+            <div class="image-container">
+              <img src="assets/blog/how-i-won-my-first-game-jam.png" alt="Untitled Article" class="post-image" loading="lazy" width="584" height="332" onerror="this.src='/favicon.ico'" />
+            </div>
+            <div class="card-content">
+              <div>
+                <div class="card-header-meta">
+                  <span class="post-date"><i class="far fa-calendar-alt"></i> October 27, 2026</span>
+                  <span class="reading-time"><i class="far fa-clock"></i> 3 min read</span>
+                </div>
+                <h2 class="post-title">Untitled Article</h2>
+                <p class="post-excerpt">A short summary of this article...</p>
+              </div>
+              <div class="card-footer-meta">
+                <div class="post-tags">
+                  <span class="tag">tech</span><span class="tag">development</span>
+                </div>
+                <span class="read-more-link">Read Article <i class="fas fa-arrow-right"></i></span>
+              </div>
+            </div>
+          </div>
+        </a>
+      </article>
+
       <!-- Article: I Made a Custom Raspberry Pi Camera - Journal: PiShot -->
       <article class="blog-card" data-tags="hardware,raspberry pi,camera">
         <a href="/blog/i-made-a-custom-raspberry-pi-camera/" class="card-link" aria-label="Read I Made a Custom Raspberry Pi Camera - Journal: PiShot">

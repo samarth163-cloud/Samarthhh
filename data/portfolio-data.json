@@ -339,6 +339,23 @@
   ],
   "blog": [
     {
+      "id": "post-1793123918833",
+      "title": "Untitled Article",
+      "slug": "new-article-8833",
+      "url": "/blog/new-article-8833/",
+      "description": "A short summary of this article...",
+      "date": "October 27, 2026",
+      "readingTime": "3 min read",
+      "image": "assets/blog/how-i-won-my-first-game-jam.png",
+      "coverImage": "assets/blog/how-i-won-my-first-game-jam.png",
+      "tags": [
+        "tech",
+        "development"
+      ],
+      "featured": false,
+      "contentHtml": "<p>Start typing your new article here, or type <b>'/'</b> for Notion blocks...</p>"
+    },
+    {
       "id": "pishot-camera-blog",
       "title": "I Made a Custom Raspberry Pi Camera - Journal: PiShot",
       "slug": "i-made-a-custom-raspberry-pi-camera",
@@ -496,5 +513,5 @@
     ],
     "skills": "JavaScript · TypeScript · Python · C# · C++ · React · Astro · Node.js · HTML/CSS · Unity · Raspberry Pi · Arduino · KiCad · MongoDB · Git/GitHub"
   },
-  "_updatedAt": 1793123302367
+  "_updatedAt": 1793123921335
 }
