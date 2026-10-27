@@ -174,7 +174,7 @@
       "subtext": "Open to internships, open-source & contract work",
       "visible": true
     },
-    "visible": false,
+    "visible": true,
     "projects": [
       {
         "id": "res-rune",
@@ -571,5 +571,5 @@
       "description": "ssh samarth@hackclub.app"
     }
   ],
-  "_updatedAt": 1793137295387
+  "_updatedAt": 1793137398687
 }
