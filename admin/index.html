@@ -11,8 +11,12 @@
   <link rel="stylesheet" href="/admin/admin.css" />
   <link rel="icon" type="image/png" href="/assets/favicon/favicon-32x32.png" />
   <script>
-    // Initialize Theme
+    // Initialize Theme & Auth Gate (Zero FOUC)
     const savedTheme = localStorage.getItem("theme") || "light";
+    const isAuthenticated = sessionStorage.getItem("samarth_admin_auth") === "true";
+    document.documentElement.classList.add(savedTheme);
+    document.documentElement.classList.toggle("is-authenticated", isAuthenticated);
+
     document.addEventListener("DOMContentLoaded", () => {
       document.body.classList.add(savedTheme);
       updateThemeIcon();
@@ -27,41 +31,120 @@
 </head>
 <body>
 
-  <!-- Top Navigation Header -->
-  <header class="admin-header">
-    <div class="brand-wrapper">
-      <div class="brand-title">
-        <i class="fas fa-terminal" style="color: var(--accent-red);"></i>
-        SAMARTH // ADMIN
-        <span class="badge">v2.0</span>
+  <!-- ===================================================================== -->
+  <!-- LOGIN SCREEN (NEO-BRUTALIST VAULT GATE)                              -->
+  <!-- ===================================================================== -->
+  <div id="admin-login-screen" class="login-screen-wrapper">
+    <div class="login-card">
+      <div class="login-card-badge">RESTRICTED ACCESS // LEVEL 1</div>
+      <div class="login-header">
+        <div class="login-icon-box">
+          <i class="fas fa-shield-halved"></i>
+        </div>
+        <h1 class="login-title">ADMIN AUTHENTICATION</h1>
+        <p class="login-subtitle">Enter authorized credentials to access the control suite</p>
       </div>
-      <div class="sync-status" id="sync-status-badge">
-        <span class="dot"></span>
-        <span id="sync-status-text">Live Sync Active</span>
-      </div>
-    </div>
 
-    <div class="header-actions">
-      <a href="/" target="_blank" class="btn btn-sm" title="View Live Portfolio">
-        <i class="fas fa-globe"></i> View Portfolio ↗
-      </a>
-      <a href="/resume/" target="_blank" class="btn btn-sm" title="View Live Resume">
-        <i class="fas fa-file-lines"></i> View Resume ↗
-      </a>
-      <button class="btn btn-sm" id="btn-theme-toggle" type="button" title="Toggle Dark/Light Mode">
-        <i id="theme-toggle-icon" class="fas fa-moon"></i>
-      </button>
-      <button class="btn btn-primary" id="btn-save-master" type="button" title="Save in this browser">
-        <i class="fas fa-floppy-disk"></i>
-        <span>Save</span>
-        <span class="shortcut">Ctrl+S</span>
-      </button>
-      <button class="btn" id="btn-global-sync" type="button" style="background: #00ff88; color: #000; font-weight: 800; border: 2.5px solid #000; box-shadow: 3px 3px 0 #000; display: inline-flex; align-items: center; gap: 6px;" title="Deploy edits to all devices and live website">
-        <i class="fas fa-cloud-arrow-up"></i>
-        <span>Deploy to All Devices 🌐</span>
-      </button>
+      <form id="admin-login-form" autocomplete="off">
+        <div id="login-error-alert" class="login-error-msg" style="display: none;">
+          <i class="fas fa-triangle-exclamation"></i>
+          <span id="login-error-text">Access Denied: Invalid username or password.</span>
+        </div>
+
+        <div class="form-group" style="text-align: left;">
+          <label class="form-label" for="login-username">
+            <span><i class="fas fa-user"></i> Username</span>
+          </label>
+          <input
+            type="text"
+            id="login-username"
+            class="form-input"
+            required
+            autocomplete="username"
+            spellcheck="false"
+          />
+        </div>
+
+        <div class="form-group" style="text-align: left;">
+          <label class="form-label" for="login-password">
+            <span><i class="fas fa-key"></i> Password</span>
+          </label>
+          <div style="position: relative;">
+            <input
+              type="password"
+              id="login-password"
+              class="form-input"
+              required
+              autocomplete="current-password"
+              style="padding-right: 42px;"
+            />
+            <button
+              type="button"
+              id="btn-toggle-login-pass"
+              class="btn-pass-toggle"
+              title="Show or hide password"
+            >
+              <i class="fas fa-eye" id="pass-toggle-icon"></i>
+            </button>
+          </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-login-submit" id="btn-login-submit">
+          <i class="fas fa-arrow-right-to-bracket"></i>
+          <span>Authenticate &amp; Enter</span>
+        </button>
+      </form>
+
+      <div class="login-footer">
+        <a href="/" class="login-back-link"><i class="fas fa-arrow-left"></i> Return to Portfolio</a>
+      </div>
     </div>
-  </header>
+  </div>
+
+  <!-- ===================================================================== -->
+  <!-- MAIN ADMIN APP WORKSPACE (GATED BEHIND AUTH)                          -->
+  <!-- ===================================================================== -->
+  <div id="admin-main-content" class="admin-app-container">
+
+    <!-- Top Navigation Header -->
+    <header class="admin-header">
+      <div class="brand-wrapper">
+        <div class="brand-title">
+          <i class="fas fa-terminal" style="color: var(--accent-red);"></i>
+          SAMARTH // ADMIN
+          <span class="badge">v2.0</span>
+        </div>
+        <div class="sync-status" id="sync-status-badge">
+          <span class="dot"></span>
+          <span id="sync-status-text">Live Sync Active</span>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <a href="/" target="_blank" class="btn btn-sm" title="View Live Portfolio">
+          <i class="fas fa-globe"></i> View Portfolio ↗
+        </a>
+        <a href="/resume/" target="_blank" class="btn btn-sm" title="View Live Resume">
+          <i class="fas fa-file-lines"></i> View Resume ↗
+        </a>
+        <button class="btn btn-sm" id="btn-theme-toggle" type="button" title="Toggle Dark/Light Mode">
+          <i id="theme-toggle-icon" class="fas fa-moon"></i>
+        </button>
+        <button class="btn btn-primary" id="btn-save-master" type="button" title="Save in this browser">
+          <i class="fas fa-floppy-disk"></i>
+          <span>Save</span>
+          <span class="shortcut">Ctrl+S</span>
+        </button>
+        <button class="btn" id="btn-global-sync" type="button" style="background: #00ff88; color: #000; font-weight: 800; border: 2.5px solid #000; box-shadow: 3px 3px 0 #000; display: inline-flex; align-items: center; gap: 6px;" title="Deploy edits to all devices and live website">
+          <i class="fas fa-cloud-arrow-up"></i>
+          <span>Deploy to All Devices 🌐</span>
+        </button>
+        <button class="btn btn-sm btn-danger" id="btn-logout" type="button" title="Logout from Admin">
+          <i class="fas fa-right-from-bracket"></i>
+          <span>Logout</span>
+        </button>
+      </div>
+    </header>
 
   <!-- Layout (Sidebar + Main) -->
   <div class="admin-layout">
@@ -713,6 +796,7 @@
           <i class="fas fa-rocket"></i> Deploy to All Devices 🌐
         </button>
       </div>
+    </div>
     </div>
   </div>
 

@@ -65,6 +65,91 @@
       .replace(/'/g, "&#039;");
   }
 
+  // =========================================================================
+  // AUTHENTICATION & LOGIN GATE
+  // =========================================================================
+  const AUTH_KEY = "samarth_admin_auth";
+  const loginForm = document.getElementById("admin-login-form");
+  const loginError = document.getElementById("login-error-alert");
+  const usernameInput = document.getElementById("login-username");
+  const passwordInput = document.getElementById("login-password");
+  const btnTogglePass = document.getElementById("btn-toggle-login-pass");
+  const passIcon = document.getElementById("pass-toggle-icon");
+  const btnLogout = document.getElementById("btn-logout");
+
+  function setAuthenticated(isAuth) {
+    if (isAuth) {
+      sessionStorage.setItem(AUTH_KEY, "true");
+      document.documentElement.classList.add("is-authenticated");
+    } else {
+      sessionStorage.removeItem(AUTH_KEY);
+      document.documentElement.classList.remove("is-authenticated");
+    }
+  }
+
+  // Password Visibility Toggle
+  if (btnTogglePass && passwordInput) {
+    btnTogglePass.addEventListener("click", () => {
+      const isPass = passwordInput.type === "password";
+      passwordInput.type = isPass ? "text" : "password";
+      if (passIcon) {
+        passIcon.className = isPass ? "fas fa-eye-slash" : "fas fa-eye";
+      }
+    });
+  }
+
+  // Handle Login Submission
+  if (loginForm) {
+    loginForm.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const userVal = (usernameInput?.value || "").trim();
+      const passVal = (passwordInput?.value || "").trim();
+
+      // Check credentials strictly: sam / 123 (No hints in UI)
+      if (userVal === "sam" && passVal === "123") {
+        if (loginError) loginError.style.display = "none";
+        setAuthenticated(true);
+        showToast("Authentication successful. Welcome, Sam!", "success");
+        if (typeof renderAllTabs === "function") renderAllTabs();
+        if (typeof updateCounters === "function") updateCounters();
+      } else {
+        if (loginError) {
+          loginError.style.display = "flex";
+          loginError.classList.remove("login-shake");
+          void loginError.offsetWidth; // re-trigger CSS shake animation
+          loginError.classList.add("login-shake");
+        }
+        if (passwordInput) {
+          passwordInput.value = "";
+          passwordInput.focus();
+        }
+      }
+    });
+  }
+
+  // Handle Logout
+  if (btnLogout) {
+    btnLogout.addEventListener("click", () => {
+      if (confirm("Are you sure you want to log out from Admin?")) {
+        setAuthenticated(false);
+        if (passwordInput) passwordInput.value = "";
+        if (usernameInput) {
+          usernameInput.value = "";
+          usernameInput.focus();
+        }
+        if (loginError) loginError.style.display = "none";
+        showToast("Logged out successfully.", "info");
+      }
+    });
+  }
+
+  // Auto-focus username on load if unauthenticated
+  if (sessionStorage.getItem(AUTH_KEY) !== "true") {
+    setTimeout(() => {
+      if (usernameInput) usernameInput.focus();
+    }, 150);
+  }
+
   // Load Data: Always check fresh server data and sync with localStorage
   async function loadInitialData() {
     let serverData = null;

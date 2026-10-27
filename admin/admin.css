@@ -86,6 +86,208 @@ body {
 }
 
 /* ==========================================================================
+   AUTHENTICATION & LOGIN SCREEN (NEO-BRUTALIST VAULT GATE)
+   ========================================================================== */
+
+/* Zero FOUC: strictly toggle visibility based on auth class */
+html:not(.is-authenticated) #admin-main-content {
+  display: none !important;
+}
+
+html.is-authenticated #admin-login-screen {
+  display: none !important;
+}
+
+.login-screen-wrapper {
+  min-height: 100vh;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 32px 16px;
+  background-color: var(--bg-color);
+  background-image: var(--grid-pattern);
+  background-size: 24px 24px;
+  box-sizing: border-box;
+  position: relative;
+}
+
+.login-screen-wrapper::before {
+  content: "";
+  display: block;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 8px;
+  background: var(--hazard-stripe);
+  border-bottom: 2px solid var(--border-color);
+  z-index: 100;
+}
+
+.login-card {
+  width: 100%;
+  max-width: 440px;
+  background: var(--bg-surface);
+  border: 3px solid var(--border-color);
+  box-shadow: var(--hard-shadow-lg);
+  padding: 36px 28px 24px;
+  position: relative;
+  text-align: center;
+  border-radius: 4px;
+  box-sizing: border-box;
+}
+
+.login-card-badge {
+  position: absolute;
+  top: -14px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--accent-red);
+  color: #ffffff;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  padding: 3px 12px;
+  border: 2px solid var(--border-color);
+  box-shadow: 2px 2px 0 var(--shadow-color);
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.login-icon-box {
+  width: 58px;
+  height: 58px;
+  background: var(--accent-yellow);
+  color: #000000;
+  border: 2.5px solid var(--border-color);
+  box-shadow: var(--hard-shadow-xs);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  margin: 6px auto 14px;
+  border-radius: 4px;
+}
+
+.login-title {
+  font-family: var(--font-anton);
+  font-size: 26px;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  margin: 0 0 6px;
+  color: var(--text-main);
+}
+
+.login-subtitle {
+  font-family: var(--font-body);
+  font-size: 13px;
+  color: var(--text-muted);
+  margin: 0 0 20px;
+  line-height: 1.4;
+}
+
+.login-error-msg {
+  background: #fee2e2;
+  color: #991b1b;
+  border: 2px solid #ef4444;
+  padding: 10px 14px;
+  font-size: 13px;
+  font-weight: 700;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border-radius: 2px;
+  text-align: left;
+}
+
+body.dark .login-error-msg {
+  background: #450a0a;
+  color: #fca5a5;
+  border-color: #ef4444;
+}
+
+.login-shake {
+  animation: loginShakeAnim 0.35s ease-in-out;
+}
+
+@keyframes loginShakeAnim {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-7px); }
+  40%, 80% { transform: translateX(7px); }
+}
+
+.btn-pass-toggle {
+  position: absolute;
+  right: 2px;
+  top: 2px;
+  bottom: 2px;
+  width: 40px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  transition: color 0.12s ease;
+}
+
+.btn-pass-toggle:hover {
+  color: var(--accent-red);
+}
+
+.btn-login-submit {
+  width: 100%;
+  padding: 12px;
+  font-size: 15px;
+  font-family: var(--font-anton);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  margin-top: 6px;
+  box-shadow: var(--hard-shadow-sm);
+  justify-content: center;
+  gap: 8px;
+}
+
+.btn-login-submit:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: var(--hard-shadow);
+}
+
+.login-footer {
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1.5px dashed var(--border-color);
+}
+
+.login-back-link {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: color 0.12s ease;
+}
+
+.login-back-link:hover {
+  color: var(--accent-red);
+  text-decoration: underline;
+}
+
+.admin-app-container {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ==========================================================================
    TOP BAR / HEADER
    ========================================================================== */
 
