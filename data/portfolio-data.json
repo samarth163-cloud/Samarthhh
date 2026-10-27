@@ -130,7 +130,7 @@
     "stats": {
       "note": "sdds",
       "title": "Statssssssssssss",
-      "visible": true,
+      "visible": false,
       "username": "Samarthsdsd"
     },
     "header": {
@@ -172,7 +172,7 @@
       "text": "Available for opportunities & freelance",
       "type": "available",
       "subtext": "",
-      "visible": true
+      "visible": false
     },
     "visible": true,
     "projects": [
@@ -571,5 +571,5 @@
       "description": "ssh samarth@hackclub.app"
     }
   ],
-  "_updatedAt": 1793137564925
+  "_updatedAt": 1793137601705
 }
