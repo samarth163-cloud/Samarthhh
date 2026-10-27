@@ -326,7 +326,7 @@
       "description": "A modern, responsive developer portfolio built to showcase my projects, technical skills, and development journey. Features a custom Neo-Brutalist design, dark and light themes, interactive resume, project showcase, and an admin dashboard for managing portfolio content. Includes GitHub integration and Vercel deployment support.",
       "image": "https://npzqpcagdtnfuqhyngro.supabase.co/storage/v1/object/public/portfolio-assets/Samarth's%20Portfolio.png",
       "sourceUrl": "https://github.com/samarth163-cloud/Samarthhh",
-      "visitUrl": "https://www.youtube.com/watch?v=gf-RIgXnWJM",
+      "visitUrl": "https://samarthhhh.vercel.app/",
       "visitLabel": "viwe",
       "featured": true,
       "tech": [
@@ -335,12 +335,12 @@
           "name": "superbse"
         },
         {
-          "name": "html",
-          "icon": "fa-brands fa-html5"
+          "icon": "fa-brands fa-html5",
+          "name": "html"
         },
         {
-          "name": "javascript",
-          "icon": "fa-brands fa-java"
+          "icon": "fa-brands fa-java",
+          "name": "javascript"
         }
       ]
     },
@@ -537,5 +537,5 @@
       "description": "ssh samarth@hackclub.app"
     }
   ],
-  "_updatedAt": 1793132272210
+  "_updatedAt": 1793132401141
 }
