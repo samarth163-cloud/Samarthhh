@@ -127,6 +127,12 @@
     ]
   },
   "resume": {
+    "stats": {
+      "note": "Live coding activity from Hackatime.",
+      "title": "Stats",
+      "visible": true,
+      "username": "Samarth"
+    },
     "header": {
       "name": "Samarth Haveliwala",
       "eyebrow": "resume.txt",
@@ -161,13 +167,21 @@
       "location": "Surat, Gujarat, India"
     },
     "skills": "JavaScript · TypeScript · Python · C# · C++ · React · Astro · Node.js · HTML/CSS · Unity · Raspberry Pi · Arduino · KiCad · MongoDB · Git/GitHub",
+    "status": {
+      "dot": "green",
+      "text": "Available for opportunities & freelance",
+      "type": "available",
+      "subtext": "Open to internships, open-source & contract work",
+      "visible": true
+    },
+    "visible": false,
     "projects": [
       {
         "id": "res-rune",
         "meta": "2023 · Rune SDK",
         "title": "Multiplayer Games on Rune",
-        "description": "Shipped six multiplayer games on Rune, reaching <b>1 million+ combined plays</b>, <b>247,000+ players</b>, and <b>17,000+ hours played</b>.",
-        "visible": true
+        "visible": true,
+        "description": "Shipped six multiplayer games on Rune, reaching <b>1 million+ combined plays</b>, <b>247,000+ players</b>, and <b>17,000+ hours played</b>."
       },
       {
         "id": "res-arena",
@@ -200,6 +214,16 @@
         "description": "Built and open-sourced a high-performance system."
       }
     ],
+    "sections": {
+      "intro": true,
+      "stats": true,
+      "skills": true,
+      "status": true,
+      "projects": true,
+      "education": true,
+      "experience": true,
+      "recognition": true
+    },
     "education": [
       {
         "id": "res-edu-benchmark",
@@ -268,31 +292,7 @@
       "Won <b>1st place</b> in international hackathon.",
       "Won <b>1st place</b> in international hackathon."
     ],
-    "introduction": "I build open-source software, games, and hardware- from custom cameras and devboards to web platforms. My work spans full-stack development, game development, and hardware prototyping, with projects used by thousands of people across the Hack Club and Rune communities.",
-    "visible": true,
-    "status": {
-      "visible": true,
-      "type": "available",
-      "dot": "green",
-      "text": "Available for opportunities & freelance",
-      "subtext": "Open to internships, open-source & contract work"
-    },
-    "stats": {
-      "visible": true,
-      "username": "Samarth",
-      "title": "Stats",
-      "note": "Live coding activity from Hackatime."
-    },
-    "sections": {
-      "status": true,
-      "intro": true,
-      "stats": true,
-      "experience": true,
-      "projects": true,
-      "education": true,
-      "recognition": true,
-      "skills": true
-    }
+    "introduction": "I build open-source software, games, and hardware- from custom cameras and devboards to web platforms. My work spans full-stack development, game development, and hardware prototyping, with projects used by thousands of people across the Hack Club and Rune communities."
   },
   "general": {
     "name": "Samarth Haveliwala",
@@ -571,5 +571,5 @@
       "description": "ssh samarth@hackclub.app"
     }
   ],
-  "_updatedAt": 1793137015106
+  "_updatedAt": 1793137295387
 }
