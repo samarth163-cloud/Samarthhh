@@ -10,10 +10,10 @@
         "tech",
         "development"
       ],
-      "image": "https://npzqpcagdtnfuqhyngro.supabase.co/storage/v1/object/public/portfolio-assets/download__2_-1793130831573.jpg",
+      "image": "",
       "title": "Untitled Article",
       "featured": false,
-      "coverImage": "https://npzqpcagdtnfuqhyngro.supabase.co/storage/v1/object/public/portfolio-assets/download__2_-1793130831573.jpg",
+      "coverImage": "",
       "contentHtml": "<figure class=\"notion-image-figure\" style=\"margin: 20px 0px; text-align: center; display: block;\"><br></figure><p><br></p>",
       "description": "A short summary of thSamarth's Portfoliois article...",
       "readingTime": "3 min read"
@@ -516,5 +516,5 @@
       "description": "ssh samarth@hackclub.app"
     }
   ],
-  "_updatedAt": 1793130952594
+  "_updatedAt": 1793130960879
 }
