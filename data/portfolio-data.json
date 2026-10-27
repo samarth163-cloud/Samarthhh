@@ -316,7 +316,7 @@
     "shortName": "Samarth",
     "siteTitle": "Samarth's Portfolio",
     "ctaSubtext": "[All my work is open source]",
-    "profilePic": "assets/profile/1.jpg",
+    "profilePic": "assets/profile/3.jpg",
     "description": "I build open-source software, games, and hardware- from custom cameras and devboards to web platforms."
   },
   "projects": [
@@ -545,5 +545,5 @@
       "description": "ssh samarth@hackclub.app"
     }
   ],
-  "_updatedAt": 1793133078700
+  "_updatedAt": 1793133102326
 }
