@@ -165,6 +165,15 @@ const server = http.createServer((req, res) => {
     relativePath = '/index.html';
   }
 
+  // Handle relative asset paths requested from /admin/
+  if (relativePath.startsWith('/admin/assets/')) {
+    relativePath = relativePath.replace('/admin/assets/', '/assets/');
+  } else if (relativePath.startsWith('/admin/data/')) {
+    relativePath = relativePath.replace('/admin/data/', '/data/');
+  } else if (relativePath.startsWith('/admin/fonts/')) {
+    relativePath = relativePath.replace('/admin/fonts/', '/fonts/');
+  }
+
   let filePath = path.join(ROOT_DIR, relativePath);
 
   // If path is a directory, check for index.html

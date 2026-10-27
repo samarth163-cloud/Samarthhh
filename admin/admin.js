@@ -1905,6 +1905,17 @@
   let notionSearchQuery = "";
   let isSlashMenuOpen = false;
 
+  function formatAssetUrl(url) {
+    if (!url) return "";
+    if (url.startsWith("http://") || url.startsWith("https://") || url.startsWith("data:")) {
+      return url;
+    }
+    if (!url.startsWith("/")) {
+      return "/" + url;
+    }
+    return url;
+  }
+
   function renderBlogTab() {
     if (!Array.isArray(state.blog)) state.blog = [];
     const blogList = state.blog;
@@ -1938,7 +1949,7 @@
       } else {
         listContainer.innerHTML = filtered.map(({ post, idx }) => {
           const isActive = idx === currentBlogIndex;
-          const thumb = post.coverImage || post.image || "/assets/blog/how-i-won-my-first-game-jam.png";
+          const thumb = formatAssetUrl(post.coverImage || post.image || "/assets/blog/how-i-won-my-first-game-jam.png");
           const icon = post.icon || "📝";
           const tags = Array.isArray(post.tags) ? post.tags : (post.tags ? String(post.tags).split(",") : []);
           const tagPillsHtml = tags.slice(0, 2).map(t => `<span class="notion-card-tag-badge">#${escapeHtml(t.trim())}</span>`).join(" ");
@@ -2060,7 +2071,7 @@
     // Cover Image
     const coverImg = document.getElementById("notion-cover-image-preview");
     if (coverImg) {
-      coverImg.src = post.coverImage || post.image || "/blog/_astro/arcade-jam-poster.DT7rkVUv.png";
+      coverImg.src = formatAssetUrl(post.coverImage || post.image || "/blog/_astro/arcade-jam-poster.DT7rkVUv.png");
     }
 
     // Page Icon Display
@@ -2219,6 +2230,211 @@
           </div>
         </section>
       </article>`;
+  }
+
+  let savedCanvasRange = null;
+
+  function saveCurrentCanvasSelection() {
+    const canvas = document.getElementById("notion-editor-canvas");
+    const sel = window.getSelection();
+    if (sel && sel.rangeCount > 0) {
+      const r = sel.getRangeAt(0);
+      if (canvas && canvas.contains(r.commonAncestorContainer)) {
+        savedCanvasRange = r.cloneRange();
+        return;
+      }
+    }
+  }
+
+  function insertImageIntoBlogCanvas(imageUrl, altText = "") {
+    const canvas = document.getElementById("notion-editor-canvas");
+    if (!canvas) return;
+
+    canvas.focus();
+
+    const cleanAlt = altText || "Article illustration";
+
+    const figure = document.createElement("figure");
+    figure.className = "notion-image-figure";
+    figure.style.margin = "20px 0";
+    figure.style.textAlign = "center";
+    figure.style.display = "block";
+
+    const img = document.createElement("img");
+    img.src = imageUrl;
+    img.alt = cleanAlt;
+    img.style.maxWidth = "100%";
+    img.style.height = "auto";
+    img.style.borderRadius = "8px";
+    img.style.border = "3px solid #000";
+    img.style.boxShadow = "4px 4px 0px #000";
+    img.style.display = "inline-block";
+    img.loading = "lazy";
+    figure.appendChild(img);
+
+    if (altText && altText !== "Pasted image" && !altText.startsWith("image-")) {
+      const cap = document.createElement("figcaption");
+      cap.textContent = altText;
+      cap.style.fontSize = "12px";
+      cap.style.color = "var(--text-muted, #71717a)";
+      cap.style.marginTop = "8px";
+      cap.style.fontStyle = "italic";
+      figure.appendChild(cap);
+    }
+
+    const nextP = document.createElement("p");
+    nextP.innerHTML = "<br>";
+
+    // If canvas currently only has the default placeholder or is empty
+    const rawContent = canvas.innerHTML.trim();
+    if (
+      rawContent === "" ||
+      rawContent === "<p><br></p>" ||
+      canvas.innerText.includes("Start typing your new article here") ||
+      canvas.innerText.includes("Type '/' for commands")
+    ) {
+      canvas.innerHTML = "";
+    }
+
+    let inserted = false;
+    const sel = window.getSelection();
+    let targetRange = savedCanvasRange;
+
+    if (sel && sel.rangeCount > 0) {
+      const curRange = sel.getRangeAt(0);
+      if (canvas.contains(curRange.commonAncestorContainer)) {
+        targetRange = curRange;
+      }
+    }
+
+    if (targetRange && canvas.contains(targetRange.commonAncestorContainer)) {
+      try {
+        targetRange.deleteContents();
+        targetRange.insertNode(nextP);
+        targetRange.insertNode(figure);
+        inserted = true;
+      } catch (err) {
+        console.warn("Could not insert image at range:", err);
+      }
+    }
+
+    if (!inserted) {
+      canvas.appendChild(figure);
+      canvas.appendChild(nextP);
+    }
+
+    // Set cursor inside the trailing paragraph
+    try {
+      if (sel) {
+        sel.removeAllRanges();
+        const newRange = document.createRange();
+        newRange.setStart(nextP, 0);
+        newRange.collapse(true);
+        sel.addRange(newRange);
+      }
+    } catch (e) {}
+
+    savedCanvasRange = null;
+
+    // Immediately sync state
+    if (state.blog && state.blog[currentBlogIndex]) {
+      state.blog[currentBlogIndex].contentHtml = canvas.innerHTML;
+    }
+
+    updateNotionStats();
+    renderNotionLivePreview();
+    performMasterSave();
+  }
+
+  // Cloud Media Picker Modal for inserting into blog
+  let cachedPickerFiles = [];
+  async function openCloudMediaPicker() {
+    saveCurrentCanvasSelection();
+    const modal = document.getElementById("modal-cloud-media-picker");
+    const grid = document.getElementById("picker-media-grid");
+    const searchInput = document.getElementById("picker-media-search");
+    if (!modal || !grid) return;
+
+    modal.style.display = "flex";
+    grid.innerHTML = `
+      <div style="grid-column: 1 / -1; text-align: center; padding: 40px; color: var(--text-muted);">
+        <i class="fas fa-spinner fa-spin fa-2x" style="color: #24b47e; margin-bottom: 12px;"></i>
+        <p>Loading your Supabase Database Media...</p>
+      </div>`;
+
+    try {
+      cachedPickerFiles = await listSupabaseStorageFiles();
+      renderCloudMediaPickerGrid(cachedPickerFiles);
+    } catch (e) {
+      grid.innerHTML = `<div style="grid-column: 1 / -1; color: var(--accent-red); padding: 20px;">Failed to load files: ${e.message}</div>`;
+    }
+
+    if (searchInput) {
+      searchInput.value = "";
+      searchInput.oninput = (e) => {
+        const q = e.target.value.toLowerCase().trim();
+        const filtered = cachedPickerFiles.filter(f => (f.name || "").toLowerCase().includes(q));
+        renderCloudMediaPickerGrid(filtered);
+      };
+    }
+
+    const btnUploadNew = document.getElementById("btn-picker-upload-new");
+    if (btnUploadNew) {
+      btnUploadNew.onclick = () => {
+        const inlineInput = document.getElementById("notion-inline-image-input");
+        if (inlineInput) {
+          modal.style.display = "none";
+          inlineInput.click();
+        }
+      };
+    }
+
+    const btnClose = document.getElementById("btn-close-media-picker-modal");
+    const btnCancel = document.getElementById("btn-cancel-media-picker");
+    if (btnClose) btnClose.onclick = () => { modal.style.display = "none"; };
+    if (btnCancel) btnCancel.onclick = () => { modal.style.display = "none"; };
+  }
+
+  function renderCloudMediaPickerGrid(files) {
+    const grid = document.getElementById("picker-media-grid");
+    const modal = document.getElementById("modal-cloud-media-picker");
+    if (!grid) return;
+
+    if (!files || files.length === 0) {
+      grid.innerHTML = `
+        <div style="grid-column: 1 / -1; text-align: center; padding: 40px 10px; color: var(--text-muted);">
+          <i class="fas fa-images fa-2x" style="margin-bottom: 8px; opacity: 0.5;"></i>
+          <p>No media files found in Supabase Storage.</p>
+        </div>`;
+      return;
+    }
+
+    grid.innerHTML = files.map(file => {
+      const publicUrl = getPublicStorageUrl(file.name);
+      return `
+        <div class="picker-card" style="background: var(--bg-surface); border: 2px solid var(--border-color); border-radius: 6px; padding: 8px; text-align: center; display: flex; flex-direction: column; gap: 8px; transition: transform 0.15s ease;">
+          <div style="width: 100%; height: 110px; background: #111; border: 1px solid var(--border-color); border-radius: 4px; overflow: hidden; display: flex; align-items: center; justify-content: center;">
+            <img src="${escapeHtml(publicUrl)}" alt="${escapeHtml(file.name)}" style="max-width: 100%; max-height: 100%; object-fit: cover;" onerror="this.src='/favicon.ico'" />
+          </div>
+          <div style="font-size: 11px; font-family: var(--font-mono); overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${escapeHtml(file.name)}">
+            ${escapeHtml(file.name)}
+          </div>
+          <button type="button" class="btn btn-sm btn-yellow btn-picker-select" data-url="${escapeHtml(publicUrl)}" data-name="${escapeHtml(file.name)}" style="width: 100%; font-size: 11px;">
+            <i class="fas fa-plus"></i> Insert
+          </button>
+        </div>
+      `;
+    }).join("");
+
+    grid.querySelectorAll(".btn-picker-select").forEach(btn => {
+      btn.onclick = () => {
+        const url = btn.getAttribute("data-url");
+        const name = btn.getAttribute("data-name");
+        if (modal) modal.style.display = "none";
+        insertImageIntoBlogCanvas(url, name);
+        showToast("✓ Image inserted into article!", "success");
+      };
+    });
   }
 
   // Setup Notion Studio Event Listeners
@@ -2523,6 +2739,8 @@
               const coverImg = document.getElementById("notion-cover-image-preview");
               if (coverImg) coverImg.src = res.url;
               if (propThumb) propThumb.value = res.url;
+              const sideThumb = document.querySelector(`.notion-post-card[data-post-idx="${currentBlogIndex}"] .notion-card-thumb`);
+              if (sideThumb) sideThumb.src = res.url;
               performMasterSave();
               showToast("✓ Cover image saved in Supabase Database!", "success");
             }
@@ -2530,6 +2748,8 @@
         } catch (err) {
           console.error(err);
           showToast("Failed to upload cover: " + err.message, "error");
+        } finally {
+          coverFileInput.value = "";
         }
       });
     }
@@ -2544,6 +2764,8 @@
           const coverImg = document.getElementById("notion-cover-image-preview");
           if (coverImg) coverImg.src = url;
           if (propThumb) propThumb.value = url;
+          const sideThumb = document.querySelector(`.notion-post-card[data-post-idx="${currentBlogIndex}"] .notion-card-thumb`);
+          if (sideThumb) sideThumb.src = url;
           showToast("Cover URL updated!", "success");
         }
       });
@@ -2578,6 +2800,8 @@
             if (state.blog[currentBlogIndex]) {
               state.blog[currentBlogIndex].image = res.url;
               if (propThumb) propThumb.value = res.url;
+              const sideThumb = document.querySelector(`.notion-post-card[data-post-idx="${currentBlogIndex}"] .notion-card-thumb`);
+              if (sideThumb) sideThumb.src = res.url;
               performMasterSave();
               showToast("✓ Thumbnail saved in Supabase Database!", "success");
             }
@@ -2585,11 +2809,13 @@
         } catch (err) {
           console.error(err);
           showToast("Failed to upload thumbnail: " + err.message, "error");
+        } finally {
+          thumbFileInput.value = "";
         }
       });
     }
 
-    // Canvas Input Sync
+    // Canvas Input Sync & Selection Tracker
     const canvas = document.getElementById("notion-editor-canvas");
     if (canvas) {
       canvas.addEventListener("input", () => {
@@ -2599,12 +2825,67 @@
         }
       });
 
-      // Slash command detection
+      // Keep selection fresh
+      canvas.addEventListener("mouseup", saveCurrentCanvasSelection);
+      canvas.addEventListener("touchend", saveCurrentCanvasSelection);
       canvas.addEventListener("keyup", (e) => {
+        saveCurrentCanvasSelection();
         if (e.key === "/") {
           openNotionSlashMenu();
         } else if (e.key === "Escape") {
           closeNotionSlashMenu();
+        }
+      });
+
+      // Paste image from clipboard directly into canvas
+      canvas.addEventListener("paste", async (e) => {
+        const items = e.clipboardData && e.clipboardData.items;
+        if (!items) return;
+        for (let i = 0; i < items.length; i++) {
+          if (items[i].type.indexOf("image") !== -1) {
+            e.preventDefault();
+            const file = items[i].getAsFile();
+            if (file) {
+              saveCurrentCanvasSelection();
+              showToast("Uploading pasted image to Supabase Database...", "info");
+              try {
+                const res = await uploadSupabaseStorageFile(file, `pasted-${Date.now()}.png`);
+                if (res && res.url) {
+                  insertImageIntoBlogCanvas(res.url, "Pasted image");
+                  showToast("✓ Pasted image saved in Supabase Database!", "success");
+                }
+              } catch (err) {
+                console.error("Paste upload failed", err);
+                showToast("Failed to upload pasted image: " + err.message, "error");
+              }
+            }
+            return;
+          }
+        }
+      });
+
+      // Drag and drop image file into canvas
+      canvas.addEventListener("dragover", (e) => {
+        e.preventDefault();
+      });
+      canvas.addEventListener("drop", async (e) => {
+        if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+          const file = e.dataTransfer.files[0];
+          if (file.type && file.type.startsWith("image/")) {
+            e.preventDefault();
+            saveCurrentCanvasSelection();
+            showToast("Uploading dropped image to Supabase Database...", "info");
+            try {
+              const res = await uploadSupabaseStorageFile(file);
+              if (res && res.url) {
+                insertImageIntoBlogCanvas(res.url, file.name);
+                showToast("✓ Dropped image saved in Supabase Database!", "success");
+              }
+            } catch (err) {
+              console.error(err);
+              showToast("Failed to upload image: " + err.message, "error");
+            }
+          }
         }
       });
     }
@@ -2670,11 +2951,14 @@
         });
       }
 
-      // Inline Image insertion
+      // Inline Image insertion from PC
       const btnImage = document.getElementById("btn-insert-image");
       const inlineImgInput = document.getElementById("notion-inline-image-input");
       if (btnImage && inlineImgInput) {
-        btnImage.addEventListener("click", () => inlineImgInput.click());
+        btnImage.addEventListener("click", () => {
+          saveCurrentCanvasSelection();
+          inlineImgInput.click();
+        });
         inlineImgInput.addEventListener("change", async (e) => {
           const file = e.target.files && e.target.files[0];
           if (!file) return;
@@ -2682,16 +2966,23 @@
             showToast("Uploading image to Supabase Database...", "info");
             const res = await uploadSupabaseStorageFile(file);
             if (res && res.url) {
-              document.execCommand("insertHTML", false, `<img src="${res.url}" alt="${escapeHtml(file.name)}" /><p><br></p>`);
-              if (canvas && state.blog[currentBlogIndex]) {
-                state.blog[currentBlogIndex].contentHtml = canvas.innerHTML;
-              }
+              insertImageIntoBlogCanvas(res.url, file.name);
               showToast("✓ Image inserted & saved in Supabase Database!", "success");
             }
           } catch (err) {
             console.error(err);
             showToast("Failed to upload image: " + err.message, "error");
+          } finally {
+            inlineImgInput.value = "";
           }
+        });
+      }
+
+      // Insert from Supabase Cloud Media
+      const btnCloudMedia = document.getElementById("btn-insert-cloud-media");
+      if (btnCloudMedia) {
+        btnCloudMedia.addEventListener("click", () => {
+          openCloudMediaPicker();
         });
       }
     }
@@ -2782,6 +3073,7 @@
         document.execCommand("insertHorizontalRule", false, null);
         break;
       case "image":
+        saveCurrentCanvasSelection();
         const imgInput = document.getElementById("notion-inline-image-input");
         if (imgInput) imgInput.click();
         break;

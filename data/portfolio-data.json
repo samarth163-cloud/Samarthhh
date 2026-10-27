@@ -10,12 +10,12 @@
         "tech",
         "development"
       ],
-      "image": "assets/blog/how-i-won-my-first-game-jam.png",
+      "image": "https://npzqpcagdtnfuqhyngro.supabase.co/storage/v1/object/public/portfolio-assets/Samarth's%20Portfolio.png",
       "title": "Untitled Article",
       "featured": false,
-      "coverImage": "assets/blog/how-i-won-my-first-game-jam.png",
-      "contentHtml": "",
-      "description": "A short summary of thSamarth's Portfoliois article...",
+      "coverImage": "https://npzqpcagdtnfuqhyngro.supabase.co/storage/v1/object/public/portfolio-assets/Samarth's%20Portfolio.png",
+      "contentHtml": "<figure class=\"notion-image-figure\" style=\"margin: 20px 0; text-align: center;\"><img src=\"https://npzqpcagdtnfuqhyngro.supabase.co/storage/v1/object/public/portfolio-assets/Samarth's%20Portfolio.png\" alt=\"Samarth's Portfolio\" style=\"max-width: 100%; height: auto; border-radius: 8px; border: 3px solid #000; box-shadow: 4px 4px 0px #000; display: inline-block;\" /><figcaption style=\"font-size: 12px; color: #71717a; margin-top: 8px; font-style: italic;\">Samarth's Portfolio</figcaption></figure><p><br></p>",
+      "description": "A short summary of this article...",
       "readingTime": "3 min read"
     },
     {
@@ -303,7 +303,11 @@
       "id": "samarth-s-portfolio",
       "title": "Samarth's Portfolio",
       "description": "An open-source DIY camera! Built from scratch with a Raspberry Pi Zero 2W, Pi camera module, hand-wiring, and a 3D-printed case. And custom firmware!",
+<<<<<<< HEAD
       "image": "https://npzqpcagdtnfuqhyngro.supabase.co/storage/v1/object/public/portfolio-assets/Samarth's%20Portfolio.png",
+=======
+      "image": "https://npzqpcagdtnfuqhyngro.supabase.co/storage/v1/object/public/portfolio-assets/pishot.png",
+>>>>>>> 5014665 (Fix blog image insertion, Supabase CDN rendering, and add Cloud Media picker)
       "sourceUrl": "https://github.com/samarth163-cloud/PiShot",
       "visitUrl": "https://www.youtube.com/watch?v=gf-RIgXnWJM",
       "visitLabel": "Demo",
@@ -516,5 +520,9 @@
       "description": "ssh samarth@hackclub.app"
     }
   ],
+<<<<<<< HEAD
   "_updatedAt": 1793129702134
+=======
+  "_updatedAt": 1793129299110
+>>>>>>> 5014665 (Fix blog image insertion, Supabase CDN rendering, and add Cloud Media picker)
 }
