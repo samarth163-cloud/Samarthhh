@@ -95,8 +95,18 @@
       if (desc && data.general.description) desc.textContent = data.general.description;
 
       const profilePic = document.getElementById("profile-pic");
-      if (profilePic && data.general.profilePic) {
-        profilePic.src = formatImageUrl(data.general.profilePic, data._updatedAt);
+      const avList = Array.isArray(data.general.avatars) && data.general.avatars.length > 0
+        ? data.general.avatars
+        : (data.general.profilePic ? [data.general.profilePic] : ["assets/profile/2.jpg"]);
+
+      window.__portfolioAvatars = avList;
+
+      const activePic = data.general.profilePic || avList[0];
+      const startIdx = avList.indexOf(activePic);
+      window.__currentAvatarIdx = startIdx >= 0 ? startIdx : 0;
+
+      if (profilePic && activePic) {
+        profilePic.src = formatImageUrl(activePic, data._updatedAt);
       }
 
       const heroCtaBtn = document.querySelector(".hero-cta .cta-button:first-child");

@@ -6,7 +6,20 @@
     "description": "I build open-source software, games, and hardware- from custom cameras and devboards to web platforms.",
     "ctaText": "Explore projects",
     "ctaSubtext": "[All my work is open source]",
-    "profilePic": "assets/profile/1.jpg",
+    "profilePic": "assets/profile/2.jpg",
+    "avatars": [
+      "assets/profile/1.jpg",
+      "assets/profile/2.jpg",
+      "assets/profile/3.jpg",
+      "assets/profile/4.jpg",
+      "assets/profile/5.jpg",
+      "assets/profile/6.jpg",
+      "assets/profile/7.jpg",
+      "assets/profile/8.jpg",
+      "assets/profile/9.jpg",
+      "assets/profile/10.jpg",
+      "assets/profile/11.jpg"
+    ],
     "socials": [
       {
         "name": "Instagram",

@@ -69,6 +69,39 @@ const server = http.createServer((req, res) => {
         res.end(JSON.stringify({ error: 'Invalid JSON', details: err.message }));
       }
     });
+  // API Route: Upload Image to Disk
+  if (req.method === 'POST' && pathname === '/api/upload-image') {
+    let body = '';
+    req.on('data', chunk => {
+      body += chunk;
+      if (body.length > 25 * 1024 * 1024) {
+        res.writeHead(413, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ error: 'Image too large' }));
+        req.destroy();
+      }
+    });
+    req.on('end', () => {
+      try {
+        const { filename, base64Data, folder } = JSON.parse(body);
+        const subFolder = folder || 'assets/profile';
+        const targetDir = path.join(ROOT_DIR, subFolder);
+        if (!fs.existsSync(targetDir)) {
+          fs.mkdirSync(targetDir, { recursive: true });
+        }
+        const safeName = (filename || `avatar-${Date.now()}.jpg`).replace(/[^a-zA-Z0-9_.-]/g, '_');
+        const filePath = path.join(targetDir, safeName);
+        const buffer = Buffer.from(base64Data, 'base64');
+        fs.writeFileSync(filePath, buffer);
+        const relPath = `${subFolder}/${safeName}`.replace(/\\/g, '/');
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ success: true, path: relPath }));
+        console.log(`[${new Date().toLocaleTimeString()}] Saved uploaded image: ${relPath}`);
+      } catch (err) {
+        console.error('Failed to upload image:', err);
+        res.writeHead(400, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ error: err.message }));
+      }
+    });
     return;
   }
 

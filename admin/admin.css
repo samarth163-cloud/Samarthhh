@@ -814,6 +814,185 @@ body.dark .btn-ghost:hover {
 }
 
 /* ==========================================================================
+   MULTI-AVATAR SEQUENCE GALLERY & MANAGEMENT
+   ========================================================================== */
+
+.avatar-gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  gap: 16px;
+  align-items: stretch;
+}
+
+.avatar-item-card {
+  position: relative;
+  background: var(--bg-surface);
+  border: var(--border-width) solid var(--border-color);
+  box-shadow: var(--hard-shadow-sm);
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+  user-select: none;
+  border-radius: 4px;
+}
+
+.avatar-item-card:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: var(--hard-shadow);
+}
+
+.avatar-item-card.is-active {
+  border-color: #059669;
+  background: var(--accent-yellow-light);
+  box-shadow: 0 0 0 2px #059669, var(--hard-shadow-sm);
+}
+
+.avatar-thumb-box {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  border: 2px solid var(--border-color);
+  overflow: hidden;
+  position: relative;
+  background: #eee;
+  cursor: pointer;
+  border-radius: 2px;
+}
+
+.avatar-thumb-box img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* Sequence badge (#1, #2, ...) */
+.avatar-seq-badge {
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 800;
+  padding: 1px 6px;
+  background: #000;
+  color: #fff;
+  border-radius: 2px;
+  z-index: 2;
+  box-shadow: 1px 1px 0 rgba(0, 0, 0, 0.4);
+}
+
+/* RED CROSS (❌) DELETE BUTTON */
+.avatar-delete-btn {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: #ef4444;
+  color: #ffffff;
+  border: 2px solid #000000;
+  box-shadow: 2px 2px 0 #000000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  cursor: pointer;
+  z-index: 10;
+  transition: transform 0.12s ease, background 0.12s ease;
+  padding: 0;
+  line-height: 1;
+}
+
+.avatar-delete-btn:hover {
+  background: #dc2626;
+  transform: scale(1.18) rotate(90deg);
+}
+
+.avatar-delete-btn:active {
+  transform: scale(0.92);
+}
+
+/* Active Avatar badge */
+.avatar-active-badge {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+  color: #065f46;
+  background: #a7f3d0;
+  border: 1px solid #059669;
+  padding: 2px 5px;
+  border-radius: 2px;
+  margin-top: 6px;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+}
+
+/* Card toolbar (reorder & set default & replace) */
+.avatar-card-actions {
+  display: flex;
+  gap: 4px;
+  margin-top: 8px;
+  width: 100%;
+  justify-content: space-between;
+}
+
+.avatar-card-actions .btn {
+  padding: 3px 6px;
+  font-size: 11px;
+  flex: 1;
+  justify-content: center;
+}
+
+/* THE "+" ADD AVATAR BOX */
+.avatar-add-box {
+  border: 2.5px dashed var(--border-color);
+  background: var(--bg-surface);
+  min-height: 175px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+  box-shadow: var(--hard-shadow-xs);
+  transition: transform 0.15s ease, background 0.15s ease, border-color 0.15s ease;
+  padding: 16px 12px;
+  text-align: center;
+  border-radius: 4px;
+}
+
+.avatar-add-box:hover {
+  background: var(--accent-yellow-light);
+  border-color: var(--accent-red);
+  transform: translate(-2px, -2px);
+  box-shadow: var(--hard-shadow);
+}
+
+.avatar-add-box i {
+  font-size: 32px;
+  color: var(--accent-red);
+}
+
+.avatar-add-box span {
+  font-family: var(--font-anton);
+  font-size: 15px;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: var(--text-main);
+}
+
+.avatar-add-box small {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--text-muted);
+}
+
+/* ==========================================================================
    RESPONSIVE DESIGN & MOBILE OPTIMIZATIONS (ADMIN SUITE)
    ========================================================================== */
 

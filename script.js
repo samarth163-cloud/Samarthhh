@@ -71,11 +71,33 @@ document.addEventListener("DOMContentLoaded", () => {
   const avatarDoodle = document.getElementById("avatar-click-doodle");
 
   if (profilePic) {
-    let currentPicIndex = 2;
     profilePic.title = "Click to cycle avatar";
     profilePic.addEventListener("click", () => {
-      currentPicIndex = (currentPicIndex % 11) + 1;
-      profilePic.src = `assets/profile/${currentPicIndex}.jpg`;
+      const avatars = (Array.isArray(window.__portfolioAvatars) && window.__portfolioAvatars.length > 0)
+        ? window.__portfolioAvatars
+        : [
+            "assets/profile/1.jpg",
+            "assets/profile/2.jpg",
+            "assets/profile/3.jpg",
+            "assets/profile/4.jpg",
+            "assets/profile/5.jpg",
+            "assets/profile/6.jpg",
+            "assets/profile/7.jpg",
+            "assets/profile/8.jpg",
+            "assets/profile/9.jpg",
+            "assets/profile/10.jpg",
+            "assets/profile/11.jpg"
+          ];
+
+      let idx = typeof window.__currentAvatarIdx === "number" ? window.__currentAvatarIdx : 0;
+      idx = (idx + 1) % avatars.length;
+      window.__currentAvatarIdx = idx;
+
+      const newSrc = avatars[idx];
+      profilePic.src = newSrc.startsWith("data:") || newSrc.startsWith("blob:") || newSrc.startsWith("http")
+        ? newSrc
+        : (newSrc.startsWith("/") ? newSrc : `/${newSrc}`);
+
       if (avatarDoodle) {
         avatarDoodle.style.transform = "rotate(-24deg) scale(1.2)";
         setTimeout(() => {

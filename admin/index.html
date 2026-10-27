@@ -376,38 +376,49 @@
           </div>
         </div>
 
-        <!-- Profile Picture Selector -->
+        <!-- Profile Picture & Multi-Avatar Sequence Gallery Manager -->
         <div class="admin-card">
           <div class="admin-card-header">
-            <div class="admin-card-title"><i class="fas fa-image"></i> Profile Avatar</div>
-          </div>
-          <div style="display: flex; gap: 24px; align-items: center; flex-wrap: wrap;">
-            <div style="width: 110px; height: 110px; border: 3px solid var(--border-color); box-shadow: var(--hard-shadow-sm); overflow: hidden; background: #fff;">
-              <img id="hero-avatar-preview" src="/assets/profile/2.jpg" style="width: 100%; height: 100%; object-fit: cover;" alt="Avatar Preview" />
+            <div class="admin-card-title">
+              <i class="fas fa-images"></i> Profile Avatar &amp; Click Sequence Gallery
             </div>
-            <div style="flex: 1; min-width: 280px;">
-              <div class="form-group">
-                <label class="form-label">Profile Image Path / URL</label>
-                <input type="text" id="hero-profile-pic" class="form-input" />
-              </div>
-              <div style="display: flex; gap: 8px; flex-wrap: wrap; align-items: center;">
-                <span style="font-family: var(--font-mono); font-size: 11px; font-weight: 700;">Quick Avatars:</span>
-                <button type="button" class="btn btn-sm btn-quick-avatar" data-path="assets/profile/1.jpg">1</button>
-                <button type="button" class="btn btn-sm btn-quick-avatar" data-path="assets/profile/2.jpg">2</button>
-                <button type="button" class="btn btn-sm btn-quick-avatar" data-path="assets/profile/3.jpg">3</button>
-                <button type="button" class="btn btn-sm btn-quick-avatar" data-path="assets/profile/4.jpg">4</button>
-                <button type="button" class="btn btn-sm btn-quick-avatar" data-path="assets/profile/5.jpg">5</button>
-                <button type="button" class="btn btn-sm btn-quick-avatar" data-path="assets/profile/6.jpg">6</button>
-                <label class="btn btn-sm btn-yellow" style="margin-left: 10px; cursor: pointer;">
-                  <i class="fas fa-upload"></i> Upload &amp; Replace Image
-                  <input type="file" id="hero-avatar-upload" accept="image/*" style="display: none;" />
-                </label>
-              </div>
-              <div style="font-size: 12px; color: var(--text-muted); margin-top: 8px;">
-                💡 <b>Direct Image Overwrite:</b> Image ka naam wahi rahega (e.g. <code>assets/profile/1.jpg</code>), bas actual photo GitHub par globally replace ho jayegi!
-              </div>
+            <div style="display: flex; gap: 8px; align-items: center;">
+              <span class="badge" style="background: var(--accent-red); color: #fff; font-size: 11px;" id="avatar-count-badge">11 Avatars</span>
             </div>
           </div>
+
+          <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 16px; line-height: 1.5;">
+            Jab user portfolio par aapki photo (ya doodle) par click karta hai, toh avatars iss exact order me cycle hote hain.
+            Aap kisi bhi image ke <b>red cross (❌)</b> par click karke use delete kar sakte hain, <b>"+" box</b> se nayi image add kar sakte hain, aur <b>"Set as Active"</b> click karke starting image chun sakte hain.
+          </p>
+
+          <!-- Active Avatar Banner -->
+          <div class="active-avatar-banner" style="display: flex; gap: 16px; align-items: center; background: var(--bg-sidebar); border: 2px solid var(--border-color); padding: 12px 16px; margin-bottom: 20px; box-shadow: var(--hard-shadow-xs);">
+            <div style="position: relative; width: 70px; height: 70px; border: 2.5px solid var(--border-color); box-shadow: 2px 2px 0 var(--shadow-color); overflow: hidden; background: #fff; flex-shrink: 0;">
+              <img id="hero-avatar-preview" src="/assets/profile/2.jpg" style="width: 100%; height: 100%; object-fit: cover;" alt="Current Starting Avatar" />
+            </div>
+            <div style="flex: 1; min-width: 0;">
+              <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px; flex-wrap: wrap;">
+                <span style="font-family: var(--font-anton); font-size: 16px; text-transform: uppercase;">Current Starting Avatar</span>
+                <span class="badge" style="background: var(--accent-green); color: #000; font-weight: 800; font-size: 10px;">★ LIVE DEFAULT</span>
+              </div>
+              <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+                <input type="text" id="hero-profile-pic" class="form-input" style="font-size: 12px; padding: 4px 10px; max-width: 320px;" placeholder="assets/profile/2.jpg" />
+                <span style="font-size: 11px; color: var(--text-muted);">Neeche gallery me kisi bhi photo par tap karke use default banayein.</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Avatar Gallery Cards + Add Box -->
+          <div class="avatar-gallery-wrapper">
+            <div class="avatar-gallery-grid" id="avatar-gallery-container">
+              <!-- Dynamically populated avatar cards with sequence number, red cross delete button, and reorder controls -->
+            </div>
+          </div>
+
+          <!-- Hidden File Inputs for Avatar Upload & Replace -->
+          <input type="file" id="avatar-file-upload-input" accept="image/*" style="display: none;" />
+          <input type="file" id="avatar-file-replace-input" accept="image/*" style="display: none;" />
         </div>
 
         <!-- Social Media Links -->

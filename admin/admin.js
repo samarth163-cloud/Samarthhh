@@ -1143,6 +1143,16 @@
   // TAB 4: HERO & GENERAL
   // =========================================================================
 
+  let replacingAvatarIdx = -1;
+
+  function formatAvatarSrc(src) {
+    if (!src) return "/assets/profile/2.jpg";
+    if (src.startsWith("data:") || src.startsWith("blob:") || src.startsWith("http://") || src.startsWith("https://")) {
+      return src;
+    }
+    return src.startsWith("/") ? src : `/${src}`;
+  }
+
   function renderHeroTab() {
     const g = state.general || {};
 
@@ -1151,20 +1161,265 @@
     const descEl = document.getElementById("hero-description");
     const ctaTextEl = document.getElementById("hero-cta-text");
     const ctaSubtextEl = document.getElementById("hero-cta-subtext");
-    const picEl = document.getElementById("hero-profile-pic");
-    const picPrev = document.getElementById("hero-avatar-preview");
 
     if (nameEl) nameEl.value = g.name || "";
     if (shortNameEl) shortNameEl.value = g.shortName || "";
     if (descEl) descEl.value = g.description || "";
     if (ctaTextEl) ctaTextEl.value = g.ctaText || "Explore projects";
     if (ctaSubtextEl) ctaSubtextEl.value = g.ctaSubtext || "[All my work is open source]";
-    if (picPrev) {
-      const p = g.profilePic || "assets/profile/2.jpg";
-      picPrev.src = p.startsWith("data:") || p.startsWith("http") ? p : (p.startsWith("/") ? p : `/${p}`);
+
+    renderAvatarGallery();
+    renderHeroSocials(g.socials || []);
+  }
+
+  // Multi-Avatar Sequence Gallery
+  function renderAvatarGallery() {
+    const container = document.getElementById("avatar-gallery-container");
+    if (!container) return;
+
+    if (!state.general) state.general = {};
+    if (!Array.isArray(state.general.avatars) || state.general.avatars.length === 0) {
+      state.general.avatars = [
+        "assets/profile/1.jpg",
+        "assets/profile/2.jpg",
+        "assets/profile/3.jpg",
+        "assets/profile/4.jpg",
+        "assets/profile/5.jpg",
+        "assets/profile/6.jpg",
+        "assets/profile/7.jpg",
+        "assets/profile/8.jpg",
+        "assets/profile/9.jpg",
+        "assets/profile/10.jpg",
+        "assets/profile/11.jpg"
+      ];
     }
 
-    renderHeroSocials(g.socials || []);
+    const currentActive = state.general.profilePic || state.general.avatars[0];
+    const badge = document.getElementById("avatar-count-badge");
+    if (badge) badge.textContent = `${state.general.avatars.length} Avatars`;
+
+    const picEl = document.getElementById("hero-profile-pic");
+    const picPrev = document.getElementById("hero-avatar-preview");
+    if (picEl) picEl.value = currentActive;
+    if (picPrev) picPrev.src = formatAvatarSrc(currentActive);
+
+    const cardsHtml = state.general.avatars
+      .map((av, idx) => {
+        const isActive = av === currentActive;
+        const displaySrc = formatAvatarSrc(av);
+        return `
+        <div class="avatar-item-card ${isActive ? "is-active" : ""}" data-avatar-idx="${idx}">
+          <button type="button" class="avatar-delete-btn" data-avatar-idx="${idx}" title="Delete avatar #${idx + 1}">
+            <i class="fas fa-times"></i>
+          </button>
+          <div class="avatar-thumb-box" data-avatar-idx="${idx}" title="Click to make this the active starting avatar">
+            <span class="avatar-seq-badge">#${idx + 1}</span>
+            <img src="${escapeHtml(displaySrc)}" alt="Avatar ${idx + 1}" onerror="this.src='/assets/profile/2.jpg'" />
+          </div>
+          ${
+            isActive
+              ? '<span class="avatar-active-badge"><i class="fas fa-star"></i> Active</span>'
+              : `<button type="button" class="btn btn-sm btn-ghost btn-set-active-avatar" data-avatar-idx="${idx}" style="font-size: 10px; padding: 2px 4px; margin-top: 4px;">Set Active</button>`
+          }
+          <div class="avatar-card-actions">
+            <button type="button" class="btn btn-sm btn-reorder-av-left" data-avatar-idx="${idx}" title="Move earlier in cycle" ${
+          idx === 0 ? "disabled style='opacity: 0.3; cursor: not-allowed;'" : ""
+        }><i class="fas fa-arrow-left"></i></button>
+            <button type="button" class="btn btn-sm btn-reorder-av-right" data-avatar-idx="${idx}" title="Move later in cycle" ${
+          idx === state.general.avatars.length - 1
+            ? "disabled style='opacity: 0.3; cursor: not-allowed;'"
+            : ""
+        }><i class="fas fa-arrow-right"></i></button>
+            <button type="button" class="btn btn-sm btn-yellow btn-replace-avatar" data-avatar-idx="${idx}" title="Replace this image"><i class="fas fa-rotate"></i></button>
+          </div>
+        </div>`;
+      })
+      .join("");
+
+    const addBoxHtml = `
+      <div class="avatar-add-box" id="btn-add-avatar-box" role="button" tabindex="0" title="Click to add new image to cycle">
+        <i class="fas fa-plus-circle"></i>
+        <span>Add Image</span>
+        <small>Upload photo</small>
+      </div>
+    `;
+
+    container.innerHTML = cardsHtml + addBoxHtml;
+    attachAvatarGalleryListeners();
+  }
+
+  function attachAvatarGalleryListeners() {
+    // Red Cross Delete Button
+    document.querySelectorAll(".avatar-delete-btn").forEach((btn) => {
+      btn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        const idx = parseInt(btn.getAttribute("data-avatar-idx"), 10);
+        if (state.general.avatars.length <= 1) {
+          showToast("Kam se kam 1 avatar hona zaroori hai!", "error");
+          return;
+        }
+        const removed = state.general.avatars.splice(idx, 1)[0];
+        if (state.general.profilePic === removed) {
+          state.general.profilePic = state.general.avatars[0];
+        }
+        renderAvatarGallery();
+        showToast(`Avatar #${idx + 1} deleted successfully!`, "success");
+      });
+    });
+
+    // Make Active
+    document.querySelectorAll(".avatar-thumb-box, .btn-set-active-avatar").forEach((el) => {
+      el.addEventListener("click", () => {
+        const idx = parseInt(el.getAttribute("data-avatar-idx"), 10);
+        state.general.profilePic = state.general.avatars[idx];
+        renderAvatarGallery();
+        showToast(`Avatar #${idx + 1} set as active starting avatar!`, "info");
+      });
+    });
+
+    // Move Left (earlier in cycle)
+    document.querySelectorAll(".btn-reorder-av-left").forEach((btn) => {
+      btn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        const idx = parseInt(btn.getAttribute("data-avatar-idx"), 10);
+        if (idx > 0) {
+          const temp = state.general.avatars[idx];
+          state.general.avatars[idx] = state.general.avatars[idx - 1];
+          state.general.avatars[idx - 1] = temp;
+          renderAvatarGallery();
+        }
+      });
+    });
+
+    // Move Right (later in cycle)
+    document.querySelectorAll(".btn-reorder-av-right").forEach((btn) => {
+      btn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        const idx = parseInt(btn.getAttribute("data-avatar-idx"), 10);
+        if (idx < state.general.avatars.length - 1) {
+          const temp = state.general.avatars[idx];
+          state.general.avatars[idx] = state.general.avatars[idx + 1];
+          state.general.avatars[idx + 1] = temp;
+          renderAvatarGallery();
+        }
+      });
+    });
+
+    // Replace image
+    document.querySelectorAll(".btn-replace-avatar").forEach((btn) => {
+      btn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        replacingAvatarIdx = parseInt(btn.getAttribute("data-avatar-idx"), 10);
+        const replaceInput = document.getElementById("avatar-file-replace-input");
+        if (replaceInput) {
+          replaceInput.value = "";
+          replaceInput.click();
+        }
+      });
+    });
+
+    // "+" Add Avatar box click
+    const addBox = document.getElementById("btn-add-avatar-box");
+    if (addBox) {
+      addBox.addEventListener("click", () => {
+        const uploadInput = document.getElementById("avatar-file-upload-input");
+        if (uploadInput) {
+          uploadInput.value = "";
+          uploadInput.click();
+        }
+      });
+    }
+  }
+
+  // Upload new avatar file
+  const avatarUploadInput = document.getElementById("avatar-file-upload-input");
+  if (avatarUploadInput) {
+    avatarUploadInput.addEventListener("change", async (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = async (ev) => {
+        const dataUrl = ev.target.result;
+        const rawBase64 = dataUrl.split(",")[1];
+        const ext = file.name.split(".").pop() || "jpg";
+        const filename = `avatar-${Date.now()}.${ext}`;
+        const targetPath = `assets/profile/${filename}`;
+
+        try {
+          const res = await fetch("/api/upload-image", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ filename, base64Data: rawBase64, folder: "assets/profile" }),
+          });
+          if (res.ok) {
+            const data = await res.json();
+            const savedPath = data.path || targetPath;
+            state.general.avatars.push(savedPath);
+            pendingImageUploads[savedPath] = rawBase64;
+          } else {
+            pendingImageUploads[targetPath] = rawBase64;
+            state.general.avatars.push(dataUrl);
+          }
+        } catch {
+          pendingImageUploads[targetPath] = rawBase64;
+          state.general.avatars.push(dataUrl);
+        }
+
+        renderAvatarGallery();
+        showToast("New avatar added to sequence!", "success");
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+
+  // Replace avatar file
+  const avatarReplaceInput = document.getElementById("avatar-file-replace-input");
+  if (avatarReplaceInput) {
+    avatarReplaceInput.addEventListener("change", async (e) => {
+      const file = e.target.files[0];
+      if (!file || replacingAvatarIdx < 0 || replacingAvatarIdx >= state.general.avatars.length) return;
+
+      const reader = new FileReader();
+      reader.onload = async (ev) => {
+        const dataUrl = ev.target.result;
+        const rawBase64 = dataUrl.split(",")[1];
+        const oldPath = state.general.avatars[replacingAvatarIdx];
+        const ext = file.name.split(".").pop() || "jpg";
+        const filename =
+          oldPath && !oldPath.startsWith("data:") && !oldPath.startsWith("http")
+            ? oldPath.split("/").pop()
+            : `avatar-${Date.now()}.${ext}`;
+        const targetPath = `assets/profile/${filename}`;
+
+        try {
+          const res = await fetch("/api/upload-image", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ filename, base64Data: rawBase64, folder: "assets/profile" }),
+          });
+          if (res.ok) {
+            const data = await res.json();
+            const newPath = data.path || targetPath;
+            if (state.general.profilePic === oldPath) state.general.profilePic = newPath;
+            state.general.avatars[replacingAvatarIdx] = newPath;
+            pendingImageUploads[newPath] = rawBase64;
+          } else {
+            if (state.general.profilePic === oldPath) state.general.profilePic = dataUrl;
+            state.general.avatars[replacingAvatarIdx] = dataUrl;
+            pendingImageUploads[targetPath] = rawBase64;
+          }
+        } catch {
+          if (state.general.profilePic === oldPath) state.general.profilePic = dataUrl;
+          state.general.avatars[replacingAvatarIdx] = dataUrl;
+          pendingImageUploads[targetPath] = rawBase64;
+        }
+
+        renderAvatarGallery();
+        showToast(`Avatar #${replacingAvatarIdx + 1} replaced successfully!`, "success");
+      };
+      reader.readAsDataURL(file);
+    });
   }
 
   function renderHeroSocials(socials) {
@@ -1232,51 +1487,6 @@
     });
   }
 
-  // Quick avatar buttons
-  document.querySelectorAll(".btn-quick-avatar").forEach((btn) => {
-    btn.addEventListener("click", () => {
-      const p = btn.getAttribute("data-path");
-      const picEl = document.getElementById("hero-profile-pic");
-      const picPrev = document.getElementById("hero-avatar-preview");
-      if (picEl) picEl.value = p;
-      if (picPrev) picPrev.src = p.startsWith("/") ? p : `/${p}`;
-      state.general.profilePic = p;
-      showToast(`Selected avatar ${btn.textContent}`, "info");
-    });
-  });
-
-  const heroAvatarUpload = document.getElementById("hero-avatar-upload");
-  if (heroAvatarUpload) {
-    heroAvatarUpload.addEventListener("change", (e) => {
-      const file = e.target.files[0];
-      if (file) {
-        const picEl = document.getElementById("hero-profile-pic");
-        const picPrev = document.getElementById("hero-avatar-preview");
-
-        // Keep existing filename (e.g. assets/profile/1.jpg or assets/profile/2.jpg)
-        let targetPath = (picEl?.value || "").trim().replace(/^\//, "");
-        if (!targetPath || targetPath.startsWith("data:")) {
-          targetPath = "assets/profile/1.jpg";
-        }
-
-        const reader = new FileReader();
-        reader.onload = (ev) => {
-          const fullDataUrl = ev.target.result;
-          const rawBase64 = fullDataUrl.split(",")[1];
-          pendingImageUploads[targetPath] = rawBase64;
-
-          // Local preview in admin
-          if (picPrev) picPrev.src = fullDataUrl;
-          if (picEl) picEl.value = targetPath;
-          state.general.profilePic = targetPath;
-
-          showToast(`Photo loaded! File ka naam '${targetPath}' hi rahega. 'Deploy to All Devices 🌐' par yeh photo GitHub par replace/overwrite ho jayegi!`, "success");
-        };
-        reader.readAsDataURL(file);
-      }
-    });
-  }
-
   // Bind hero inputs
   ["hero-name", "hero-short-name", "hero-description", "hero-cta-text", "hero-cta-subtext", "hero-profile-pic"].forEach(
     (id) => {
@@ -1288,8 +1498,7 @@
           if (id === "hero-profile-pic") {
             const picPrev = document.getElementById("hero-avatar-preview");
             if (picPrev) {
-              const val = el.value || "assets/profile/2.jpg";
-              picPrev.src = val.startsWith("data:") || val.startsWith("http") ? val : (val.startsWith("/") ? val : `/${val}`);
+              picPrev.src = formatAvatarSrc(el.value);
             }
           }
         });
