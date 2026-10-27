@@ -67,54 +67,90 @@ document.addEventListener("DOMContentLoaded", () => {
   loadTotalCodingTime();
 
   // Profile pic click to cycle avatar & doodle interaction
+  // Profile pic click / tap to cycle avatar & doodle interaction (Real-time 0ms response)
   const profilePic = document.getElementById("profile-pic");
   const avatarDoodle = document.getElementById("avatar-click-doodle");
 
-  if (profilePic) {
-    profilePic.title = "Click to cycle avatar";
-    profilePic.addEventListener("click", () => {
-      const avatars = (Array.isArray(window.__portfolioAvatars) && window.__portfolioAvatars.length > 0)
-        ? window.__portfolioAvatars
-        : [
-            "assets/profile/1.jpg",
-            "assets/profile/2.jpg",
-            "assets/profile/3.jpg",
-            "assets/profile/4.jpg",
-            "assets/profile/5.jpg",
-            "assets/profile/6.jpg",
-            "assets/profile/7.jpg",
-            "assets/profile/8.jpg",
-            "assets/profile/9.jpg",
-            "assets/profile/10.jpg",
-            "assets/profile/11.jpg"
-          ];
-
-      let idx = typeof window.__currentAvatarIdx === "number" ? window.__currentAvatarIdx : 0;
-      idx = (idx + 1) % avatars.length;
-      window.__currentAvatarIdx = idx;
-
-      const newSrc = avatars[idx];
-      profilePic.src = newSrc.startsWith("data:") || newSrc.startsWith("blob:") || newSrc.startsWith("http")
-        ? newSrc
-        : (newSrc.startsWith("/") ? newSrc : `/${newSrc}`);
-
-      if (avatarDoodle) {
-        avatarDoodle.style.transform = "rotate(-24deg) scale(1.2)";
-        setTimeout(() => {
-          avatarDoodle.style.transform = "";
-        }, 220);
+  // Read initial avatars from localStorage synchronously or use clean default
+  let initialAvatars = ["assets/profile/1.jpg", "assets/profile/3.jpg"];
+  try {
+    const raw = localStorage.getItem("samarth_portfolio_data") || localStorage.getItem("samarth_portfolio_data_v1");
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (parsed.general && Array.isArray(parsed.general.avatars) && parsed.general.avatars.length > 0) {
+        initialAvatars = parsed.general.avatars;
       }
-    });
+    }
+  } catch (e) {}
+
+  if (!window.__portfolioAvatars) {
+    window.__portfolioAvatars = initialAvatars;
+    window.__currentAvatarIdx = 0;
   }
 
-  if (avatarDoodle && profilePic) {
-    avatarDoodle.addEventListener("click", () => {
-      profilePic.click();
+  // Preload all avatar images immediately for zero-lag real-time cycling
+  function preloadAvatars(list) {
+    if (!Array.isArray(list)) return;
+    list.forEach((src) => {
+      const clean = src.startsWith("data:") || src.startsWith("http") ? src : (src.startsWith("/") ? src : `/${src}`);
+      const img = new Image();
+      img.src = clean;
     });
+  }
+  preloadAvatars(window.__portfolioAvatars);
+
+  let lastCycleTime = 0;
+  function handleAvatarCycle(e) {
+    if (e) {
+      if (e.cancelable && e.type !== "click") e.preventDefault();
+      e.stopPropagation();
+    }
+    const now = Date.now();
+    if (now - lastCycleTime < 180) return; // Prevent double trigger from touch+click
+    lastCycleTime = now;
+
+    const avatars = (Array.isArray(window.__portfolioAvatars) && window.__portfolioAvatars.length > 0)
+      ? window.__portfolioAvatars
+      : initialAvatars;
+
+    let idx = typeof window.__currentAvatarIdx === "number" ? window.__currentAvatarIdx : 0;
+    idx = (idx + 1) % avatars.length;
+    window.__currentAvatarIdx = idx;
+
+    const newSrc = avatars[idx];
+    const formatted = newSrc.startsWith("data:") || newSrc.startsWith("blob:") || newSrc.startsWith("http")
+      ? newSrc
+      : (newSrc.startsWith("/") ? newSrc : `/${newSrc}`);
+
+    if (profilePic) {
+      profilePic.src = formatted;
+      profilePic.style.transform = "scale(0.94)";
+      setTimeout(() => {
+        profilePic.style.transform = "";
+      }, 120);
+    }
+
+    if (avatarDoodle) {
+      avatarDoodle.style.transform = "rotate(-24deg) scale(1.2)";
+      setTimeout(() => {
+        avatarDoodle.style.transform = "";
+      }, 220);
+    }
+  }
+
+  if (profilePic) {
+    profilePic.title = "Click to cycle avatar";
+    profilePic.addEventListener("pointerup", handleAvatarCycle);
+    profilePic.addEventListener("click", handleAvatarCycle);
+  }
+
+  if (avatarDoodle) {
+    avatarDoodle.addEventListener("pointerup", handleAvatarCycle);
+    avatarDoodle.addEventListener("click", handleAvatarCycle);
     avatarDoodle.addEventListener("keydown", (e) => {
       if (e.key === "Enter" || e.key === " ") {
         e.preventDefault();
-        profilePic.click();
+        handleAvatarCycle();
       }
     });
   }

@@ -41,6 +41,10 @@
     <link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon/favicon-16x16.png" />
     <link rel="apple-touch-icon" sizes="180x180" href="/assets/favicon/apple-touch-icon.png" />
 
+    <!-- Instant Profile Avatars Preload for 0ms Load & Real-Time Cycling -->
+    <link rel="preload" as="image" href="assets/profile/1.jpg" fetchpriority="high" />
+    <link rel="prefetch" as="image" href="assets/profile/3.jpg" />
+
     <script>
       document.addEventListener("DOMContentLoaded", () => {
         // Default to Neo-Brutalist Light (Retro Paper) if not set
@@ -111,10 +115,12 @@
             </svg>
           </div>
           <img
-            src="assets/profile/2.jpg"
+            src="assets/profile/1.jpg"
             alt="Samarth"
             class="profile-pic"
             id="profile-pic"
+            loading="eager"
+            fetchpriority="high"
           />
         </div>
         <h1>Samarth Haveliwala</h1>

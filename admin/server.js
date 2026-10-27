@@ -77,6 +77,10 @@ const server = http.createServer((req, res) => {
                 html = html.replace(/<meta\s+property="og:title"\s+content=".*?"\s*\/>/i, `<meta property="og:title" content="${jsonData.general.siteTitle}" />`);
                 html = html.replace(/<meta\s+name="twitter:title"\s+content=".*?"\s*\/>/i, `<meta name="twitter:title" content="${jsonData.general.siteTitle}" />`);
               }
+              if (jsonData.general.profilePic) {
+                const picRel = jsonData.general.profilePic.replace(/^\//, '');
+                html = html.replace(/<img\s+src="[^"]*"\s+alt="Samarth"\s+class="profile-pic"\s+id="profile-pic"/i, `<img src="${picRel}" alt="Samarth" class="profile-pic" id="profile-pic"`);
+              }
               fs.writeFileSync(indexHtmlPath, html, 'utf-8');
             }
           } catch (syncErr) {

@@ -134,16 +134,27 @@
       const profilePic = document.getElementById("profile-pic");
       const avList = Array.isArray(data.general.avatars) && data.general.avatars.length > 0
         ? data.general.avatars
-        : (data.general.profilePic ? [data.general.profilePic] : ["assets/profile/2.jpg"]);
+        : (data.general.profilePic ? [data.general.profilePic] : ["assets/profile/1.jpg"]);
 
       window.__portfolioAvatars = avList;
 
+      // Preload all avatar sequence images for 0ms instant real-time switching
+      avList.forEach((src) => {
+        const clean = src.startsWith("data:") || src.startsWith("http") ? src : (src.startsWith("/") ? src : `/${src}`);
+        const img = new Image();
+        img.src = clean;
+      });
+
       const activePic = data.general.profilePic || avList[0];
       const startIdx = avList.indexOf(activePic);
-      window.__currentAvatarIdx = startIdx >= 0 ? startIdx : 0;
+      if (typeof window.__currentAvatarIdx !== "number" || window.__currentAvatarIdx < 0 || window.__currentAvatarIdx >= avList.length) {
+        window.__currentAvatarIdx = startIdx >= 0 ? startIdx : 0;
+      }
 
       if (profilePic && activePic) {
-        profilePic.src = formatImageUrl(activePic, data._updatedAt);
+        if (!profilePic.src || profilePic.src.includes("2.jpg") || window.__currentAvatarIdx === startIdx) {
+          profilePic.src = formatImageUrl(activePic, data._updatedAt);
+        }
       }
 
       const heroCtaBtn = document.querySelector(".hero-cta .cta-button:first-child");
@@ -426,16 +437,36 @@
     });
   }
 
-  // Master Render
-  async function syncAndRender() {
-    const data = await loadData();
-    if (!data) return;
+  function getCachedData() {
+    try {
+      const localStr = localStorage.getItem(STORAGE_KEY) || localStorage.getItem(LEGACY_KEY);
+      if (localStr) return JSON.parse(localStr);
+    } catch (e) {}
+    return null;
+  }
 
-    if (document.querySelector("#about-me") || document.querySelector("#portfolio")) {
-      renderIndexPage(data);
+  // Master Render (Instant 0ms from cache, then smooth background server sync)
+  async function syncAndRender() {
+    // 1. Instant cache render (0ms response)
+    const cached = getCachedData();
+    if (cached) {
+      if (document.querySelector("#about-me") || document.querySelector("#portfolio")) {
+        renderIndexPage(cached);
+      }
+      if (document.querySelector(".resume-sheet")) {
+        renderResumePage(cached);
+      }
     }
-    if (document.querySelector(".resume-sheet")) {
-      renderResumePage(data);
+
+    // 2. Fetch fresh server data in background and update only if newer
+    const fresh = await loadData();
+    if (fresh && (!cached || fresh._updatedAt !== cached._updatedAt)) {
+      if (document.querySelector("#about-me") || document.querySelector("#portfolio")) {
+        renderIndexPage(fresh);
+      }
+      if (document.querySelector(".resume-sheet")) {
+        renderResumePage(fresh);
+      }
     }
   }
 

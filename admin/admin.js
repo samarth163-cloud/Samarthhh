@@ -1241,7 +1241,7 @@
   let replacingAvatarIdx = -1;
 
   function formatAvatarSrc(src) {
-    if (!src) return "/assets/profile/2.jpg";
+    if (!src) return "/assets/profile/1.jpg";
     if (src.startsWith("data:") || src.startsWith("blob:") || src.startsWith("http://") || src.startsWith("https://")) {
       return src;
     }
@@ -1433,16 +1433,7 @@
     if (!Array.isArray(state.general.avatars) || state.general.avatars.length === 0) {
       state.general.avatars = [
         "assets/profile/1.jpg",
-        "assets/profile/2.jpg",
-        "assets/profile/3.jpg",
-        "assets/profile/4.jpg",
-        "assets/profile/5.jpg",
-        "assets/profile/6.jpg",
-        "assets/profile/7.jpg",
-        "assets/profile/8.jpg",
-        "assets/profile/9.jpg",
-        "assets/profile/10.jpg",
-        "assets/profile/11.jpg"
+        "assets/profile/3.jpg"
       ];
     }
 
@@ -1466,7 +1457,7 @@
           </button>
           <div class="avatar-thumb-box" data-avatar-idx="${idx}" title="Click to make this the active starting avatar">
             <span class="avatar-seq-badge">#${idx + 1}</span>
-            <img src="${escapeHtml(displaySrc)}" alt="Avatar ${idx + 1}" onerror="this.src='/assets/profile/2.jpg'" />
+            <img src="${escapeHtml(displaySrc)}" alt="Avatar ${idx + 1}" onerror="this.src='/assets/profile/1.jpg'" />
           </div>
           ${
             isActive

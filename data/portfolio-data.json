@@ -7,8 +7,6 @@
     "ctaText": "Explore projects",
     "ctaSubtext": "[All my work is open source]",
     "profilePic": "assets/profile/1.jpg",
-    "siteTitle": "Samarth's Portfolio",
-    "favicon": "assets/favicon/favicon-32x32.png",
     "avatars": [
       "assets/profile/1.jpg",
       "assets/profile/3.jpg"
@@ -371,7 +369,7 @@
       "eyebrow": "resume.txt",
       "name": "Samarth Haveliwala",
       "headline": "Developer building open-source software, games and hardware.",
-      "location": "India",
+      "location": "Surat India",
       "contacts": [
         {
           "label": "Email",
@@ -487,5 +485,5 @@
     ],
     "skills": "JavaScript · TypeScript · Python · C# · C++ · React · Astro · Node.js · HTML/CSS · Unity · Raspberry Pi · Arduino · KiCad · MongoDB · Git/GitHub"
   },
-  "_updatedAt": 1793120606446
+  "_updatedAt": 1793121229395
 }

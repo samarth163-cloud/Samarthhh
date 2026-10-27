@@ -371,6 +371,8 @@ body.dark .darkmode-toggle .dark-icon {
   position: relative;
   display: inline-block;
   margin-top: 1rem;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
 }
 
 /* Avatar Click Doodle Hint */
@@ -385,6 +387,9 @@ body.dark .darkmode-toggle .dark-icon {
   cursor: pointer;
   z-index: 10;
   user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
   color: var(--accent-red);
   transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), color 0.2s ease;
   animation: doodleFloat 3s ease-in-out infinite;
@@ -451,7 +456,11 @@ body.dark .darkmode-toggle .dark-icon {
   background-size: 8px 8px;
   padding: 6px;
   cursor: pointer;
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  touch-action: manipulation;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  transition: transform 0.12s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.12s ease;
   display: block;
 }
 
@@ -461,7 +470,7 @@ body.dark .darkmode-toggle .dark-icon {
 }
 
 .profile-pic:active {
-  transform: translate(2px, 2px);
+  transform: translate(2px, 2px) scale(0.96);
   box-shadow: var(--hard-shadow-xs);
 }
 
