@@ -172,7 +172,7 @@
       "text": "Available for opportunities & freelance",
       "type": "available",
       "subtext": "Open to internships, open-source & contract work",
-      "visible": true
+      "visible": false
     },
     "visible": true,
     "projects": [
@@ -571,5 +571,5 @@
       "description": "ssh samarth@hackclub.app"
     }
   ],
-  "_updatedAt": 1793137398687
+  "_updatedAt": 1793137446431
 }
