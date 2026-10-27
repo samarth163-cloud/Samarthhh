@@ -336,7 +336,7 @@
         },
         {
           "name": "html",
-          "icon": "fa fa-html5"
+          "icon": "fa-brands fa-html5"
         },
         {
           "name": "javascript",
@@ -537,5 +537,5 @@
       "description": "ssh samarth@hackclub.app"
     }
   ],
-  "_updatedAt": 1793132147271
+  "_updatedAt": 1793132272210
 }
