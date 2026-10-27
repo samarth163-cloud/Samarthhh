@@ -10,7 +10,7 @@
     "socials": [
       {
         "name": "Instagram",
-        "url": "https://instagram.com/heyxsam",
+        "url": "https://instagram.com/hayxsam",
         "icon": "fab fa-instagram"
       },
       {
@@ -481,5 +481,5 @@
     ],
     "skills": "JavaScript · TypeScript · Python · C# · C++ · React · Astro · Node.js · HTML/CSS · Unity · Raspberry Pi · Arduino · KiCad · MongoDB · Git/GitHub"
   },
-  "_updatedAt": 1793059866546
+  "_updatedAt": 1793059964896
 }
