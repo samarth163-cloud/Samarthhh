@@ -9,7 +9,11 @@
   <link href="https://fonts.googleapis.com/css2?family=Anton&family=Bebas+Neue&family=Space+Grotesk:wght@500;600;700;800;900&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
   <link rel="stylesheet" href="/admin/admin.css" />
-  <link rel="icon" type="image/png" href="/assets/favicon/favicon-32x32.png" />
+  <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+  <link rel="shortcut icon" href="/favicon.ico" />
+  <link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon/favicon-32x32.png" />
+  <link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon/favicon-16x16.png" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/assets/favicon/apple-touch-icon.png" />
   <script>
     // Initialize Theme & Auth Gate (Zero FOUC)
     const savedTheme = localStorage.getItem("theme") || "light";
@@ -483,8 +487,11 @@
             <div class="form-group full-width">
               <label class="form-label">
                 <span><i class="fas fa-icons"></i> Favicon (Browser Tab Icon)</span>
-                <span style="font-size: 11px; font-weight: normal; color: var(--text-muted);">(Square icon: 32x32, 48x48, PNG or ICO)</span>
+                <span style="font-size: 11px; font-weight: normal; color: var(--text-muted);">(Fixed filename: <code>assets/favicon/favicon-32x32.png</code> &amp; <code>/favicon.ico</code>)</span>
               </label>
+              <div style="font-size: 11px; color: var(--text-muted); margin-bottom: 8px;">
+                <i class="fas fa-shield-halved" style="color: var(--accent-yellow);"></i> <b>Name Vahi, Bus Image Change:</b> Naya image upload karte hi standard favicon files overwrite ho jayengi aur Vercel par global sync ho jayengi.
+              </div>
 
               <div style="display: flex; gap: 14px; align-items: center; flex-wrap: wrap; background: var(--bg-sidebar); border: 1.5px solid var(--border-color); padding: 12px; border-radius: 4px;">
                 <div class="favicon-preview-box">

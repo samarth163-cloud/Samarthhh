@@ -62,21 +62,20 @@ const server = http.createServer((req, res) => {
         fs.writeFileSync(DATA_FILE, JSON.stringify(jsonData, null, 2), 'utf-8');
 
         // Sync browser title and favicon into index.html on disk
+        // Sync browser title into index.html on disk
         if (jsonData.general) {
           try {
             const indexHtmlPath = path.join(ROOT_DIR, 'index.html');
             if (fs.existsSync(indexHtmlPath)) {
               let html = fs.readFileSync(indexHtmlPath, 'utf-8');
               if (jsonData.general.siteTitle) {
-                html = html.replace(/<title>.*?<\/title>/i, `<title>${jsonData.general.siteTitle}</title>`);
+                if (/<title>.*?<\/title>/i.test(html)) {
+                  html = html.replace(/<title>.*?<\/title>/i, `<title>${jsonData.general.siteTitle}</title>`);
+                } else {
+                  html = html.replace(/<head>/i, `<head>\n    <title>${jsonData.general.siteTitle}</title>`);
+                }
                 html = html.replace(/<meta\s+property="og:title"\s+content=".*?"\s*\/>/i, `<meta property="og:title" content="${jsonData.general.siteTitle}" />`);
                 html = html.replace(/<meta\s+name="twitter:title"\s+content=".*?"\s*\/>/i, `<meta name="twitter:title" content="${jsonData.general.siteTitle}" />`);
-              }
-              if (jsonData.general.favicon) {
-                const favRel = jsonData.general.favicon.replace(/^\//, '');
-                html = html.replace(/href="assets\/favicon\/favicon-32x32\.png"/g, `href="${favRel}"`);
-                html = html.replace(/href="assets\/favicon\/favicon-16x16\.png"/g, `href="${favRel}"`);
-                html = html.replace(/href="assets\/favicon\/apple-touch-icon\.png"/g, `href="${favRel}"`);
               }
               fs.writeFileSync(indexHtmlPath, html, 'utf-8');
             }
@@ -97,7 +96,7 @@ const server = http.createServer((req, res) => {
     return;
   }
 
-  // API Route: Upload Image to Disk
+  // API Route: Upload Image to Disk (supports keeping exact standard filenames)
   if (req.method === 'POST' && pathname === '/api/upload-image') {
     let body = '';
     req.on('data', chunk => {
@@ -111,8 +110,8 @@ const server = http.createServer((req, res) => {
     req.on('end', () => {
       try {
         const { filename, base64Data, folder } = JSON.parse(body);
-        const subFolder = folder || 'assets/profile';
-        const targetDir = path.join(ROOT_DIR, subFolder);
+        const subFolder = (folder === undefined || folder === null) ? 'assets/profile' : folder.trim();
+        const targetDir = subFolder ? path.join(ROOT_DIR, subFolder) : ROOT_DIR;
         if (!fs.existsSync(targetDir)) {
           fs.mkdirSync(targetDir, { recursive: true });
         }
@@ -120,10 +119,10 @@ const server = http.createServer((req, res) => {
         const filePath = path.join(targetDir, safeName);
         const buffer = Buffer.from(base64Data, 'base64');
         fs.writeFileSync(filePath, buffer);
-        const relPath = `${subFolder}/${safeName}`.replace(/\\/g, '/');
+        const relPath = subFolder ? `${subFolder}/${safeName}`.replace(/\\/g, '/') : safeName;
         res.writeHead(200, { 'Content-Type': 'application/json' });
         res.end(JSON.stringify({ success: true, path: relPath }));
-        console.log(`[${new Date().toLocaleTimeString()}] Saved uploaded image: ${relPath}`);
+        console.log(`[${new Date().toLocaleTimeString()}] Saved image: ${relPath}`);
       } catch (err) {
         console.error('Failed to upload image:', err);
         res.writeHead(400, { 'Content-Type': 'application/json' });

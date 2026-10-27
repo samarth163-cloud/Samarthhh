@@ -28,7 +28,17 @@
   };
 
   let editingProjectIndex = -1;
-  const pendingImageUploads = {};
+  let pendingImageUploads = {};
+  try {
+    const savedPending = localStorage.getItem("samarth_pending_images");
+    if (savedPending) pendingImageUploads = JSON.parse(savedPending);
+  } catch (e) {}
+
+  function persistPendingImages() {
+    try {
+      localStorage.setItem("samarth_pending_images", JSON.stringify(pendingImageUploads));
+    } catch (e) {}
+  }
 
   // DOM Elements
   const tabLinks = document.querySelectorAll(".admin-nav-link");
@@ -1289,6 +1299,109 @@
     });
   }
 
+  // Center-crop and downsample an image into square PNG Base64
+  async function renderImageToPngBase64(imgSource, size) {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      img.crossOrigin = "anonymous";
+      img.onload = () => {
+        try {
+          const canvas = document.createElement("canvas");
+          canvas.width = size;
+          canvas.height = size;
+          const ctx = canvas.getContext("2d");
+          ctx.imageSmoothingEnabled = true;
+          ctx.imageSmoothingQuality = "high";
+
+          const nw = img.naturalWidth || img.width || size;
+          const nh = img.naturalHeight || img.height || size;
+          const minDim = Math.min(nw, nh);
+          const sx = (nw - minDim) / 2;
+          const sy = (nh - minDim) / 2;
+
+          ctx.drawImage(img, sx, sy, minDim, minDim, 0, 0, size, size);
+          const dataUrl = canvas.toDataURL("image/png");
+          resolve(dataUrl.split(",")[1]);
+        } catch (err) {
+          reject(err);
+        }
+      };
+      img.onerror = () => reject(new Error("Image load error for favicon"));
+
+      if (imgSource.startsWith("data:") || imgSource.startsWith("blob:") || imgSource.startsWith("http")) {
+        img.src = imgSource;
+      } else {
+        img.src = "/" + imgSource.replace(/^\//, "");
+      }
+    });
+  }
+
+  // "name vahi bus imge change": Overwrite the EXACT standard fixed favicon files
+  async function overwriteStandardFavicons(sourceImgSrc) {
+    showToast("Processing favicon: overwriting standard files (name vahi)...", "info");
+    try {
+      const [base64_32, base64_16, base64_180] = await Promise.all([
+        renderImageToPngBase64(sourceImgSrc, 32),
+        renderImageToPngBase64(sourceImgSrc, 16),
+        renderImageToPngBase64(sourceImgSrc, 180),
+      ]);
+
+      const standardFiles = [
+        { folder: "assets/favicon", filename: "favicon-32x32.png", path: "assets/favicon/favicon-32x32.png", base64: base64_32 },
+        { folder: "assets/favicon", filename: "favicon-16x16.png", path: "assets/favicon/favicon-16x16.png", base64: base64_16 },
+        { folder: "assets/favicon", filename: "apple-touch-icon.png", path: "assets/favicon/apple-touch-icon.png", base64: base64_180 },
+        { folder: "assets/favicon", filename: "favicon.ico", path: "assets/favicon/favicon.ico", base64: base64_32 },
+        { folder: "", filename: "favicon.ico", path: "favicon.ico", base64: base64_32 },
+      ];
+
+      // 1. Queue all 5 files for GitHub deployment
+      standardFiles.forEach((file) => {
+        pendingImageUploads[file.path] = file.base64;
+      });
+      persistPendingImages();
+
+      // 2. Overwrite files on local disk
+      await Promise.all(
+        standardFiles.map((file) =>
+          fetch("/api/upload-image", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ filename: file.filename, base64Data: file.base64, folder: file.folder }),
+          }).catch(() => {})
+        )
+      );
+
+      // 3. Keep standard path
+      if (!state.general) state.general = {};
+      state.general.favicon = "assets/favicon/favicon-32x32.png";
+
+      // 4. Update UI preview
+      const previewDataUrl = "data:image/png;base64," + base64_32;
+      const favPathEl = document.getElementById("hero-favicon-path");
+      const favPreviewEl = document.getElementById("hero-favicon-preview");
+      const tabMockFavicon = document.getElementById("tab-mock-favicon");
+
+      if (favPathEl) favPathEl.value = "assets/favicon/favicon-32x32.png";
+      if (favPreviewEl) favPreviewEl.src = previewDataUrl;
+      if (tabMockFavicon) tabMockFavicon.src = previewDataUrl;
+
+      // Update current browser tab's icon immediately
+      const headIcons = document.querySelectorAll("link[rel*='icon']");
+      headIcons.forEach((link) => {
+        link.href = previewDataUrl;
+      });
+
+      updateFaviconPresetChips("assets/favicon/favicon-32x32.png");
+
+      showToast("✅ Favicon updated! File names remain standard (assets/favicon/favicon-32x32.png & favicon.ico).", "success");
+      return true;
+    } catch (err) {
+      console.error("Failed to overwrite standard favicons:", err);
+      showToast("Favicon update error: " + err.message, "error");
+      return false;
+    }
+  }
+
   function applyFaviconUpdate(newFavPath) {
     if (!state.general) state.general = {};
     state.general.favicon = newFavPath;
@@ -1660,28 +1773,28 @@
     });
   }
 
-  // Favicon Presets Click
+  // Favicon Presets Click: Overwrites standard files with selected preset
   document.querySelectorAll("#favicon-presets-list .favicon-chip").forEach((chip) => {
-    chip.addEventListener("click", () => {
+    chip.addEventListener("click", async () => {
       const src = chip.getAttribute("data-fav-src");
       if (src) {
-        applyFaviconUpdate(src);
-        showToast(`Favicon set to ${src.split("/").pop()}`, "info");
+        await overwriteStandardFavicons(src);
+        performMasterSave();
       }
     });
   });
 
-  // Use Profile Pic as Favicon
+  // Use Profile Pic as Favicon: "name vahi bus imge change"
   const btnUseAvatarFav = document.getElementById("btn-use-avatar-favicon");
   if (btnUseAvatarFav) {
-    btnUseAvatarFav.addEventListener("click", () => {
+    btnUseAvatarFav.addEventListener("click", async () => {
       const activeAv = state.general?.profilePic || state.general?.avatars?.[0] || "assets/profile/1.jpg";
-      applyFaviconUpdate(activeAv);
-      showToast("Active profile picture set as favicon!", "success");
+      await overwriteStandardFavicons(activeAv);
+      performMasterSave();
     });
   }
 
-  // Favicon Upload
+  // Favicon Upload: Overwrites standard favicon files (name vahi bus imge change)
   const btnUploadFav = document.getElementById("btn-upload-favicon");
   const favUploadInput = document.getElementById("favicon-file-upload-input");
   if (btnUploadFav && favUploadInput) {
@@ -1697,32 +1810,9 @@
       const reader = new FileReader();
       reader.onload = async (ev) => {
         const dataUrl = ev.target.result;
-        const rawBase64 = dataUrl.split(",")[1];
-        const ext = file.name.split(".").pop().toLowerCase() || "png";
-        const filename = `favicon-${Date.now()}.${ext}`;
-        const targetPath = `assets/favicon/${filename}`;
-
-        try {
-          const res = await fetch("/api/upload-image", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ filename, base64Data: rawBase64, folder: "assets/favicon" }),
-          });
-          if (res.ok) {
-            const data = await res.json();
-            const newPath = data.path || targetPath;
-            pendingImageUploads[newPath] = rawBase64;
-            applyFaviconUpdate(newPath);
-            showToast("New favicon uploaded & applied!", "success");
-          } else {
-            pendingImageUploads[targetPath] = rawBase64;
-            applyFaviconUpdate(dataUrl);
-            showToast("Favicon applied locally!", "info");
-          }
-        } catch {
-          pendingImageUploads[targetPath] = rawBase64;
-          applyFaviconUpdate(dataUrl);
-          showToast("Favicon applied locally!", "info");
+        const success = await overwriteStandardFavicons(dataUrl);
+        if (success) {
+          performMasterSave();
         }
       };
       reader.readAsDataURL(file);
@@ -2181,6 +2271,7 @@
 
           if (imgCommitRes.ok) {
             delete pendingImageUploads[imgPath];
+            persistPendingImages();
           }
         } catch (imgErr) {
           console.error(`Error uploading image ${imgPath}:`, imgErr);

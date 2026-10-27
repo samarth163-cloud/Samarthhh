@@ -106,19 +106,14 @@
     }
 
     // 2. Favicon (Browser Tab Icon)
-    if (data.general.favicon) {
+    // "name vahi bus imge change": Static standard favicon links in HTML are natively resolved.
+    // If a live data: URI or custom path is active, update the primary icon smoothly without breaking apple-touch-icon.
+    if (data.general.favicon && (data.general.favicon.startsWith("data:") || !data.general.favicon.includes("favicon-32x32.png"))) {
       const favUrl = formatImageUrl(data.general.favicon, data._updatedAt);
-      let iconLinks = document.querySelectorAll("link[rel*='icon']");
-      if (iconLinks.length === 0) {
-        const link = document.createElement("link");
-        link.rel = "icon";
-        link.type = "image/png";
-        document.head.appendChild(link);
-        iconLinks = [link];
+      let standardIcon = document.querySelector("link[rel='icon']:not([sizes]), link[rel='icon'][sizes='32x32']");
+      if (standardIcon) {
+        standardIcon.href = favUrl;
       }
-      iconLinks.forEach((link) => {
-        link.href = favUrl;
-      });
     }
   }
 
