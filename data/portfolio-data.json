@@ -335,7 +335,7 @@
   "blog": [
     {
       "id": "pishot-camera-blog",
-      "title": "I Made a Custom Raspberry Pi Camera - Journal: PiShot",
+      "title": "SAMARTH HAVELIWALA",
       "description": "RPi Zero 2W, camera module, & custom 3D-printed case.",
       "date": "February 20, 2026",
       "url": "/blog/i-made-a-custom-raspberry-pi-camera/",
@@ -481,5 +481,5 @@
     ],
     "skills": "JavaScript · TypeScript · Python · C# · C++ · React · Astro · Node.js · HTML/CSS · Unity · Raspberry Pi · Arduino · KiCad · MongoDB · Git/GitHub"
   },
-  "_updatedAt": 1793059505687
+  "_updatedAt": 1793059641702
 }
