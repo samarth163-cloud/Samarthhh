@@ -273,8 +273,7 @@
     "role": "Developer & Open Source Creator",
     "avatars": [
       "assets/profile/1.jpg",
-      "assets/profile/3.jpg",
-      "https://npzqpcagdtnfuqhyngro.supabase.co/storage/v1/object/public/portfolio-assets/download-1793132901623.jpg"
+      "assets/profile/3.jpg"
     ],
     "ctaText": "Explore projects",
     "socials": [
@@ -323,13 +322,6 @@
   "projects": [
     {
       "id": "samarth-s-portfolio",
-      "title": "Samarth's Portfolio",
-      "description": "A modern, responsive developer portfolio built to showcase my projects, technical skills, and development journey. Features a custom Neo-Brutalist design, dark and light themes, interactive resume, project showcase, and an admin dashboard for managing portfolio content. Includes GitHub integration and Vercel deployment support.",
-      "image": "https://npzqpcagdtnfuqhyngro.supabase.co/storage/v1/object/public/portfolio-assets/Samarth's%20Portfolio.png",
-      "sourceUrl": "https://github.com/samarth163-cloud/Samarthhh",
-      "visitUrl": "https://samarthhhh.vercel.app/",
-      "visitLabel": "viwe",
-      "featured": true,
       "tech": [
         {
           "icon": "fas fa-bolt",
@@ -344,14 +336,21 @@
           "name": "css"
         },
         {
-          "name": "javascript",
-          "icon": "fa-brands fa-java"
+          "icon": "fa-brands fa-java",
+          "name": "javascript"
         },
         {
-          "name": "node js",
-          "icon": "fa-brands fa-node-js"
+          "icon": "fa-brands fa-node-js",
+          "name": "node js"
         }
-      ]
+      ],
+      "image": "https://npzqpcagdtnfuqhyngro.supabase.co/storage/v1/object/public/portfolio-assets/Samarth's%20Portfolio.png",
+      "title": "Samarth's Portfolio",
+      "featured": true,
+      "visitUrl": "https://samarthhhh.vercel.app/",
+      "sourceUrl": "https://github.com/samarth163-cloud/Samarthhh",
+      "visitLabel": "viwe",
+      "description": "A modern, responsive developer portfolio built to showcase my projects, technical skills, and development journey. Features a custom Neo-Brutalist design, dark and light themes, interactive resume, project showcase, and an admin dashboard for managing portfolio content. Includes GitHub integration and Vercel deployment support."
     },
     {
       "id": "adobe-wakatime",
@@ -546,5 +545,5 @@
       "description": "ssh samarth@hackclub.app"
     }
   ],
-  "_updatedAt": 1793132912809
+  "_updatedAt": 1793133078700
 }
