@@ -1241,6 +1241,26 @@
   function renderHeroTab() {
     const g = state.general || {};
 
+    // 1. Browser Tab Branding & Favicon
+    const siteTitleEl = document.getElementById("hero-site-title");
+    const favPathEl = document.getElementById("hero-favicon-path");
+    const favPreviewEl = document.getElementById("hero-favicon-preview");
+    const tabMockTitle = document.getElementById("tab-mock-title");
+    const tabMockFavicon = document.getElementById("tab-mock-favicon");
+
+    const currentTitle = g.siteTitle || (g.name ? `${g.name}'s Portfolio` : "Samarth's Portfolio");
+    const currentFav = g.favicon || "assets/favicon/favicon-32x32.png";
+
+    if (siteTitleEl) siteTitleEl.value = g.siteTitle || currentTitle;
+    if (tabMockTitle) tabMockTitle.textContent = g.siteTitle || currentTitle;
+
+    if (favPathEl) favPathEl.value = currentFav;
+    if (favPreviewEl) favPreviewEl.src = formatAvatarSrc(currentFav);
+    if (tabMockFavicon) tabMockFavicon.src = formatAvatarSrc(currentFav);
+
+    updateFaviconPresetChips(currentFav);
+
+    // 2. Hero Identity
     const nameEl = document.getElementById("hero-name");
     const shortNameEl = document.getElementById("hero-short-name");
     const descEl = document.getElementById("hero-description");
@@ -1255,6 +1275,40 @@
 
     renderAvatarGallery();
     renderHeroSocials(g.socials || []);
+  }
+
+  function updateFaviconPresetChips(activeSrc) {
+    const chips = document.querySelectorAll("#favicon-presets-list .favicon-chip");
+    chips.forEach((chip) => {
+      const src = chip.getAttribute("data-fav-src");
+      if (src === activeSrc) {
+        chip.classList.add("active");
+      } else {
+        chip.classList.remove("active");
+      }
+    });
+  }
+
+  function applyFaviconUpdate(newFavPath) {
+    if (!state.general) state.general = {};
+    state.general.favicon = newFavPath;
+
+    const favPathEl = document.getElementById("hero-favicon-path");
+    const favPreviewEl = document.getElementById("hero-favicon-preview");
+    const tabMockFavicon = document.getElementById("tab-mock-favicon");
+
+    if (favPathEl) favPathEl.value = newFavPath;
+    const formatted = formatAvatarSrc(newFavPath);
+    if (favPreviewEl) favPreviewEl.src = formatted;
+    if (tabMockFavicon) tabMockFavicon.src = formatted;
+
+    updateFaviconPresetChips(newFavPath);
+
+    // Update active tab's favicon in admin immediately
+    const headIcons = document.querySelectorAll("link[rel*='icon']");
+    headIcons.forEach((link) => {
+      link.href = formatted;
+    });
   }
 
   // Multi-Avatar Sequence Gallery
@@ -1573,12 +1627,13 @@
   }
 
   // Bind hero inputs
-  ["hero-name", "hero-short-name", "hero-description", "hero-cta-text", "hero-cta-subtext", "hero-profile-pic"].forEach(
+  ["hero-name", "hero-short-name", "hero-description", "hero-cta-text", "hero-cta-subtext", "hero-profile-pic", "hero-site-title"].forEach(
     (id) => {
       const el = document.getElementById(id);
       if (el) {
         el.addEventListener("input", () => {
           const key = id.replace("hero-", "").replace(/-([a-z])/g, (_, letter) => letter.toUpperCase());
+          if (!state.general) state.general = {};
           state.general[key] = el.value;
           if (id === "hero-profile-pic") {
             const picPrev = document.getElementById("hero-avatar-preview");
@@ -1586,10 +1641,93 @@
               picPrev.src = formatAvatarSrc(el.value);
             }
           }
+          if (id === "hero-site-title") {
+            const tabMockTitle = document.getElementById("tab-mock-title");
+            if (tabMockTitle) {
+              tabMockTitle.textContent = el.value || "Samarth's Portfolio";
+            }
+          }
         });
       }
     }
   );
+
+  // Favicon Path Input
+  const favPathInp = document.getElementById("hero-favicon-path");
+  if (favPathInp) {
+    favPathInp.addEventListener("input", (e) => {
+      applyFaviconUpdate(e.target.value.trim());
+    });
+  }
+
+  // Favicon Presets Click
+  document.querySelectorAll("#favicon-presets-list .favicon-chip").forEach((chip) => {
+    chip.addEventListener("click", () => {
+      const src = chip.getAttribute("data-fav-src");
+      if (src) {
+        applyFaviconUpdate(src);
+        showToast(`Favicon set to ${src.split("/").pop()}`, "info");
+      }
+    });
+  });
+
+  // Use Profile Pic as Favicon
+  const btnUseAvatarFav = document.getElementById("btn-use-avatar-favicon");
+  if (btnUseAvatarFav) {
+    btnUseAvatarFav.addEventListener("click", () => {
+      const activeAv = state.general?.profilePic || state.general?.avatars?.[0] || "assets/profile/1.jpg";
+      applyFaviconUpdate(activeAv);
+      showToast("Active profile picture set as favicon!", "success");
+    });
+  }
+
+  // Favicon Upload
+  const btnUploadFav = document.getElementById("btn-upload-favicon");
+  const favUploadInput = document.getElementById("favicon-file-upload-input");
+  if (btnUploadFav && favUploadInput) {
+    btnUploadFav.addEventListener("click", () => {
+      favUploadInput.value = "";
+      favUploadInput.click();
+    });
+
+    favUploadInput.addEventListener("change", async (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = async (ev) => {
+        const dataUrl = ev.target.result;
+        const rawBase64 = dataUrl.split(",")[1];
+        const ext = file.name.split(".").pop().toLowerCase() || "png";
+        const filename = `favicon-${Date.now()}.${ext}`;
+        const targetPath = `assets/favicon/${filename}`;
+
+        try {
+          const res = await fetch("/api/upload-image", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ filename, base64Data: rawBase64, folder: "assets/favicon" }),
+          });
+          if (res.ok) {
+            const data = await res.json();
+            const newPath = data.path || targetPath;
+            pendingImageUploads[newPath] = rawBase64;
+            applyFaviconUpdate(newPath);
+            showToast("New favicon uploaded & applied!", "success");
+          } else {
+            pendingImageUploads[targetPath] = rawBase64;
+            applyFaviconUpdate(dataUrl);
+            showToast("Favicon applied locally!", "info");
+          }
+        } catch {
+          pendingImageUploads[targetPath] = rawBase64;
+          applyFaviconUpdate(dataUrl);
+          showToast("Favicon applied locally!", "info");
+        }
+      };
+      reader.readAsDataURL(file);
+    });
+  }
 
   // =========================================================================
   // TAB 5: BLOG

@@ -82,9 +82,51 @@
     return cleanUrl;
   }
 
+  // Update browser tab title and favicon dynamically
+  function updateBrowserTabMeta(data, isResume = false) {
+    if (!data || !data.general) return;
+
+    // 1. Browser Tab Title (Top Name)
+    if (isResume) {
+      const resumeTitle = data.general.siteTitle
+        ? `${data.general.siteTitle} - Resume`
+        : (data.resume?.header?.name ? `${data.resume.header.name}'s Resume` : "Samarth's Resume");
+      document.title = resumeTitle;
+    } else {
+      const siteTitle = data.general.siteTitle || (data.general.name ? `${data.general.name}'s Portfolio` : "Samarth's Portfolio");
+      if (siteTitle) {
+        document.title = siteTitle;
+
+        const ogTitle = document.querySelector('meta[property="og:title"]');
+        if (ogTitle) ogTitle.setAttribute("content", siteTitle);
+
+        const twTitle = document.querySelector('meta[name="twitter:title"]');
+        if (twTitle) twTitle.setAttribute("content", siteTitle);
+      }
+    }
+
+    // 2. Favicon (Browser Tab Icon)
+    if (data.general.favicon) {
+      const favUrl = formatImageUrl(data.general.favicon, data._updatedAt);
+      let iconLinks = document.querySelectorAll("link[rel*='icon']");
+      if (iconLinks.length === 0) {
+        const link = document.createElement("link");
+        link.rel = "icon";
+        link.type = "image/png";
+        document.head.appendChild(link);
+        iconLinks = [link];
+      }
+      iconLinks.forEach((link) => {
+        link.href = favUrl;
+      });
+    }
+  }
+
   // Hydrate Index (Portfolio Homepage)
   function renderIndexPage(data) {
     if (!data) return;
+
+    updateBrowserTabMeta(data, false);
 
     // 1. Hero & General
     if (data.general) {
@@ -271,6 +313,9 @@
   // Hydrate Resume Page
   function renderResumePage(data) {
     if (!data || !data.resume) return;
+
+    updateBrowserTabMeta(data, true);
+
     const r = data.resume;
 
     // 1. Header

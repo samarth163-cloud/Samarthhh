@@ -60,6 +60,31 @@ const server = http.createServer((req, res) => {
           fs.mkdirSync(dataDir, { recursive: true });
         }
         fs.writeFileSync(DATA_FILE, JSON.stringify(jsonData, null, 2), 'utf-8');
+
+        // Sync browser title and favicon into index.html on disk
+        if (jsonData.general) {
+          try {
+            const indexHtmlPath = path.join(ROOT_DIR, 'index.html');
+            if (fs.existsSync(indexHtmlPath)) {
+              let html = fs.readFileSync(indexHtmlPath, 'utf-8');
+              if (jsonData.general.siteTitle) {
+                html = html.replace(/<title>.*?<\/title>/i, `<title>${jsonData.general.siteTitle}</title>`);
+                html = html.replace(/<meta\s+property="og:title"\s+content=".*?"\s*\/>/i, `<meta property="og:title" content="${jsonData.general.siteTitle}" />`);
+                html = html.replace(/<meta\s+name="twitter:title"\s+content=".*?"\s*\/>/i, `<meta name="twitter:title" content="${jsonData.general.siteTitle}" />`);
+              }
+              if (jsonData.general.favicon) {
+                const favRel = jsonData.general.favicon.replace(/^\//, '');
+                html = html.replace(/href="assets\/favicon\/favicon-32x32\.png"/g, `href="${favRel}"`);
+                html = html.replace(/href="assets\/favicon\/favicon-16x16\.png"/g, `href="${favRel}"`);
+                html = html.replace(/href="assets\/favicon\/apple-touch-icon\.png"/g, `href="${favRel}"`);
+              }
+              fs.writeFileSync(indexHtmlPath, html, 'utf-8');
+            }
+          } catch (syncErr) {
+            console.warn('Could not update index.html on disk', syncErr);
+          }
+        }
+
         res.writeHead(200, { 'Content-Type': 'application/json' });
         res.end(JSON.stringify({ success: true, message: 'Saved to disk successfully' }));
         console.log(`[${new Date().toLocaleTimeString()}] Successfully updated portfolio-data.json on disk!`);
@@ -69,6 +94,9 @@ const server = http.createServer((req, res) => {
         res.end(JSON.stringify({ error: 'Invalid JSON', details: err.message }));
       }
     });
+    return;
+  }
+
   // API Route: Upload Image to Disk
   if (req.method === 'POST' && pathname === '/api/upload-image') {
     let body = '';

@@ -431,6 +431,112 @@
           </div>
         </div>
 
+        <!-- Browser Tab Branding & Favicon Manager -->
+        <div class="admin-card" id="card-browser-tab-branding">
+          <div class="admin-card-header">
+            <div class="admin-card-title">
+              <i class="fas fa-window-maximize"></i> Browser Tab &amp; Favicon Branding
+            </div>
+            <span class="badge" style="background: var(--accent-yellow); color: #000; font-weight: 800; font-size: 11px;">
+              LIVE TAB PREVIEW
+            </span>
+          </div>
+
+          <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 16px; line-height: 1.5;">
+            Apni website ka <b>Top Name (Browser Tab Title)</b> aur <b>Favicon (Tab Icon)</b> customize karein.
+            Yeh browser tabs aur bookmarks me turant live reflect hota hai.
+          </p>
+
+          <!-- Live Realistic Browser Tab Mockup (Matching user screenshot) -->
+          <div class="browser-tab-mockup-wrapper">
+            <div class="browser-tab-mockup-bar">
+              <div class="browser-mock-tab">
+                <img id="tab-mock-favicon" src="/assets/favicon/favicon-32x32.png" class="browser-mock-tab-icon" alt="Favicon" onerror="this.src='/assets/profile/2.jpg'" />
+                <span id="tab-mock-title" class="browser-mock-tab-title">Samarth's Portfolio</span>
+                <span class="browser-mock-tab-close"><i class="fas fa-xmark"></i></span>
+              </div>
+              <span class="browser-mock-add-tab"><i class="fas fa-plus"></i></span>
+            </div>
+            <div class="browser-mock-url-bar">
+              <i class="fas fa-lock" style="font-size: 10px; color: var(--accent-green);"></i>
+              <span style="color: var(--text-main); font-weight: 700;">localhost:3000</span>
+              <span style="color: var(--text-muted);">/ (Portfolio)</span>
+            </div>
+          </div>
+
+          <div class="form-grid">
+            <!-- 1. Browser Tab Title (Top Name) -->
+            <div class="form-group full-width">
+              <label class="form-label" for="hero-site-title">
+                <span><i class="fas fa-heading"></i> Browser Tab Title (Top Name)</span>
+                <span style="font-size: 11px; font-weight: normal; color: var(--text-muted);">(Browser tab me dikhne wala title text)</span>
+              </label>
+              <input
+                type="text"
+                id="hero-site-title"
+                class="form-input"
+                placeholder="Samarth's Portfolio"
+              />
+            </div>
+
+            <!-- 2. Favicon Manager -->
+            <div class="form-group full-width">
+              <label class="form-label">
+                <span><i class="fas fa-icons"></i> Favicon (Browser Tab Icon)</span>
+                <span style="font-size: 11px; font-weight: normal; color: var(--text-muted);">(Square icon: 32x32, 48x48, PNG or ICO)</span>
+              </label>
+
+              <div style="display: flex; gap: 14px; align-items: center; flex-wrap: wrap; background: var(--bg-sidebar); border: 1.5px solid var(--border-color); padding: 12px; border-radius: 4px;">
+                <div class="favicon-preview-box">
+                  <img id="hero-favicon-preview" src="/assets/favicon/favicon-32x32.png" class="favicon-preview-img" alt="Current Favicon" onerror="this.src='/assets/profile/2.jpg'" />
+                </div>
+
+                <div style="flex: 1; min-width: 240px; display: flex; flex-direction: column; gap: 8px;">
+                  <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                    <button type="button" class="btn btn-yellow btn-sm" id="btn-upload-favicon">
+                      <i class="fas fa-upload"></i> Upload New Favicon Image
+                    </button>
+                    <button type="button" class="btn btn-sm" id="btn-use-avatar-favicon" title="Use your active profile picture as favicon">
+                      <i class="fas fa-user-circle"></i> Use Active Profile Pic
+                    </button>
+                  </div>
+                  <input
+                    type="text"
+                    id="hero-favicon-path"
+                    class="form-input"
+                    style="font-family: var(--font-mono); font-size: 12px; padding: 6px 10px;"
+                    placeholder="assets/favicon/favicon-32x32.png"
+                  />
+                  <input type="file" id="favicon-file-upload-input" accept="image/png,image/x-icon,image/svg+xml,image/jpeg,image/webp,.ico" style="display: none;" />
+                </div>
+              </div>
+
+              <!-- Quick Presets from assets/favicon -->
+              <div style="margin-top: 10px;">
+                <span style="font-size: 12px; font-weight: 700; color: var(--text-muted);">Quick Presets (assets/favicon):</span>
+                <div class="favicon-preset-chips" id="favicon-presets-list">
+                  <button type="button" class="favicon-chip active" data-fav-src="assets/favicon/favicon-32x32.png">
+                    <img src="/assets/favicon/favicon-32x32.png" alt="32x32" onerror="this.src='/assets/profile/2.jpg'" />
+                    <span>favicon-32x32.png</span>
+                  </button>
+                  <button type="button" class="favicon-chip" data-fav-src="assets/favicon/favicon-16x16.png">
+                    <img src="/assets/favicon/favicon-16x16.png" alt="16x16" onerror="this.src='/assets/profile/2.jpg'" />
+                    <span>favicon-16x16.png</span>
+                  </button>
+                  <button type="button" class="favicon-chip" data-fav-src="assets/favicon/apple-touch-icon.png">
+                    <img src="/assets/favicon/apple-touch-icon.png" alt="Apple Touch" onerror="this.src='/assets/profile/2.jpg'" />
+                    <span>apple-touch-icon.png</span>
+                  </button>
+                  <button type="button" class="favicon-chip" data-fav-src="assets/favicon/android-chrome-192x192.png">
+                    <img src="/assets/favicon/android-chrome-192x192.png" alt="Chrome 192" onerror="this.src='/assets/profile/2.jpg'" />
+                    <span>android-192.png</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <div class="admin-card">
           <div class="admin-card-header">
             <div class="admin-card-title"><i class="fas fa-crown"></i> Hero Identity</div>

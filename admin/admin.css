@@ -1350,6 +1350,174 @@ body.dark .btn-ghost:hover {
   }
 }
 
+/* ==========================================================================
+   BROWSER TAB BRANDING & FAVICON MANAGER
+   ========================================================================== */
+
+.browser-tab-mockup-wrapper {
+  background: var(--bg-sidebar);
+  border: 2px solid var(--border-color);
+  box-shadow: var(--hard-shadow-xs);
+  padding: 12px 14px 10px;
+  margin-bottom: 20px;
+  border-radius: 4px;
+}
+
+.browser-tab-mockup-bar {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+  border-bottom: 2px solid var(--border-color);
+  padding-bottom: 0;
+  margin-bottom: 10px;
+  overflow-x: auto;
+}
+
+.browser-mock-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--bg-surface);
+  border: 2px solid var(--border-color);
+  border-bottom: none;
+  border-radius: 6px 6px 0 0;
+  padding: 7px 14px;
+  max-width: 320px;
+  position: relative;
+  top: 2px;
+  box-shadow: 2px -2px 0 var(--shadow-color);
+}
+
+.browser-mock-tab-icon {
+  width: 18px;
+  height: 18px;
+  object-fit: cover;
+  border-radius: 2px;
+  flex-shrink: 0;
+  background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.15);
+}
+
+.browser-mock-tab-title {
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-main);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex: 1;
+}
+
+.browser-mock-tab-close {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-left: 6px;
+  opacity: 0.7;
+  cursor: pointer;
+}
+
+.browser-mock-add-tab {
+  font-size: 12px;
+  color: var(--text-muted);
+  padding: 6px 8px;
+  margin-bottom: 2px;
+}
+
+.browser-mock-url-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--bg-surface);
+  border: 1.5px solid var(--border-color);
+  border-radius: 3px;
+  padding: 5px 10px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+/* Favicon Preview & Preset Chips */
+.favicon-preview-box {
+  width: 54px;
+  height: 54px;
+  border: 2.5px solid var(--border-color);
+  box-shadow: var(--hard-shadow-xs);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #ffffff;
+  background-image: 
+    linear-gradient(45deg, #eee 25%, transparent 25%),
+    linear-gradient(-45deg, #eee 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, #eee 75%),
+    linear-gradient(-45deg, transparent 75%, #eee 75%);
+  background-size: 10px 10px;
+  background-position: 0 0, 0 5px, 5px -5px, -5px 0px;
+  overflow: hidden;
+  flex-shrink: 0;
+  border-radius: 2px;
+}
+
+body.dark .favicon-preview-box {
+  background-color: #222;
+  background-image: 
+    linear-gradient(45deg, #333 25%, transparent 25%),
+    linear-gradient(-45deg, #333 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, #333 75%),
+    linear-gradient(-45deg, transparent 75%, #333 75%);
+}
+
+.favicon-preview-img {
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
+}
+
+.favicon-preset-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.favicon-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--bg-surface);
+  border: 1.5px solid var(--border-color);
+  padding: 4px 10px;
+  font-size: 12px;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.12s ease;
+  user-select: none;
+  border-radius: 2px;
+}
+
+.favicon-chip img {
+  width: 16px;
+  height: 16px;
+  object-fit: cover;
+  border-radius: 2px;
+  background: #fff;
+}
+
+.favicon-chip:hover {
+  transform: translate(-1px, -1px);
+  box-shadow: var(--hard-shadow-xs);
+  border-color: var(--accent-red);
+}
+
+.favicon-chip.active {
+  background: var(--accent-yellow);
+  color: #000;
+  border-color: var(--border-color);
+  box-shadow: var(--hard-shadow-xs);
+}
+
 @media (max-width: 640px) {
   .admin-main {
     padding: 12px 10px;
