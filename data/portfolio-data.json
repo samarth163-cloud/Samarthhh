@@ -158,7 +158,7 @@
         }
       ],
       "headline": "Developer building open-source software, games and hardware.",
-      "location": "Surat,gujrat,india"
+      "location": "Surat, gujrat"
     },
     "skills": "JavaScript · TypeScript · Python · C# · C++ · React · Astro · Node.js · HTML/CSS · Unity · Raspberry Pi · Arduino · KiCad · MongoDB · Git/GitHub",
     "projects": [
@@ -545,5 +545,5 @@
       "description": "ssh samarth@hackclub.app"
     }
   ],
-  "_updatedAt": 1793133891627
+  "_updatedAt": 1793133916641
 }
