@@ -426,15 +426,36 @@ li a:hover {
 
 /* Responsive */
 @media (max-width: 750px) {
+  html, body {
+    overflow-x: hidden !important;
+    width: 100% !important;
+    max-width: 100vw !important;
+  }
+
+  .resume {
+    width: calc(100% - 1.5rem);
+    margin: 1rem auto 4rem;
+    padding: 1rem 0;
+  }
+
   .resume-header {
     flex-direction: column;
-    padding: 1.5rem 0;
+    padding: 1.25rem 0;
+    gap: 1.2rem;
   }
 
   .contact-links {
     flex-direction: row;
     flex-wrap: wrap;
     width: 100%;
+    gap: 0.5rem;
+  }
+
+  .contact-links a {
+    font-size: 0.85rem;
+    padding: 0.4rem 0.75rem;
+    max-width: 100%;
+    word-break: break-all;
   }
 
   .stats-grid {
@@ -452,7 +473,26 @@ li a:hover {
 }
 
 @media (max-width: 480px) {
+  .name {
+    font-size: 2.2rem;
+  }
+
+  .headline {
+    font-size: 0.95rem;
+  }
+
   .stats-grid {
     grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+
+  .contact-links a {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .badge-row {
+    flex-wrap: wrap;
+    gap: 0.4rem;
   }
 }

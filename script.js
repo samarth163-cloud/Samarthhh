@@ -182,15 +182,44 @@ document.addEventListener("DOMContentLoaded", () => {
   const menuToggle = document.querySelector(".menu-toggle");
   const menu = document.querySelector(".menu");
 
-  menuToggle.addEventListener("click", () => {
-    const isOpen = menu.classList.toggle("is-open");
-    menuToggle.setAttribute("aria-expanded", isOpen);
-  });
+  if (menuToggle && menu) {
+    const toggleIcon = menuToggle.querySelector("i");
 
-  document.querySelectorAll(".menu a").forEach((link) => {
-    link.addEventListener("click", () => {
+    const closeMenu = () => {
       menu.classList.remove("is-open");
       menuToggle.setAttribute("aria-expanded", "false");
+      if (toggleIcon) {
+        toggleIcon.className = "fas fa-bars";
+      }
+    };
+
+    menuToggle.addEventListener("click", (e) => {
+      e.stopPropagation();
+      const isOpen = menu.classList.toggle("is-open");
+      menuToggle.setAttribute("aria-expanded", isOpen);
+      if (toggleIcon) {
+        toggleIcon.className = isOpen ? "fas fa-times" : "fas fa-bars";
+      }
     });
-  });
+
+    document.querySelectorAll(".menu a").forEach((link) => {
+      link.addEventListener("click", () => {
+        closeMenu();
+      });
+    });
+
+    // Close when clicking outside
+    document.addEventListener("click", (e) => {
+      if (menu.classList.contains("is-open") && !menu.contains(e.target) && !menuToggle.contains(e.target)) {
+        closeMenu();
+      }
+    });
+
+    // Close on Escape key
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && menu.classList.contains("is-open")) {
+        closeMenu();
+      }
+    });
+  }
 });

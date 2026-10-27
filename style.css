@@ -433,9 +433,9 @@ body.dark .darkmode-toggle .dark-icon {
 
 @media (max-width: 600px) {
   .avatar-click-doodle {
-    top: -18px;
-    left: -40px;
-    transform: rotate(-12deg) scale(0.9);
+    top: -16px;
+    left: -18px;
+    transform: rotate(-10deg) scale(0.85);
   }
 }
 
@@ -1425,7 +1425,7 @@ h2::after {
 
 .blog-cards {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr));
   gap: 2rem;
 }
 
@@ -1680,35 +1680,73 @@ footer .source-link {
 }
 
 /* ==========================================================================
-   RESPONSIVE DESIGN & MOBILE STYLING
+   RESPONSIVE DESIGN & MOBILE STYLING (BULLETPROOF VIEWPORT SYSTEM)
    ========================================================================== */
+
+/* Hide custom cursors on touch & tablet screens to avoid phantom artifacts */
+@media (pointer: coarse), (max-width: 900px) {
+  .cursor,
+  .cursor2 {
+    display: none !important;
+  }
+}
+
+/* Tablet & Mobile Navigation Breakpoint */
 @media (max-width: 900px) {
+  .darkmode-toggle {
+    top: 1rem;
+    left: 1rem;
+    width: 42px;
+    height: 42px;
+    z-index: 3100;
+  }
+
   .menu-toggle {
     display: inline-flex;
+    position: fixed;
+    top: 1rem;
+    right: 1rem;
+    width: 42px;
+    height: 42px;
+    z-index: 3100;
   }
 
   .menu {
     position: fixed;
-    top: 4.5rem;
+    top: 4.25rem;
     left: 1rem;
     right: 1rem;
     transform: none;
-    max-width: none;
+    max-width: 420px;
+    margin: 0 auto;
     background: var(--card-bg-color);
     border: 3px solid var(--border-color);
     box-shadow: var(--hard-shadow-lg);
     border-radius: 6px;
-    padding: 1.2rem;
+    padding: 1rem;
     display: none;
+    z-index: 3000;
   }
 
   .menu.is-open {
     display: block;
+    animation: menuSlideDown 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  @keyframes menuSlideDown {
+    from {
+      opacity: 0;
+      transform: translateY(-8px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
   }
 
   .menu ul {
     flex-direction: column;
-    gap: 0.6rem;
+    gap: 0.5rem;
     width: 100%;
   }
 
@@ -1717,11 +1755,15 @@ footer .source-link {
   }
 
   .menu ul li a {
-    display: block;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     width: 100%;
+    min-height: 44px;
     transform: none;
     text-align: center;
     box-sizing: border-box;
+    font-size: 1.05rem;
   }
 
   .menu ul li a:hover {
@@ -1729,40 +1771,368 @@ footer .source-link {
   }
 
   .scroll-indicator {
-    display: none;
+    display: none !important;
   }
 }
 
-@media (max-width: 600px) {
+/* Medium Phones & Phablets Breakpoint */
+@media (max-width: 680px) {
+  html, body {
+    overflow-x: hidden !important;
+    width: 100% !important;
+    max-width: 100vw !important;
+  }
+
+  /* Header Section */
   #header-wrapper {
-    padding-top: 5rem;
+    padding: 4.5rem 1rem 2rem;
+    min-height: 100svh;
+    justify-content: center;
   }
 
   .profile-pic {
     width: 130px;
     height: 130px;
+    padding: 5px;
+    border-width: 2.5px;
   }
 
   header h1 {
-    font-size: 2.2rem;
+    font-size: clamp(2rem, 8vw, 3rem);
+    line-height: 1.1;
+    margin: 1.25rem 0 0.6rem;
+    word-break: break-word;
+    overflow-wrap: break-word;
   }
 
-  .about-box {
-    padding: 1.5rem;
+  header h1::after {
+    width: 100px;
+    height: 5px;
+    margin: 0.5rem auto 0;
   }
 
-  .cards {
-    grid-template-columns: minmax(0, 1fr);
-    gap: 1.5rem;
+  .description {
+    font-size: clamp(0.9rem, 3.6vw, 1.05rem);
+    line-height: 1.55;
+    padding: 0.85rem 1.1rem;
+    margin: 1rem auto 1.4rem;
+    max-width: 100%;
+    box-sizing: border-box;
   }
 
+  /* Hero Call-To-Action Buttons */
   .hero-cta {
     flex-direction: column;
     width: 100%;
+    max-width: 320px;
+    margin: 1.2rem auto;
+    gap: 0.75rem;
   }
 
   .cta-button {
     width: 100%;
     justify-content: center;
+    padding: 0.8rem 1.2rem;
+    font-size: 1.05rem;
+    box-sizing: border-box;
+  }
+
+  /* Social Icons Row */
+  .social-links {
+    gap: 0.5rem;
+    margin: 1.2rem 0 0.8rem;
+  }
+
+  .social-links a {
+    width: 44px;
+    height: 44px;
+    font-size: 1.25rem;
+  }
+
+  .scroll-down {
+    margin-top: 1rem;
+  }
+
+  .scroll-down a {
+    width: 40px;
+    height: 40px;
+    font-size: 1rem;
+  }
+
+  /* Headings */
+  section {
+    padding: 3rem 1rem;
+  }
+
+  h2 {
+    font-size: clamp(1.85rem, 6.5vw, 2.8rem);
+    padding: 0.25rem 1rem;
+    margin: 0 auto 2rem;
+    transform: skewX(-4deg);
+  }
+
+  .showcase-heading {
+    font-size: clamp(2rem, 7.5vw, 3.4rem);
+    padding: 0.35rem 1.2rem;
+    margin: 0 auto 2rem;
+    transform: rotate(-0.5deg);
+  }
+
+  /* About Me Section */
+  #about-me {
+    padding: 2.5rem 1rem;
+    margin: 0 auto 2.5rem;
+  }
+
+  .about-box {
+    padding: 1.4rem 1.1rem;
+    border-width: 2.5px;
+    box-shadow: var(--hard-shadow);
+  }
+
+  .about-box::before {
+    font-size: 0.7rem;
+    letter-spacing: 0.04em;
+    word-break: break-all;
+    margin-bottom: 1.1rem;
+  }
+
+  .about-box p {
+    font-size: 0.95rem;
+    line-height: 1.65;
+    margin-bottom: 1rem;
+  }
+
+  .about-box h3 {
+    font-size: 1.25rem;
+    margin: 1.6rem 0 0.9rem;
+    padding: 0.3rem 0.75rem;
+  }
+
+  .about-box ul li {
+    font-size: 0.92rem;
+    line-height: 1.6;
+    padding-left: 1.4rem;
+    margin-bottom: 0.75rem;
+    word-break: break-word;
+  }
+
+  .coding-time {
+    font-size: 0.82rem;
+    padding: 0.35rem 0.75rem;
+    max-width: 100%;
+    flex-wrap: wrap;
+    box-sizing: border-box;
+  }
+
+  /* Projects Section Grid */
+  #portfolio h2 {
+    margin: 0 auto 2rem;
+  }
+
+  .cards {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 1.5rem;
+    padding: 0;
+  }
+
+  .card {
+    border-width: 2.5px;
+    box-shadow: var(--hard-shadow);
+  }
+
+  .card-content {
+    padding: 1.2rem 1.1rem 0.5rem;
+  }
+
+  .card-content b {
+    font-size: 1.35rem;
+    min-height: auto;
+    margin-bottom: 0.4rem;
+  }
+
+  .card-content p {
+    font-size: 0.92rem;
+    line-height: 1.5;
+  }
+
+  .card-tech {
+    padding: 0.7rem 1.1rem;
+    gap: 0.4rem;
+    min-height: auto;
+  }
+
+  .card-tech span {
+    height: 26px;
+    font-size: 0.72rem;
+    padding: 0 0.5rem;
+  }
+
+  .card-footer {
+    padding: 0.85rem 1.1rem;
+    gap: 0.6rem;
+    min-height: auto;
+    flex-wrap: wrap;
+  }
+
+  .source-link,
+  .visit-link {
+    flex: 1 1 calc(50% - 0.3rem);
+    min-width: 105px;
+    height: 40px;
+    font-size: 0.88rem;
+    padding: 0 0.5rem;
+  }
+
+  /* Blog Section */
+  #blog {
+    padding: 3rem 1rem;
+  }
+
+  .section-heading-column {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.8rem;
+    margin-bottom: 1.8rem;
+  }
+
+  .section-heading-column h2 {
+    margin: 0;
+  }
+
+  .view-all-link {
+    font-size: 0.95rem;
+    padding: 0.45rem 1rem;
+  }
+
+  .blog-cards {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 1.5rem;
+  }
+
+  .blog-card {
+    border-width: 2.5px;
+    box-shadow: var(--hard-shadow);
+  }
+
+  .blog-card img {
+    height: 180px;
+  }
+
+  .blog-card-content {
+    padding: 1.2rem 1.1rem;
+  }
+
+  .blog-card h3 {
+    font-size: 1.35rem;
+    line-height: 1.25;
+  }
+
+  .blog-card-content > p:not(.blog-date) {
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+  }
+
+  .read-post-link {
+    font-size: 0.9rem;
+    padding: 0.35rem 0.8rem;
+  }
+
+  /* Rune Multiplayer Highlights */
+  .rune-games-highlight {
+    padding: 1.8rem 1rem;
+    margin: 3rem auto 1.5rem;
+    border-width: 2.5px;
+  }
+
+  .rune-total-stats {
+    padding: 1rem;
+    margin: 1.5rem auto 2rem;
+  }
+
+  .rune-total-stats > div {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.75rem;
+  }
+
+  .rune-game-grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 1.2rem;
+  }
+
+  .rune-game-card {
+    padding: 1.2rem;
+    border-width: 2px;
+  }
+
+  /* Articles Section */
+  #articles {
+    padding: 2.5rem 1rem;
+  }
+
+  .additional-articles summary {
+    padding: 1rem 1.1rem;
+    font-size: 1.1rem;
+  }
+
+  .article-links a {
+    padding: 0.85rem 1.1rem;
+    font-size: 0.9rem;
+    flex-wrap: wrap;
+    gap: 0.4rem;
   }
 }
+
+/* Compact Mobile Breakpoint (iPhone SE, Small Androids <= 420px) */
+@media (max-width: 420px) {
+  #header-wrapper {
+    padding-top: 4.25rem;
+  }
+
+  .profile-pic {
+    width: 120px;
+    height: 120px;
+  }
+
+  header h1 {
+    font-size: 1.95rem;
+  }
+
+  .about-box {
+    padding: 1.15rem 0.9rem;
+  }
+
+  .card-footer .source-link,
+  .card-footer .visit-link {
+    flex: 1 1 100%;
+    width: 100%;
+  }
+
+  .social-links a {
+    width: 40px;
+    height: 40px;
+    font-size: 1.15rem;
+  }
+}
+
+/* Footer Universal Mobile Safety */
+footer {
+  padding: 2.5rem 1rem 3.5rem;
+  box-sizing: border-box;
+  width: 100%;
+}
+
+footer .source-link {
+  white-space: normal !important;
+  height: auto !important;
+  min-height: auto !important;
+  max-width: 100% !important;
+  line-height: 1.4 !important;
+  padding: 0.6rem 1rem !important;
+  display: inline-flex !important;
+  flex: none !important;
+  margin-top: 0.6rem;
+  font-size: 0.85rem !important;
+  box-sizing: border-box;
+}
+
