@@ -12,8 +12,9 @@ function escapeHtml(str) {
 
 function renderPostHtml(post) {
   const coverImg = post.coverImage || post.image || '';
+  const icon = post.icon || '📝';
   const tags = Array.isArray(post.tags) ? post.tags : (post.tags ? String(post.tags).split(',').map(t => t.trim()) : []);
-  const tagsHtml = tags.map(t => `<span class="tag">${escapeHtml(t)}</span>`).join('');
+  const tagsHtml = tags.map(t => `<span class="tag">#${escapeHtml(t)}</span>`).join(' ');
   const postUrl = post.url || `/blog/${post.slug}/`;
 
   return `<!DOCTYPE html>
@@ -97,12 +98,10 @@ function renderPostHtml(post) {
       <header class="article-header">
         <div class="article-meta-row">
           <span class="meta-item"><i class="far fa-calendar-alt"></i> ${escapeHtml(post.date || '')}</span>
-          ${post.readingTime ? `<span class="readingTime"><i class="far fa-clock"></i> ${escapeHtml(post.readingTime)}</span>` : ''}
-          <div class="post-tags">
-            ${tagsHtml}
-          </div>
+          ${post.readingTime ? `<span class="meta-dot">•</span><span class="readingTime"><i class="far fa-clock"></i> ${escapeHtml(post.readingTime)}</span>` : ''}
+          ${tags.length > 0 ? `<span class="meta-dot">•</span><div class="post-tags">${tagsHtml}</div>` : ''}
         </div>
-        <h1>${escapeHtml(post.title)}</h1>
+        <h1>${escapeHtml(icon)} ${escapeHtml(post.title)}</h1>
       </header>
 
       <div class="prose">
@@ -184,7 +183,8 @@ function renderIndexHtml(blogList) {
     const imgUrl = post.coverImage || post.image || '/assets/blog/how-i-won-my-first-game-jam.png';
     const tags = Array.isArray(post.tags) ? post.tags : (post.tags ? String(post.tags).split(',').map(t => t.trim()) : []);
     const tagsDataAttr = tags.join(',').toLowerCase();
-    const tagsHtml = tags.map(t => `<span class="tag">${escapeHtml(t)}</span>`).join('');
+    const icon = post.icon || '📝';
+    const tagsHtml = tags.map(t => `<span class="tag">#${escapeHtml(t)}</span>`).join(' ');
 
     return `
       <!-- Article: ${escapeHtml(post.title)} -->
@@ -200,7 +200,7 @@ function renderIndexHtml(blogList) {
                   <span class="post-date"><i class="far fa-calendar-alt"></i> ${escapeHtml(post.date || '')}</span>
                   ${post.readingTime ? `<span class="reading-time"><i class="far fa-clock"></i> ${escapeHtml(post.readingTime)}</span>` : ''}
                 </div>
-                <h2 class="post-title">${escapeHtml(post.title)}</h2>
+                <h2 class="post-title">${escapeHtml(icon)} ${escapeHtml(post.title)}</h2>
                 <p class="post-excerpt">${escapeHtml(post.description || '')}</p>
               </div>
               <div class="card-footer-meta">

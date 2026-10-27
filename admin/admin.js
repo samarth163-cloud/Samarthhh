@@ -1853,36 +1853,65 @@
         listContainer.innerHTML = filtered.map(({ post, idx }) => {
           const isActive = idx === currentBlogIndex;
           const thumb = post.coverImage || post.image || "/assets/blog/how-i-won-my-first-game-jam.png";
+          const icon = post.icon || "📝";
           const tags = Array.isArray(post.tags) ? post.tags : (post.tags ? String(post.tags).split(",") : []);
-          const tagPill = tags.length > 0 ? tags[0] : "";
+          const tagPillsHtml = tags.slice(0, 2).map(t => `<span class="notion-card-tag-badge">#${escapeHtml(t.trim())}</span>`).join(" ");
           const featuredStar = post.featured ? `<i class="fas fa-star notion-card-featured-star" title="Highlighted on homepage"></i>` : "";
 
           return `
             <div class="notion-post-card ${isActive ? "active" : ""}" data-post-idx="${idx}">
-              <img src="${escapeHtml(thumb)}" class="notion-card-thumb" onerror="this.src='/favicon.ico'" alt="Thumbnail" />
+              <div class="notion-card-thumb-wrap">
+                <img src="${escapeHtml(thumb)}" class="notion-card-thumb" onerror="this.src='/favicon.ico'" alt="Thumbnail" />
+                <span class="notion-card-icon-badge">${escapeHtml(icon)}</span>
+              </div>
               <div class="notion-card-info">
                 <div class="notion-card-title">${escapeHtml(post.title || "Untitled Post")}</div>
                 <div class="notion-card-meta">
                   <span>${escapeHtml(post.date || "Draft")}</span>
-                  ${tagPill ? `<span>• #${escapeHtml(tagPill)}</span>` : ""}
                   ${featuredStar}
                 </div>
+                ${tagPillsHtml ? `<div class="notion-card-tags-row">${tagPillsHtml}</div>` : ""}
               </div>
-              <button type="button" class="btn-card-del-post" data-del-idx="${idx}" title="Delete article">
-                <i class="fas fa-trash"></i>
-              </button>
+              <div class="notion-card-actions-col">
+                <button type="button" class="btn-card-dup-post" data-dup-idx="${idx}" title="Duplicate article">
+                  <i class="far fa-clone"></i>
+                </button>
+                <button type="button" class="btn-card-del-post" data-del-idx="${idx}" title="Delete article">
+                  <i class="fas fa-trash"></i>
+                </button>
+              </div>
             </div>`;
         }).join("");
 
         // Attach click listeners to cards
         listContainer.querySelectorAll(".notion-post-card").forEach(card => {
           card.addEventListener("click", (e) => {
-            if (e.target.closest(".btn-card-del-post")) return;
+            if (e.target.closest(".btn-card-del-post") || e.target.closest(".btn-card-dup-post")) return;
             const targetIdx = parseInt(card.getAttribute("data-post-idx"), 10);
             if (!isNaN(targetIdx) && targetIdx !== currentBlogIndex) {
               currentBlogIndex = targetIdx;
               renderBlogTab();
             }
+          });
+        });
+
+        // Attach duplicate listeners
+        listContainer.querySelectorAll(".btn-card-dup-post").forEach(dupBtn => {
+          dupBtn.addEventListener("click", (e) => {
+            e.stopPropagation();
+            const targetIdx = parseInt(dupBtn.getAttribute("data-dup-idx"), 10);
+            const srcPost = state.blog[targetIdx];
+            if (!srcPost) return;
+            const cloned = JSON.parse(JSON.stringify(srcPost));
+            cloned.id = "post-" + Date.now();
+            cloned.title = `${srcPost.title || "Untitled"} (Copy)`;
+            cloned.slug = `${srcPost.slug || "article"}-copy-${Date.now().toString().slice(-4)}`;
+            cloned.url = `/blog/${cloned.slug}/`;
+            state.blog.splice(targetIdx + 1, 0, cloned);
+            currentBlogIndex = targetIdx + 1;
+            renderBlogTab();
+            showToast("Article duplicated!", "success");
+            triggerAutoSave();
           });
         });
 
@@ -1916,6 +1945,7 @@
       // Create a default initial post if empty
       state.blog = [{
         id: "post-" + Date.now(),
+        icon: "📝",
         title: "Untitled Post",
         slug: "untitled-post",
         description: "A short summary of this article...",
@@ -1947,6 +1977,12 @@
       coverImg.src = post.coverImage || post.image || "/blog/_astro/arcade-jam-poster.DT7rkVUv.png";
     }
 
+    // Page Icon Display
+    const iconDisplay = document.getElementById("notion-page-icon-display");
+    if (iconDisplay) {
+      iconDisplay.textContent = post.icon || "📝";
+    }
+
     // Title Input
     const titleInput = document.getElementById("notion-input-title");
     if (titleInput) {
@@ -1960,10 +1996,8 @@
     const propReading = document.getElementById("notion-prop-reading-time");
     if (propReading) propReading.value = post.readingTime || "";
 
-    const propTags = document.getElementById("notion-prop-tags");
-    if (propTags) {
-      propTags.value = Array.isArray(post.tags) ? post.tags.join(", ") : (post.tags || "");
-    }
+    // Tag Chips
+    renderNotionTagChips(post.tags);
 
     const propSlug = document.getElementById("notion-prop-slug");
     if (propSlug) {
@@ -2001,6 +2035,54 @@
     }
   }
 
+  function renderNotionTagChips(tags) {
+    const chipsContainer = document.getElementById("notion-tag-chips");
+    const hiddenTags = document.getElementById("notion-prop-tags");
+    const tagList = Array.isArray(tags) ? tags : (tags ? String(tags).split(",").map(t => t.trim()).filter(Boolean) : []);
+    if (hiddenTags) hiddenTags.value = tagList.join(", ");
+    if (!chipsContainer) return;
+
+    if (tagList.length === 0) {
+      chipsContainer.innerHTML = `<span style="font-size: 11px; color: var(--text-muted); font-style: italic;">No tags yet</span>`;
+      return;
+    }
+
+    chipsContainer.innerHTML = tagList.map((tag, tIdx) => `
+      <span class="notion-tag-chip">
+        #${escapeHtml(tag)}
+        <span class="chip-del" data-tag-del-idx="${tIdx}" title="Remove tag">&times;</span>
+      </span>
+    `).join("");
+
+    chipsContainer.querySelectorAll(".chip-del").forEach(btn => {
+      btn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        const delIdx = parseInt(btn.getAttribute("data-tag-del-idx"), 10);
+        if (!state.blog[currentBlogIndex]) return;
+        const curTags = Array.isArray(state.blog[currentBlogIndex].tags) ? [...state.blog[currentBlogIndex].tags] : [];
+        curTags.splice(delIdx, 1);
+        state.blog[currentBlogIndex].tags = curTags;
+        renderNotionTagChips(curTags);
+        renderBlogTab();
+        renderNotionLivePreview();
+      });
+    });
+  }
+
+  function addNotionTag(newTag) {
+    if (!newTag || !state.blog[currentBlogIndex]) return;
+    const clean = newTag.trim().replace(/^#/, "").toLowerCase();
+    if (!clean) return;
+    const curTags = Array.isArray(state.blog[currentBlogIndex].tags) ? [...state.blog[currentBlogIndex].tags] : [];
+    if (!curTags.includes(clean)) {
+      curTags.push(clean);
+      state.blog[currentBlogIndex].tags = curTags;
+      renderNotionTagChips(curTags);
+      renderBlogTab();
+      renderNotionLivePreview();
+    }
+  }
+
   function updateNotionStats() {
     const canvas = document.getElementById("notion-editor-canvas");
     if (!canvas) return;
@@ -2020,8 +2102,9 @@
     if (!target) return;
     const post = state.blog[currentBlogIndex] || {};
     const cover = post.coverImage || post.image || "";
+    const icon = post.icon || "📝";
     const tags = Array.isArray(post.tags) ? post.tags : (post.tags ? String(post.tags).split(",") : []);
-    const tagsHtml = tags.map(t => `<span class="tag">${escapeHtml(t.trim())}</span>`).join("");
+    const tagsHtml = tags.map(t => `<span class="tag">#${escapeHtml(t.trim())}</span>`).join(" ");
 
     target.innerHTML = `
       <article>
@@ -2029,10 +2112,11 @@
         <header class="article-header">
           <div class="article-meta-row">
             <span class="meta-item"><i class="far fa-calendar-alt"></i> ${escapeHtml(post.date || "Today")}</span>
+            <span class="meta-dot">•</span>
             <span class="readingTime"><i class="far fa-clock"></i> ${escapeHtml(post.readingTime || "3 min read")}</span>
-            <div class="post-tags">${tagsHtml}</div>
+            ${tags.length > 0 ? `<span class="meta-dot">•</span><div class="post-tags">${tagsHtml}</div>` : ""}
           </div>
-          <h1>${escapeHtml(post.title || "Untitled Article")}</h1>
+          <h1>${escapeHtml(icon)} ${escapeHtml(post.title || "Untitled Article")}</h1>
         </header>
         <div class="prose">
           ${post.contentHtml || "<p>No content written yet.</p>"}
@@ -2062,6 +2146,55 @@
       });
     }
 
+    // Emoji Picker Popover
+    const iconBtn = document.getElementById("notion-page-icon-btn");
+    const emojiPopover = document.getElementById("notion-emoji-popover");
+    if (iconBtn && emojiPopover) {
+      iconBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        emojiPopover.style.display = emojiPopover.style.display === "none" ? "block" : "none";
+      });
+      emojiPopover.querySelectorAll(".emoji-btn").forEach(btn => {
+        btn.addEventListener("click", (e) => {
+          e.stopPropagation();
+          const emoji = btn.getAttribute("data-emoji");
+          if (state.blog[currentBlogIndex]) {
+            state.blog[currentBlogIndex].icon = emoji;
+            const displayEl = document.getElementById("notion-page-icon-display");
+            if (displayEl) displayEl.textContent = emoji;
+            renderBlogTab();
+            renderNotionLivePreview();
+          }
+          emojiPopover.style.display = "none";
+        });
+      });
+      document.addEventListener("click", (e) => {
+        if (!e.target.closest("#notion-page-icon-btn") && !e.target.closest("#notion-emoji-popover")) {
+          emojiPopover.style.display = "none";
+        }
+      });
+    }
+
+    // Tag inline input
+    const tagInput = document.getElementById("notion-tag-add-input");
+    if (tagInput) {
+      tagInput.addEventListener("keydown", (e) => {
+        if (e.key === "Enter" || e.key === ",") {
+          e.preventDefault();
+          addNotionTag(tagInput.value);
+          tagInput.value = "";
+        }
+      });
+    }
+
+    // Preset Quick-Add Tags
+    document.querySelectorAll(".btn-tag-preset").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const t = btn.getAttribute("data-tag");
+        addNotionTag(t);
+      });
+    });
+
     // Add New Post buttons
     const btnNewTop = document.getElementById("btn-create-new-blog");
     const btnNewBottom = document.getElementById("btn-nav-add-post");
@@ -2073,6 +2206,7 @@
 
       const newPost = {
         id: "post-" + Date.now(),
+        icon: "📝",
         title: "Untitled Article",
         slug: newSlug,
         url: `/blog/${newSlug}/`,
@@ -2125,6 +2259,22 @@
         renderNotionLivePreview();
       });
     }
+
+    // Responsive Device Simulator in Live Preview
+    const deviceBtns = document.querySelectorAll(".preview-device-btn");
+    const viewportFrame = document.getElementById("preview-viewport-frame");
+    deviceBtns.forEach(btn => {
+      btn.addEventListener("click", () => {
+        deviceBtns.forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        const dev = btn.getAttribute("data-device");
+        if (viewportFrame) {
+          viewportFrame.classList.remove("device-tablet", "device-mobile");
+          if (dev === "tablet") viewportFrame.classList.add("device-tablet");
+          if (dev === "mobile") viewportFrame.classList.add("device-mobile");
+        }
+      });
+    });
 
     // Save Current Post button
     const btnSavePost = document.getElementById("btn-save-current-post");
@@ -2224,15 +2374,6 @@
           state.blog[currentBlogIndex].readingTime = mins;
         }
         showToast(`Calculated reading time: ${mins}`, "info");
-      });
-    }
-
-    const propTags = document.getElementById("notion-prop-tags");
-    if (propTags) {
-      propTags.addEventListener("input", (e) => {
-        if (state.blog[currentBlogIndex]) {
-          state.blog[currentBlogIndex].tags = e.target.value.split(",").map(t => t.trim()).filter(Boolean);
-        }
       });
     }
 

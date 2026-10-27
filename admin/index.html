@@ -8,6 +8,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Anton&family=Bebas+Neue&family=Space+Grotesk:wght@500;600;700;800;900&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <link rel="stylesheet" href="/blog/blog.css" />
   <link rel="stylesheet" href="/admin/admin.css" />
   <link rel="icon" type="image/x-icon" href="/favicon.ico" />
   <link rel="shortcut icon" href="/favicon.ico" />
@@ -728,8 +729,39 @@
 
               <!-- Main Document Header -->
               <div class="notion-doc-header">
-                <!-- Large Notion Page Title -->
-                <input type="text" id="notion-input-title" class="notion-page-title-input" placeholder="Untitled Article..." />
+                <!-- Notion Page Icon / Emoji Selector -->
+                <div class="notion-icon-and-title-row">
+                  <div class="notion-page-icon-wrapper">
+                    <button type="button" class="notion-page-icon-btn" id="notion-page-icon-btn" title="Choose Icon / Emoji">
+                      <span id="notion-page-icon-display">📝</span>
+                    </button>
+                    <div class="notion-emoji-popover" id="notion-emoji-popover" style="display: none;">
+                      <div class="emoji-popover-header">CHOOSE PAGE ICON</div>
+                      <div class="emoji-grid">
+                        <button type="button" class="emoji-btn" data-emoji="📝">📝</button>
+                        <button type="button" class="emoji-btn" data-emoji="🎮">🎮</button>
+                        <button type="button" class="emoji-btn" data-emoji="📷">📷</button>
+                        <button type="button" class="emoji-btn" data-emoji="💻">💻</button>
+                        <button type="button" class="emoji-btn" data-emoji="🚀">🚀</button>
+                        <button type="button" class="emoji-btn" data-emoji="⚡">⚡</button>
+                        <button type="button" class="emoji-btn" data-emoji="🔥">🔥</button>
+                        <button type="button" class="emoji-btn" data-emoji="🛠️">🛠️</button>
+                        <button type="button" class="emoji-btn" data-emoji="🎨">🎨</button>
+                        <button type="button" class="emoji-btn" data-emoji="💡">💡</button>
+                        <button type="button" class="emoji-btn" data-emoji="🤖">🤖</button>
+                        <button type="button" class="emoji-btn" data-emoji="⭐">⭐</button>
+                        <button type="button" class="emoji-btn" data-emoji="☕">☕</button>
+                        <button type="button" class="emoji-btn" data-emoji="👾">👾</button>
+                        <button type="button" class="emoji-btn" data-emoji="🕹️">🕹️</button>
+                        <button type="button" class="emoji-btn" data-emoji="🎧">🎧</button>
+                        <button type="button" class="emoji-btn" data-emoji="📌">📌</button>
+                        <button type="button" class="emoji-btn" data-emoji="🌐">🌐</button>
+                      </div>
+                    </div>
+                  </div>
+                  <!-- Large Notion Page Title -->
+                  <input type="text" id="notion-input-title" class="notion-page-title-input" placeholder="Untitled Article..." />
+                </div>
                 
                 <!-- Notion Page Properties Drawer -->
                 <div class="notion-properties-panel">
@@ -749,10 +781,28 @@
                     </div>
                   </div>
 
-                  <div class="notion-prop-row">
+                  <div class="notion-prop-row full-width">
                     <span class="prop-label"><i class="fas fa-tags"></i> Tags</span>
-                    <div class="prop-value">
-                      <input type="text" id="notion-prop-tags" class="form-input prop-input" placeholder="hardware, raspberry pi, camera" />
+                    <div class="prop-value tag-chips-container-row">
+                      <div class="notion-tags-pill-box" id="notion-tags-pill-box">
+                        <div id="notion-tag-chips" class="notion-tag-chips"></div>
+                        <input type="text" id="notion-tag-add-input" class="tag-inline-input" placeholder="+ Add tag and press Enter..." />
+                      </div>
+                      <input type="hidden" id="notion-prop-tags" />
+                    </div>
+                  </div>
+
+                  <div class="notion-prop-row full-width tag-presets-row">
+                    <span class="prop-label" style="font-size: 11px; opacity: 0.7;">Quick Tags:</span>
+                    <div class="tag-presets-pills">
+                      <button type="button" class="btn-tag-preset" data-tag="gamedev">+ gamedev</button>
+                      <button type="button" class="btn-tag-preset" data-tag="hardware">+ hardware</button>
+                      <button type="button" class="btn-tag-preset" data-tag="unity">+ unity</button>
+                      <button type="button" class="btn-tag-preset" data-tag="tech">+ tech</button>
+                      <button type="button" class="btn-tag-preset" data-tag="tutorial">+ tutorial</button>
+                      <button type="button" class="btn-tag-preset" data-tag="raspberry pi">+ raspberry pi</button>
+                      <button type="button" class="btn-tag-preset" data-tag="web">+ web</button>
+                      <button type="button" class="btn-tag-preset" data-tag="ai">+ ai</button>
                     </div>
                   </div>
 
@@ -938,12 +988,27 @@
             <!-- LIVE PREVIEW VIEW (Toggled when in Preview Mode) -->
             <div class="notion-preview-wrapper" id="notion-preview-wrapper" style="display: none;">
               <div class="preview-banner">
-                <span><i class="fas fa-eye"></i> LIVE PREVIEW — This is exactly how the article renders on your blog website:</span>
+                <div class="preview-banner-left">
+                  <i class="fas fa-eye"></i> <span>LIVE PREVIEW — Blog Website Simulator</span>
+                </div>
+                <div class="preview-device-toggle">
+                  <button type="button" class="preview-device-btn active" data-device="full" id="btn-preview-device-full" title="Full Desktop View">
+                    <i class="fas fa-desktop"></i> Desktop
+                  </button>
+                  <button type="button" class="preview-device-btn" data-device="tablet" id="btn-preview-device-tablet" title="Tablet Simulation (768px)">
+                    <i class="fas fa-tablet-screen-button"></i> Tablet
+                  </button>
+                  <button type="button" class="preview-device-btn" data-device="mobile" id="btn-preview-device-mobile" title="Mobile Phone Simulation (390px)">
+                    <i class="fas fa-mobile-screen"></i> Mobile
+                  </button>
+                </div>
               </div>
               <div class="preview-container">
-                <main class="article-main" id="notion-preview-article-target">
-                  <!-- Real-time rendered article preview -->
-                </main>
+                <div class="preview-viewport-frame" id="preview-viewport-frame">
+                  <main class="article-main" id="notion-preview-article-target">
+                    <!-- Real-time rendered article preview -->
+                  </main>
+                </div>
               </div>
             </div>
 

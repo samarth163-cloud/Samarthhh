@@ -340,6 +340,7 @@
   "blog": [
     {
       "id": "post-1793123918833",
+      "icon": "📝",
       "title": "Untitled Article",
       "slug": "new-article-8833",
       "url": "/blog/new-article-8833/",
@@ -357,6 +358,7 @@
     },
     {
       "id": "pishot-camera-blog",
+      "icon": "📷",
       "title": "I Made a Custom Raspberry Pi Camera - Journal: PiShot",
       "slug": "i-made-a-custom-raspberry-pi-camera",
       "description": "RPi Zero 2W, camera module, & custom 3D-printed case.",
@@ -375,6 +377,7 @@
     },
     {
       "id": "first-game-jam-blog",
+      "icon": "🎮",
       "title": "How I Won My First Game Jam",
       "slug": "how-i-won-my-first-game-jam",
       "description": "And won with a bad game!",
