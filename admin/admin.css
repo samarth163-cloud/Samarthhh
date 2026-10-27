@@ -1241,10 +1241,10 @@ body.dark .btn-ghost:hover {
     width: 100%;
     border-right: none;
     border-bottom: var(--border-width) solid var(--border-color);
-    padding: 8px 0;
-    position: sticky;
-    top: 96px;
-    z-index: 950;
+    padding: 6px 0;
+    position: relative;
+    top: auto;
+    z-index: 20;
     background: var(--bg-sidebar);
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
   }
@@ -1260,7 +1260,7 @@ body.dark .btn-ghost:hover {
     -webkit-overflow-scrolling: touch;
     scrollbar-width: none;
     gap: 6px;
-    padding: 4px 12px;
+    padding: 6px 12px;
     width: 100%;
     box-sizing: border-box;
   }
@@ -1277,7 +1277,7 @@ body.dark .btn-ghost:hover {
   .admin-nav-link {
     white-space: nowrap;
     padding: 7px 12px;
-    font-size: 13px;
+    font-size: 12.5px;
     border: var(--border-width) solid var(--border-color);
     background: var(--bg-surface);
     box-shadow: var(--hard-shadow-xs);
@@ -1295,25 +1295,11 @@ body.dark .btn-ghost:hover {
   }
 
   .sidebar-footer {
-    display: flex;
-    flex-direction: row;
-    gap: 8px;
-    padding: 6px 12px;
-    width: 100%;
-    box-sizing: border-box;
-    border-top: 1.5px dashed var(--border-color);
-    margin-top: 6px;
-  }
-
-  .sidebar-footer .btn {
-    flex: 1;
-    font-size: 11px;
-    padding: 6px 8px;
-    white-space: nowrap;
+    display: none; /* Hide secondary footer on mobile to maximize vertical workspace */
   }
 
   .admin-main {
-    padding: 20px 16px;
+    padding: 16px 12px;
   }
 }
 
@@ -1328,7 +1314,7 @@ body.dark .btn-ghost:hover {
   .admin-header {
     flex-direction: column;
     align-items: stretch;
-    padding: 10px 14px;
+    padding: 8px 12px;
     gap: 8px;
     position: sticky;
     top: 0;
@@ -1343,12 +1329,13 @@ body.dark .btn-ghost:hover {
   }
 
   .brand-title {
-    font-size: 18px;
+    font-size: 16px;
+    letter-spacing: 0.02em;
   }
 
   .sync-status {
-    font-size: 11px;
-    padding: 3px 8px;
+    font-size: 10.5px;
+    padding: 2px 7px;
   }
 
   .header-actions {
@@ -1368,17 +1355,13 @@ body.dark .btn-ghost:hover {
 
   .header-actions .btn {
     padding: 6px 10px;
-    font-size: 12px;
+    font-size: 11.5px;
     white-space: nowrap;
     flex-shrink: 0;
   }
 
   .header-actions .shortcut {
     display: none;
-  }
-
-  .admin-sidebar {
-    top: 86px;
   }
 }
 
@@ -1743,13 +1726,14 @@ body.dark .favicon-preview-box {
   /* Modals */
   .modal-backdrop {
     padding: 8px;
+    align-items: flex-start;
   }
 
   .modal-window {
     width: 100% !important;
     max-width: 100% !important;
     max-height: 94vh;
-    margin: auto;
+    margin: 8px auto;
   }
 
   .modal-header {
@@ -1757,16 +1741,18 @@ body.dark .favicon-preview-box {
   }
 
   .modal-title {
-    font-size: 18px;
+    font-size: 17px;
   }
 
   .modal-body {
-    padding: 14px 12px;
+    padding: 12px 10px;
+    max-height: calc(94vh - 120px);
+    overflow-y: auto;
     -webkit-overflow-scrolling: touch;
   }
 
   .modal-footer {
-    padding: 12px 14px;
+    padding: 10px 12px;
     flex-direction: column-reverse;
     gap: 8px;
   }
@@ -1774,6 +1760,8 @@ body.dark .favicon-preview-box {
   .modal-footer .btn {
     width: 100%;
     justify-content: center;
+    padding: 10px;
+    font-size: 13px;
   }
 
   .mini-preview-container .card {
@@ -1785,15 +1773,297 @@ body.dark .favicon-preview-box {
   /* Toast notifications */
   .toast-container {
     bottom: 12px;
-    left: 12px;
-    right: 12px;
+    left: 10px;
+    right: 10px;
     width: auto;
   }
 
   .toast {
     width: 100%;
+    font-size: 12.5px;
+    padding: 10px 12px;
+  }
+
+  /* Login Screen on Mobile */
+  .login-card {
+    padding: 28px 16px 20px;
+    margin: 10px;
+    width: calc(100% - 20px);
+  }
+
+  .login-title {
+    font-size: 21px;
+  }
+
+  .login-subtitle {
+    font-size: 12px;
+    margin-bottom: 16px;
+  }
+
+  /* Blog Studio (Notion Editor) Mobile Optimization */
+  .notion-studio-container {
+    gap: 14px;
+    margin-top: 10px;
+  }
+
+  .notion-posts-nav {
+    position: relative;
+    top: auto;
+    padding: 10px;
+    margin-bottom: 6px;
+  }
+
+  .notion-posts-list {
+    max-height: 180px;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .notion-editor-topbar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+    padding: 10px 12px;
+    margin-bottom: 12px;
+  }
+
+  .topbar-left {
+    justify-content: space-between;
+    width: 100%;
+  }
+
+  .topbar-center {
+    width: 100%;
+  }
+
+  .notion-view-modes {
+    width: 100%;
+    display: flex;
+  }
+
+  .view-mode-btn {
+    flex: 1;
+    justify-content: center;
+    padding: 7px 10px;
+    font-size: 11.5px;
+  }
+
+  .topbar-right {
+    display: grid;
+    grid-template-columns: 1fr auto auto;
+    gap: 6px;
+    width: 100%;
+  }
+
+  .topbar-right #btn-save-current-post {
+    width: 100%;
+    justify-content: center;
+    font-size: 12px;
+  }
+
+  /* Notion Formatting Toolbar - Smooth Horizontal Touch Ribbon */
+  .notion-toolbar {
+    position: sticky;
+    top: 0;
+    z-index: 60;
+    padding: 6px 8px;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    gap: 4px;
+    background: var(--bg-surface);
+    border-bottom: 2px solid var(--border-color);
+  }
+
+  .notion-toolbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .toolbar-group {
+    flex-shrink: 0;
+    gap: 3px;
+  }
+
+  .toolbar-divider {
+    height: 18px;
+    margin: 0 2px;
+    flex-shrink: 0;
+  }
+
+  .toolbar-btn {
+    padding: 5px 8px;
+    font-size: 11px;
+    flex-shrink: 0;
+  }
+
+  .toolbar-select {
+    padding: 4px 6px;
+    font-size: 11px;
+    flex-shrink: 0;
+  }
+
+  .toolbar-hint {
+    display: none;
+  }
+
+  /* Notion Properties Panel */
+  .notion-properties-panel {
+    grid-template-columns: 1fr;
+    padding: 12px 10px;
+    gap: 10px;
+  }
+
+  .notion-prop-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+    width: 100%;
+  }
+
+  .prop-label {
+    width: 100%;
+    font-size: 11.5px;
+  }
+
+  .prop-value {
+    width: 100%;
+  }
+
+  .prop-input,
+  .prop-textarea,
+  .slug-preview-box {
+    width: 100% !important;
+    box-sizing: border-box;
+  }
+
+  /* Notion Cover Box */
+  .notion-cover-wrapper {
+    height: 140px;
+    max-height: 140px;
+  }
+
+  .notion-cover-actions {
+    flex-wrap: wrap;
+    gap: 4px;
+    bottom: 6px;
+    right: 6px;
+  }
+
+  .notion-cover-btn {
+    font-size: 10px;
+    padding: 3px 7px;
+  }
+
+  .notion-doc-header {
+    padding: 14px 12px 6px;
+  }
+
+  .notion-page-title-input {
+    font-size: 1.5rem;
+  }
+
+  /* Notion Canvas */
+  .notion-canvas {
+    padding: 16px 12px 60px;
+    min-height: 340px;
+    font-size: 1rem;
+    line-height: 1.65;
+  }
+
+  .notion-canvas h1 {
+    font-size: 1.5rem;
+    margin: 1.5rem 0 0.6rem;
+  }
+
+  .notion-canvas h2 {
+    font-size: 1.3rem;
+    margin: 1.3rem 0 0.5rem;
+  }
+
+  .notion-canvas h3 {
+    font-size: 1.15rem;
+    margin: 1.1rem 0 0.4rem;
+  }
+
+  .notion-canvas img {
+    max-width: 100% !important;
+    height: auto !important;
+  }
+
+  .notion-slash-menu {
+    max-width: 90vw;
+    width: 280px;
+    left: 10px !important;
+  }
+
+  /* Cloud Media Gallery Grid */
+  .media-dropzone {
+    padding: 20px 12px;
+  }
+
+  .media-dropzone-icon {
+    font-size: 28px;
+  }
+
+  .media-gallery-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .media-card-img-wrap {
+    height: 160px;
+  }
+
+  .media-card-actions .btn {
+    flex: 1;
+    justify-content: center;
+    font-size: 11.5px;
+    padding: 6px 8px;
+  }
+
+  /* Backup & Deploy Tab */
+  .token-config-grid {
+    grid-template-columns: 1fr !important;
+    gap: 10px !important;
+  }
+
+  #github-deploy-btn {
+    width: 100%;
+    padding: 12px;
     font-size: 13px;
-    padding: 10px 14px;
+    justify-content: center;
+  }
+
+  #deploy-log-console {
+    max-height: 180px;
+    font-size: 10.5px;
+    padding: 10px;
+  }
+
+  /* Browser Mockup Bar */
+  .browser-tab-mockup-bar {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+
+  .browser-mock-tab {
+    max-width: 220px;
+    padding: 5px 10px;
+  }
+
+  .browser-mock-tab-title {
+    font-size: 11.5px;
+  }
+
+  .favicon-preset-chips {
+    gap: 6px;
+  }
+
+  .favicon-chip {
+    font-size: 11px;
+    padding: 3px 8px;
   }
 }
 
