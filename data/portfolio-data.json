@@ -14,8 +14,8 @@
       "title": "Untitled Article",
       "featured": false,
       "coverImage": "assets/blog/how-i-won-my-first-game-jam.png",
-      "contentHtml": "<p><br></p>",
-      "description": "A short summary of this article...",
+      "contentHtml": "",
+      "description": "A short summary of thSamarth's Portfoliois article...",
       "readingTime": "3 min read"
     },
     {
@@ -300,7 +300,7 @@
   },
   "projects": [
     {
-      "id": "sssssssssssssssss",
+      "id": "samarth-s-portfolio",
       "tech": [
         {
           "icon": "fas fa-microchip",
@@ -316,7 +316,7 @@
         }
       ],
       "image": "https://npzqpcagdtnfuqhyngro.supabase.co/storage/v1/object/public/portfolio-assets/pishot.png",
-      "title": "sssssssssssssssss",
+      "title": "Samarth's Portfolio",
       "featured": true,
       "visitUrl": "https://www.youtube.com/watch?v=gf-RIgXnWJM",
       "sourceUrl": "https://github.com/samarth163-cloud/PiShot",
@@ -516,5 +516,5 @@
       "description": "ssh samarth@hackclub.app"
     }
   ],
-  "_updatedAt": 1793128876947
+  "_updatedAt": 1793129530444
 }
