@@ -303,11 +303,7 @@
       "id": "samarth-s-portfolio",
       "title": "Samarth's Portfolio",
       "description": "An open-source DIY camera! Built from scratch with a Raspberry Pi Zero 2W, Pi camera module, hand-wiring, and a 3D-printed case. And custom firmware!",
-<<<<<<< HEAD
       "image": "https://npzqpcagdtnfuqhyngro.supabase.co/storage/v1/object/public/portfolio-assets/Samarth's%20Portfolio.png",
-=======
-      "image": "https://npzqpcagdtnfuqhyngro.supabase.co/storage/v1/object/public/portfolio-assets/pishot.png",
->>>>>>> 5014665 (Fix blog image insertion, Supabase CDN rendering, and add Cloud Media picker)
       "sourceUrl": "https://github.com/samarth163-cloud/PiShot",
       "visitUrl": "https://www.youtube.com/watch?v=gf-RIgXnWJM",
       "visitLabel": "Demo",
@@ -520,9 +516,5 @@
       "description": "ssh samarth@hackclub.app"
     }
   ],
-<<<<<<< HEAD
   "_updatedAt": 1793129702134
-=======
-  "_updatedAt": 1793129299110
->>>>>>> 5014665 (Fix blog image insertion, Supabase CDN rendering, and add Cloud Media picker)
 }
