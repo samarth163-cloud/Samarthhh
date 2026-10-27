@@ -191,6 +191,12 @@
           </button>
         </li>
         <li class="admin-nav-item">
+          <button class="admin-nav-link" data-tab="tab-media" type="button">
+            <span class="link-left"><i class="fas fa-photo-film"></i> Cloud Media</span>
+            <span class="nav-counter" id="nav-count-media" style="background: #24b47e; color: #000;">0</span>
+          </button>
+        </li>
+        <li class="admin-nav-item">
           <button class="admin-nav-link" data-tab="tab-backup" type="button">
             <span class="link-left"><i class="fas fa-database"></i> Backup &amp; Files</span>
           </button>
@@ -1155,6 +1161,60 @@
         </div>
       </section>
 
+      <!-- ================================================================= -->
+      <!-- TAB 6: SUPABASE CLOUD MEDIA GALLERY & CRUD                       -->
+      <!-- ================================================================= -->
+      <section class="tab-pane" id="tab-media">
+        <div class="section-hero-banner">
+          <div>
+            <h2><i class="fas fa-photo-film" style="color: #24b47e;"></i> Supabase Cloud Media Manager</h2>
+            <p>Upload, preview, replace, and delete media files directly in your Supabase Storage bucket (<code>portfolio-assets</code>). Instant public CDN URLs with zero storage limit issues!</p>
+          </div>
+          <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+            <button class="btn" id="btn-refresh-media" type="button" title="Refresh files from Supabase">
+              <i class="fas fa-rotate"></i> Refresh
+            </button>
+            <label class="btn btn-primary" style="cursor: pointer; background: #24b47e; border-color: #000; color: #000; font-weight: 800;">
+              <i class="fas fa-cloud-arrow-up"></i> Upload Images
+              <input type="file" id="media-upload-input" accept="image/*" multiple style="display: none;" />
+            </label>
+          </div>
+        </div>
+
+        <!-- Drag & Drop Upload Zone -->
+        <div class="media-dropzone" id="media-dropzone">
+          <div class="media-dropzone-icon">
+            <i class="fas fa-cloud-arrow-up"></i>
+          </div>
+          <h4 style="margin: 0 0 6px 0; font-size: 16px;">Drag &amp; Drop Images Here</h4>
+          <p style="margin: 0; font-size: 13px; color: var(--text-muted);">
+            or click to browse from your device. Supported: PNG, JPG, WebP, SVG, GIF, ICO (Max 10MB each)
+          </p>
+        </div>
+
+        <!-- Toolbar / Search Bar -->
+        <div class="admin-card" style="margin-bottom: 20px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <span style="font-weight: 700; font-size: 14px;">Cloud Assets:</span>
+              <span class="badge" id="media-count-badge" style="background: #24b47e; color: #000; font-weight: 800;">0 files</span>
+            </div>
+            <div style="display: flex; gap: 8px; flex: 1; max-width: 320px;">
+              <input type="text" id="media-search-input" class="form-input" placeholder="Search images by name..." style="padding: 6px 12px; font-size: 13px;" />
+            </div>
+          </div>
+        </div>
+
+        <!-- Media Grid -->
+        <div class="media-gallery-grid" id="media-gallery-grid">
+          <!-- Dynamically populated media cards -->
+          <div style="grid-column: 1 / -1; text-align: center; padding: 40px; color: var(--text-muted);">
+            <i class="fas fa-spinner fa-spin fa-2x" style="color: #24b47e; margin-bottom: 12px;"></i>
+            <p>Loading files from Supabase Storage...</p>
+          </div>
+        </div>
+      </section>
+
     </main>
   </div>
 
@@ -1319,6 +1379,32 @@
         </button>
       </div>
     </div>
+    </div>
+  </div>
+
+  <!-- Image Full-Preview Modal -->
+  <div class="modal-backdrop" id="modal-image-preview" style="display: none; align-items: center; justify-content: center; z-index: 10000;">
+    <div class="modal-window" style="max-width: 680px; width: 92%;">
+      <div class="modal-header">
+        <div class="modal-title" id="modal-preview-filename" style="font-family: var(--font-mono); font-size: 14px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">Image Preview</div>
+        <button class="btn btn-sm btn-ghost" id="btn-close-img-preview-modal" type="button"><i class="fas fa-xmark fa-lg"></i></button>
+      </div>
+      <div class="modal-body" style="padding: 16px; text-align: center;">
+        <div style="max-height: 440px; display: flex; align-items: center; justify-content: center; background: #111; border: 2px solid var(--border-color); margin-bottom: 14px; overflow: hidden;">
+          <img id="modal-preview-img-tag" src="" alt="Full Preview" style="max-width: 100%; max-height: 440px; object-fit: contain;" />
+        </div>
+        <div class="form-group" style="text-align: left;">
+          <label class="form-label">Direct Public CDN URL (Use anywhere on web)</label>
+          <div style="display: flex; gap: 8px;">
+            <input type="text" id="modal-preview-url-input" class="form-input" readonly style="font-family: var(--font-mono); font-size: 12px;" />
+            <button class="btn btn-yellow" id="btn-modal-copy-url" type="button"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer" style="display: flex; justify-content: space-between; align-items: center;">
+        <a id="btn-modal-open-tab" href="#" target="_blank" class="btn btn-sm"><i class="fas fa-arrow-up-right-from-square"></i> Open in New Tab</a>
+        <button class="btn" id="btn-modal-close-preview" type="button">Close</button>
+      </div>
     </div>
   </div>
 

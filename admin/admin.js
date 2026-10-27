@@ -351,6 +351,10 @@
       const targetPane = document.getElementById(targetTabId);
       if (targetPane) targetPane.classList.add("active");
       window.scrollTo({ top: 0, behavior: "smooth" });
+
+      if (targetTabId === "tab-media") {
+        renderMediaGallery();
+      }
     });
   });
 
@@ -3540,9 +3544,412 @@
     });
   }
 
+  // =========================================================================
+  // SUPABASE CLOUD STORAGE IMAGE CRUD ENGINE (portfolio-assets)
+  // =========================================================================
+  const SUPABASE_STORAGE_BUCKET = "portfolio-assets";
+  let cachedMediaFiles = [];
+
+  function formatBytes(bytes) {
+    if (!bytes || bytes === 0) return "0 B";
+    const k = 1024;
+    const sizes = ["B", "KB", "MB", "GB"];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + " " + sizes[i];
+  }
+
+  function getPublicStorageUrl(filename) {
+    const config = getSupabaseConfig();
+    return `${config.url.replace(/\/+$/, "")}/storage/v1/object/public/${SUPABASE_STORAGE_BUCKET}/${encodeURIComponent(filename)}`;
+  }
+
+  function getSafeStorageFilename(file) {
+    const original = file.name || "image.png";
+    const ext = original.split(".").pop().toLowerCase() || "png";
+    const cleanBase = original.substring(0, original.lastIndexOf(".") > -1 ? original.lastIndexOf(".") : original.length)
+      .replace(/[^a-zA-Z0-9_-]/g, "_")
+      .substring(0, 30);
+    return `${cleanBase}-${Date.now()}.${ext}`;
+  }
+
+  // 1. CREATE / INSERT (Upload) or UPDATE / REPLACE (Upsert)
+  async function uploadSupabaseStorageFile(file, customFilename, overwrite = false) {
+    const config = getSupabaseConfig();
+    if (!config.url || !config.key) {
+      throw new Error("Supabase credentials not configured!");
+    }
+
+    const targetName = customFilename || getSafeStorageFilename(file);
+    const endpoint = `${config.url.replace(/\/+$/, "")}/storage/v1/object/${SUPABASE_STORAGE_BUCKET}/${encodeURIComponent(targetName)}`;
+
+    // Read as binary array buffer
+    const arrayBuffer = await file.arrayBuffer();
+
+    const headers = {
+      "apikey": config.key,
+      "Authorization": `Bearer ${config.key}`,
+      "Content-Type": file.type || "application/octet-stream"
+    };
+
+    if (overwrite) {
+      headers["x-upsert"] = "true";
+    }
+
+    const res = await fetch(endpoint, {
+      method: "POST",
+      headers: headers,
+      body: arrayBuffer
+    });
+
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.message || `Upload failed with HTTP ${res.status}`);
+    }
+
+    const publicUrl = getPublicStorageUrl(targetName);
+    return {
+      success: true,
+      name: targetName,
+      url: publicUrl
+    };
+  }
+
+  // 2. READ (List all files)
+  async function listSupabaseStorageFiles() {
+    const config = getSupabaseConfig();
+    if (!config.url || !config.key) return [];
+
+    const endpoint = `${config.url.replace(/\/+$/, "")}/storage/v1/object/list/${SUPABASE_STORAGE_BUCKET}`;
+    try {
+      const res = await fetch(endpoint, {
+        method: "POST",
+        headers: {
+          "apikey": config.key,
+          "Authorization": `Bearer ${config.key}`,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          prefix: "",
+          limit: 100,
+          sortBy: { column: "created_at", order: "desc" }
+        })
+      });
+
+      if (res.ok) {
+        const files = await res.json();
+        cachedMediaFiles = Array.isArray(files) ? files.filter(f => f.name && !f.name.startsWith(".")) : [];
+        return cachedMediaFiles;
+      }
+    } catch (err) {
+      console.warn("Could not list Supabase storage files:", err);
+    }
+    return [];
+  }
+
+  // 3. DELETE (Remove file)
+  async function deleteSupabaseStorageFile(filename) {
+    const config = getSupabaseConfig();
+    if (!config.url || !config.key) return false;
+
+    const endpoint = `${config.url.replace(/\/+$/, "")}/storage/v1/object/${SUPABASE_STORAGE_BUCKET}`;
+    const res = await fetch(endpoint, {
+      method: "DELETE",
+      headers: {
+        "apikey": config.key,
+        "Authorization": `Bearer ${config.key}`,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        prefixes: [filename]
+      })
+    });
+
+    if (res.ok) {
+      return true;
+    } else {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.message || `Delete failed with HTTP ${res.status}`);
+    }
+  }
+
+  // Render Cloud Media Gallery
+  async function renderMediaGallery(searchFilter = "") {
+    const grid = document.getElementById("media-gallery-grid");
+    const countBadge = document.getElementById("media-count-badge");
+    const navCountMedia = document.getElementById("nav-count-media");
+    if (!grid) return;
+
+    if (!cachedMediaFiles || cachedMediaFiles.length === 0) {
+      grid.innerHTML = `
+        <div style="grid-column: 1 / -1; text-align: center; padding: 40px; color: var(--text-muted);">
+          <i class="fas fa-spinner fa-spin fa-2x" style="color: #24b47e; margin-bottom: 12px;"></i>
+          <p>Fetching files from Supabase Storage...</p>
+        </div>`;
+    }
+
+    const files = await listSupabaseStorageFiles();
+    if (navCountMedia) navCountMedia.textContent = files.length;
+    if (countBadge) countBadge.textContent = `${files.length} files`;
+
+    let filtered = files;
+    if (searchFilter && searchFilter.trim()) {
+      const q = searchFilter.toLowerCase().trim();
+      filtered = files.filter(f => (f.name || "").toLowerCase().includes(q));
+    }
+
+    if (filtered.length === 0) {
+      grid.innerHTML = `
+        <div style="grid-column: 1 / -1; text-align: center; padding: 60px 20px; background: var(--bg-surface); border: 2px dashed var(--border-color); border-radius: 6px;">
+          <i class="fas fa-images fa-3x" style="color: var(--text-muted); margin-bottom: 14px; opacity: 0.5;"></i>
+          <h3 style="margin: 0 0 6px 0;">No Media Files Found</h3>
+          <p style="margin: 0; color: var(--text-muted); font-size: 13px;">
+            ${searchFilter ? "No files matched your search term." : "Drag & drop images above or click 'Upload Images' to store your first photo in Supabase Cloud."}
+          </p>
+        </div>`;
+      return;
+    }
+
+    grid.innerHTML = filtered.map(file => {
+      const publicUrl = getPublicStorageUrl(file.name);
+      const sizeStr = formatBytes(file.metadata?.size || 0);
+      const createdStr = file.created_at ? new Date(file.created_at).toLocaleDateString() : "";
+
+      return `
+        <div class="media-card" data-filename="${escapeHtml(file.name)}">
+          <div class="media-card-img-wrap" onclick="window.__openImgPreview('${escapeHtml(publicUrl)}', '${escapeHtml(file.name)}')">
+            <img class="media-card-img" src="${escapeHtml(publicUrl)}" alt="${escapeHtml(file.name)}" loading="lazy" onerror="this.src='/assets/profile/1.jpg'" />
+            <span class="media-card-badge">${sizeStr}</span>
+          </div>
+          <div class="media-card-body">
+            <div class="media-card-name" title="${escapeHtml(file.name)}">${escapeHtml(file.name)}</div>
+            <div style="font-size: 11px; color: var(--text-muted); display: flex; justify-content: space-between;">
+              <span>${escapeHtml(file.metadata?.mimetype || "image")}</span>
+              <span>${createdStr}</span>
+            </div>
+
+            <!-- Copy URL row -->
+            <div style="display: flex; gap: 4px; margin-top: 4px;">
+              <input type="text" class="form-input" readonly value="${escapeHtml(publicUrl)}" style="font-family: var(--font-mono); font-size: 11px; padding: 4px 6px; flex: 1;" />
+              <button class="btn btn-sm btn-yellow" onclick="window.__copyMediaUrl('${escapeHtml(publicUrl)}')" title="Copy Direct Public URL" type="button" style="padding: 4px 8px;">
+                <i class="fas fa-copy"></i>
+              </button>
+            </div>
+
+            <!-- Action buttons -->
+            <div class="media-card-actions">
+              <label class="btn-micro" title="Replace/Overwrite this exact image file in Supabase" style="cursor: pointer;">
+                <i class="fas fa-rotate" style="color: #24b47e;"></i> Replace
+                <input type="file" accept="image/*" style="display: none;" onchange="window.__replaceMediaFile(this, '${escapeHtml(file.name)}')" />
+              </label>
+
+              <button class="btn-micro" onclick="window.__useAsAvatar('${escapeHtml(publicUrl)}')" title="Use as Live Portfolio Starting Avatar" type="button">
+                <i class="fas fa-user-circle" style="color: #00aa55;"></i> Set Avatar
+              </button>
+
+              <button class="btn-micro" onclick="window.__copyBlogMd('${escapeHtml(publicUrl)}', '${escapeHtml(file.name)}')" title="Copy Markdown image snippet for blog" type="button">
+                <i class="fas fa-code"></i> Copy MD
+              </button>
+
+              <button class="btn-micro" onclick="window.__deleteMediaFile('${escapeHtml(file.name)}')" title="Permanently delete from Supabase" type="button" style="color: var(--accent-red); margin-left: auto;">
+                <i class="fas fa-trash"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      `;
+    }).join("");
+  }
+
+  // Global window functions for media card actions
+  window.__copyMediaUrl = async (url) => {
+    try {
+      await navigator.clipboard.writeText(url);
+      showToast("✓ Supabase CDN URL copied to clipboard!", "success");
+    } catch (e) {
+      showToast("URL: " + url, "info");
+    }
+  };
+
+  window.__copyBlogMd = async (url, name) => {
+    const md = `![${name}](${url})`;
+    try {
+      await navigator.clipboard.writeText(md);
+      showToast("✓ Copied Markdown snippet to clipboard!", "success");
+    } catch (e) {
+      showToast(md, "info");
+    }
+  };
+
+  window.__useAsAvatar = (url) => {
+    if (!state.general) state.general = {};
+    state.general.profilePic = url;
+    if (!Array.isArray(state.general.avatars)) state.general.avatars = [];
+    if (!state.general.avatars.includes(url)) {
+      state.general.avatars.unshift(url);
+    }
+    renderHeroTab();
+    performMasterSave();
+    showToast("✓ Set as your active profile avatar & saved to cloud!", "success");
+  };
+
+  window.__replaceMediaFile = async (input, filename) => {
+    const file = input.files && input.files[0];
+    if (!file) return;
+
+    try {
+      showToast(`Replacing "${filename}" in Supabase Storage...`, "info");
+      await uploadSupabaseStorageFile(file, filename, true);
+      showToast(`✓ Successfully replaced "${filename}" in Supabase!`, "success");
+      renderMediaGallery();
+      // Bust browser cache
+      const cards = document.querySelectorAll(`[data-filename="${filename}"] img`);
+      cards.forEach(img => { img.src = getPublicStorageUrl(filename) + "?t=" + Date.now(); });
+    } catch (err) {
+      console.error(err);
+      showToast("Replace error: " + err.message, "error");
+    }
+  };
+
+  window.__deleteMediaFile = async (filename) => {
+    if (confirm(`Are you sure you want to permanently delete "${filename}" from Supabase Cloud Storage?`)) {
+      try {
+        await deleteSupabaseStorageFile(filename);
+        showToast(`✓ Deleted "${filename}" from Supabase.`, "success");
+        renderMediaGallery();
+      } catch (err) {
+        showToast("Delete error: " + err.message, "error");
+      }
+    }
+  };
+
+  window.__openImgPreview = (url, name) => {
+    const modal = document.getElementById("modal-image-preview");
+    const imgTag = document.getElementById("modal-preview-img-tag");
+    const filenameEl = document.getElementById("modal-preview-filename");
+    const urlInput = document.getElementById("modal-preview-url-input");
+    const openTabBtn = document.getElementById("btn-modal-open-tab");
+
+    if (imgTag) imgTag.src = url;
+    if (filenameEl) filenameEl.textContent = name;
+    if (urlInput) urlInput.value = url;
+    if (openTabBtn) openTabBtn.href = url;
+    if (modal) modal.style.display = "flex";
+  };
+
+  // Close image preview modal
+  const btnCloseImgPreview = document.getElementById("btn-close-img-preview-modal");
+  const btnModalClosePreview = document.getElementById("btn-modal-close-preview");
+  const btnModalCopyUrl = document.getElementById("btn-modal-copy-url");
+
+  if (btnCloseImgPreview) {
+    btnCloseImgPreview.addEventListener("click", () => {
+      const modal = document.getElementById("modal-image-preview");
+      if (modal) modal.style.display = "none";
+    });
+  }
+  if (btnModalClosePreview) {
+    btnModalClosePreview.addEventListener("click", () => {
+      const modal = document.getElementById("modal-image-preview");
+      if (modal) modal.style.display = "none";
+    });
+  }
+  if (btnModalCopyUrl) {
+    btnModalCopyUrl.addEventListener("click", () => {
+      const urlInput = document.getElementById("modal-preview-url-input");
+      if (urlInput) window.__copyMediaUrl(urlInput.value);
+    });
+  }
+
+  // Handle Drag & Drop Upload on #media-dropzone
+  const mediaDropzone = document.getElementById("media-dropzone");
+  const mediaUploadInput = document.getElementById("media-upload-input");
+
+  if (mediaDropzone) {
+    mediaDropzone.addEventListener("click", () => {
+      if (mediaUploadInput) mediaUploadInput.click();
+    });
+
+    mediaDropzone.addEventListener("dragover", (e) => {
+      e.preventDefault();
+      mediaDropzone.classList.add("dragover");
+    });
+
+    mediaDropzone.addEventListener("dragleave", () => {
+      mediaDropzone.classList.remove("dragover");
+    });
+
+    mediaDropzone.addEventListener("drop", async (e) => {
+      e.preventDefault();
+      mediaDropzone.classList.remove("dragover");
+      const files = Array.from(e.dataTransfer.files || []).filter(f => f.type.startsWith("image/"));
+      if (files.length === 0) {
+        showToast("Please drop valid image files (PNG, JPG, WebP, SVG, GIF)", "error");
+        return;
+      }
+      await uploadMultipleFiles(files);
+    });
+  }
+
+  if (mediaUploadInput) {
+    mediaUploadInput.addEventListener("change", async (e) => {
+      const files = Array.from(e.target.files || []);
+      if (files.length > 0) {
+        await uploadMultipleFiles(files);
+        mediaUploadInput.value = "";
+      }
+    });
+  }
+
+  async function uploadMultipleFiles(files) {
+    showToast(`Uploading ${files.length} image(s) to Supabase Storage...`, "info");
+    let successCount = 0;
+    for (const file of files) {
+      try {
+        await uploadSupabaseStorageFile(file);
+        successCount++;
+      } catch (err) {
+        console.error("Upload error for file", file.name, err);
+        showToast(`Failed to upload ${file.name}: ${err.message}`, "error");
+      }
+    }
+    if (successCount > 0) {
+      showToast(`✓ Successfully uploaded ${successCount} image(s) to Supabase Cloud!`, "success");
+      await renderMediaGallery();
+    }
+  }
+
+  // Search filter listener
+  const mediaSearchInput = document.getElementById("media-search-input");
+  if (mediaSearchInput) {
+    let searchDebounce = null;
+    mediaSearchInput.addEventListener("input", (e) => {
+      clearTimeout(searchDebounce);
+      searchDebounce = setTimeout(() => {
+        renderMediaGallery(e.target.value);
+      }, 200);
+    });
+  }
+
+  // Refresh media button
+  const btnRefreshMedia = document.getElementById("btn-refresh-media");
+  if (btnRefreshMedia) {
+    btnRefreshMedia.addEventListener("click", async () => {
+      btnRefreshMedia.disabled = true;
+      btnRefreshMedia.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Refreshing...`;
+      await renderMediaGallery(mediaSearchInput?.value || "");
+      btnRefreshMedia.disabled = false;
+      btnRefreshMedia.innerHTML = `<i class="fas fa-rotate"></i> Refresh`;
+      showToast("✓ Media gallery refreshed from Supabase Storage", "info");
+    });
+  }
+
   // Init Notion Studio Events
   initNotionStudioEvents();
 
   // Init
   loadInitialData();
+  listSupabaseStorageFiles().then(files => {
+    const navCountMedia = document.getElementById("nav-count-media");
+    if (navCountMedia) navCountMedia.textContent = files.length;
+  });
 })();

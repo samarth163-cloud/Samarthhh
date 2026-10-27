@@ -3110,4 +3110,110 @@ body.dark .preview-viewport-frame .article-main {
   text-decoration: underline;
 }
 
+/* ========================================================================= */
+/* SUPABASE CLOUD MEDIA GALLERY & CRUD                                       */
+/* ========================================================================= */
+.media-dropzone {
+  border: 2.5px dashed var(--border-color);
+  background: var(--bg-surface);
+  border-radius: 8px;
+  padding: 30px 20px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: var(--hard-shadow-xs);
+  margin-bottom: 20px;
+}
+.media-dropzone:hover, .media-dropzone.dragover {
+  border-color: #24b47e;
+  background: rgba(36, 180, 126, 0.08);
+  box-shadow: 4px 4px 0 #24b47e;
+}
+.media-dropzone-icon {
+  font-size: 38px;
+  color: #24b47e;
+  margin-bottom: 8px;
+}
+.media-gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
+  gap: 16px;
+}
+.media-card {
+  background: var(--bg-surface);
+  border: 2px solid var(--border-color);
+  box-shadow: var(--hard-shadow-sm);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.media-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 4px 4px 0 var(--border-color);
+}
+.media-card-img-wrap {
+  width: 100%;
+  height: 180px;
+  background-color: #111;
+  background-image: 
+    linear-gradient(45deg, #1c1c1c 25%, transparent 25%),
+    linear-gradient(-45deg, #1c1c1c 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, #1c1c1c 75%),
+    linear-gradient(-45deg, transparent 75%, #1c1c1c 75%);
+  background-size: 16px 16px;
+  background-position: 0 0, 0 8px, 8px -8px, -8px 0px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  cursor: pointer;
+}
+.media-card-img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  transition: transform 0.2s ease;
+}
+.media-card-img-wrap:hover .media-card-img {
+  transform: scale(1.04);
+}
+.media-card-badge {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: rgba(0, 0, 0, 0.75);
+  color: #fff;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+.media-card-body {
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1;
+}
+.media-card-name {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: var(--text-color);
+}
+.media-card-actions {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-top: auto;
+  padding-top: 8px;
+  border-top: 1px dashed var(--border-color);
+}
+
+
 
