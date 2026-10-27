@@ -273,7 +273,8 @@
     "role": "Developer & Open Source Creator",
     "avatars": [
       "assets/profile/1.jpg",
-      "assets/profile/3.jpg"
+      "assets/profile/3.jpg",
+      "https://npzqpcagdtnfuqhyngro.supabase.co/storage/v1/object/public/portfolio-assets/download-1793132901623.jpg"
     ],
     "ctaText": "Explore projects",
     "socials": [
@@ -545,5 +546,5 @@
       "description": "ssh samarth@hackclub.app"
     }
   ],
-  "_updatedAt": 1793132781194
+  "_updatedAt": 1793132902725
 }
