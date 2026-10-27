@@ -247,21 +247,129 @@
       </section>
 
       <!-- ================================================================= -->
+      <!-- ================================================================= -->
       <!-- TAB 2: RESUME MANAGER                                             -->
       <!-- ================================================================= -->
       <section class="tab-pane" id="tab-resume">
         <div class="section-hero-banner">
           <div>
-            <h2>Resume Customizer</h2>
-            <p>Full control over your resume.txt — experiences, projects, education, honors, and contacts.</p>
+            <h2>Resume Customizer &amp; Manager</h2>
+            <p>Full control over your resume.txt — visibility, status badge, coding stats, experiences, projects, education, and skills.</p>
           </div>
-          <a href="/resume/" target="_blank" class="btn btn-yellow">
-            <i class="fas fa-arrow-up-right-from-square"></i> Preview Resume
-          </a>
+          <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+            <a href="/resume/" target="_blank" class="btn btn-yellow" title="Open live resume in new tab">
+              <i class="fas fa-arrow-up-right-from-square"></i> Preview Resume ↗
+            </a>
+          </div>
+        </div>
+
+        <!-- Master Resume Visibility Switch Card -->
+        <div class="resume-vis-card" id="resume-vis-card">
+          <div class="vis-card-content">
+            <div class="vis-left">
+              <div class="vis-badge-row">
+                <span class="badge badge-lg" id="resume-vis-badge">PUBLIC // LIVE</span>
+                <span class="vis-sub-tag" id="resume-vis-subtag"><i class="fas fa-globe"></i> Visible on /resume/ &amp; Navigation</span>
+              </div>
+              <h3 class="vis-title">Live Resume Visibility (On / Off)</h3>
+              <p class="vis-desc">
+                Toggle whether your resume is publicly viewable by visitors on the live site. When turned <strong>OFF</strong>, live visitors at <code>/resume/</code> see a clean private access screen. Your data is always safely kept and fully editable here in Admin.
+              </p>
+            </div>
+            <div class="vis-right">
+              <label class="neo-switch-lg" title="Toggle public resume visibility">
+                <input type="checkbox" id="resume-visibility-toggle" checked />
+                <span class="neo-slider-lg"></span>
+              </label>
+              <span class="vis-toggle-state" id="resume-vis-state-text">DISPLAY: ON</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Quick Section Jump Toolbar -->
+        <div class="resume-jump-bar">
+          <span class="jump-title"><i class="fas fa-bolt"></i> Jump:</span>
+          <a href="#sec-resume-status" class="jump-chip"><i class="fas fa-signal"></i> Status</a>
+          <a href="#sec-resume-header" class="jump-chip"><i class="fas fa-id-badge"></i> Header</a>
+          <a href="#sec-resume-intro" class="jump-chip"><i class="fas fa-align-left"></i> Intro</a>
+          <a href="#sec-resume-stats" class="jump-chip"><i class="fas fa-chart-line"></i> Stats</a>
+          <a href="#sec-resume-exp" class="jump-chip"><i class="fas fa-briefcase"></i> Experience</a>
+          <a href="#sec-resume-proj" class="jump-chip"><i class="fas fa-laptop-code"></i> Projects</a>
+          <a href="#sec-resume-edu" class="jump-chip"><i class="fas fa-graduation-cap"></i> Education</a>
+          <a href="#sec-resume-awards" class="jump-chip"><i class="fas fa-trophy"></i> Awards</a>
+          <a href="#sec-resume-skills" class="jump-chip"><i class="fas fa-screwdriver-wrench"></i> Skills</a>
+        </div>
+
+        <!-- Work Status & Availability Card -->
+        <div class="admin-card" id="sec-resume-status">
+          <div class="admin-card-header">
+            <div class="admin-card-title">
+              <i class="fas fa-signal"></i> Work Status &amp; Availability Badge
+            </div>
+            <div class="card-header-actions">
+              <label class="neo-switch-sm" title="Show or hide Status badge on resume">
+                <input type="checkbox" id="resume-status-visible-toggle" checked />
+                <span class="neo-slider-sm"></span>
+              </label>
+              <span class="switch-label-sm" id="resume-status-visible-label">SHOW ON RESUME</span>
+            </div>
+          </div>
+          <div class="admin-card-body" id="resume-status-body">
+            <!-- Live Preview -->
+            <div class="status-preview-box">
+              <span class="preview-label">LIVE STATUS PREVIEW:</span>
+              <div class="status-pill-preview" id="resume-status-live-preview">
+                <span class="pulse-dot green" id="preview-pulse-dot"></span>
+                <span class="preview-status-text" id="preview-status-text">Available for opportunities &amp; freelance</span>
+              </div>
+            </div>
+
+            <div class="form-group" style="margin-top: 14px;">
+              <label class="form-label">Quick Presets</label>
+              <div class="status-presets-grid" id="status-presets-container">
+                <button type="button" class="status-preset-btn active" data-type="available" data-dot="green" data-text="Available for opportunities &amp; freelance" data-sub="Open to internships, open-source &amp; contract work">
+                  <span class="dot-indicator green"></span> Open to Work
+                </button>
+                <button type="button" class="status-preset-btn" data-type="busy" data-dot="yellow" data-text="Busy Building · Limited Availability" data-sub="Only considering high-impact opportunities">
+                  <span class="dot-indicator yellow"></span> Busy / Select Projects
+                </button>
+                <button type="button" class="status-preset-btn" data-type="unavailable" data-dot="red" data-text="Not Currently Available" data-sub="Focused on ongoing commitments">
+                  <span class="dot-indicator red"></span> Unavailable
+                </button>
+                <button type="button" class="status-preset-btn" data-type="student" data-dot="blue" data-text="Student &amp; Open Source Contributor" data-sub="Building hardware, games &amp; web apps">
+                  <span class="dot-indicator blue"></span> Student / OSS
+                </button>
+                <button type="button" class="status-preset-btn" data-type="freelance" data-dot="purple" data-text="Freelance Developer &amp; Consultant" data-sub="Available for select technical client work">
+                  <span class="dot-indicator purple"></span> Freelance
+                </button>
+              </div>
+            </div>
+
+            <div class="form-grid" style="margin-top: 14px;">
+              <div class="form-group">
+                <label class="form-label">Status Text Headline</label>
+                <input type="text" id="resume-status-text" class="form-input" placeholder="e.g. Available for opportunities & freelance" />
+              </div>
+              <div class="form-group">
+                <label class="form-label">Indicator Dot Color</label>
+                <select id="resume-status-dot" class="form-input">
+                  <option value="green">🟢 Green (Available / Active)</option>
+                  <option value="yellow">🟡 Yellow (Busy / Limited)</option>
+                  <option value="red">🔴 Red (Unavailable / Do Not Disturb)</option>
+                  <option value="blue">🔵 Blue (Student / Open Source)</option>
+                  <option value="purple">🟣 Purple (Freelance / Creative)</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Status Details / Subtext (Optional)</label>
+              <input type="text" id="resume-status-subtext" class="form-input" placeholder="e.g. Open to internships, open-source & contract work" />
+            </div>
+          </div>
         </div>
 
         <!-- Resume Header / Profile -->
-        <div class="admin-card">
+        <div class="admin-card" id="sec-resume-header">
           <div class="admin-card-header">
             <div class="admin-card-title"><i class="fas fa-id-badge"></i> Header &amp; Contact Info</div>
           </div>
@@ -295,78 +403,164 @@
         </div>
 
         <!-- Introduction -->
-        <div class="admin-card">
+        <div class="admin-card" id="sec-resume-intro">
           <div class="admin-card-header">
             <div class="admin-card-title"><i class="fas fa-align-left"></i> Introduction Text</div>
+            <div class="card-header-actions">
+              <label class="neo-switch-sm" title="Toggle Introduction on resume">
+                <input type="checkbox" class="section-vis-toggle" data-section="intro" checked />
+                <span class="neo-slider-sm"></span>
+              </label>
+              <span class="switch-label-sm">SHOW ON RESUME</span>
+            </div>
           </div>
-          <div class="form-group">
-            <label class="form-label">Summary / Intro Paragraph</label>
-            <textarea id="resume-intro" class="form-textarea" rows="4"></textarea>
+          <div class="admin-card-body">
+            <div class="form-group">
+              <label class="form-label">Summary / Intro Paragraph</label>
+              <textarea id="resume-intro" class="form-textarea" rows="4"></textarea>
+            </div>
+          </div>
+        </div>
+
+        <!-- Coding Stats Section -->
+        <div class="admin-card" id="sec-resume-stats">
+          <div class="admin-card-header">
+            <div class="admin-card-title">
+              <i class="fas fa-chart-line"></i> Coding Activity &amp; Stats Section
+            </div>
+            <div class="card-header-actions">
+              <label class="neo-switch-sm" title="Show or hide stats section on resume">
+                <input type="checkbox" id="resume-stats-visible-toggle" checked />
+                <span class="neo-slider-sm"></span>
+              </label>
+              <span class="switch-label-sm" id="resume-stats-visible-label">SHOW ON RESUME</span>
+            </div>
+          </div>
+          <div class="admin-card-body" id="resume-stats-body">
+            <div class="form-grid">
+              <div class="form-group">
+                <label class="form-label">Hackatime Username</label>
+                <input type="text" id="resume-stats-user" class="form-input" placeholder="e.g. Samarth" />
+              </div>
+              <div class="form-group">
+                <label class="form-label">Section Heading</label>
+                <input type="text" id="resume-stats-title" class="form-input" placeholder="e.g. Stats" />
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Subtitle / Activity Note</label>
+              <input type="text" id="resume-stats-note" class="form-input" placeholder="e.g. Live coding activity from Hackatime." />
+            </div>
           </div>
         </div>
 
         <!-- Experience Entries -->
-        <div class="admin-card">
+        <div class="admin-card" id="sec-resume-exp">
           <div class="admin-card-header">
             <div class="admin-card-title"><i class="fas fa-briefcase"></i> Experience</div>
-            <button class="btn btn-sm btn-primary" id="btn-add-experience" type="button">
-              <i class="fas fa-plus"></i> Add Experience
-            </button>
+            <div class="card-header-actions">
+              <label class="neo-switch-sm" title="Toggle Experience section on resume">
+                <input type="checkbox" class="section-vis-toggle" data-section="experience" checked />
+                <span class="neo-slider-sm"></span>
+              </label>
+              <span class="switch-label-sm">SHOW ON RESUME</span>
+              <button class="btn btn-sm btn-primary" id="btn-add-experience" type="button" style="margin-left: 8px;">
+                <i class="fas fa-plus"></i> Add Experience
+              </button>
+            </div>
           </div>
-          <div id="resume-experience-container" class="items-list">
-            <!-- Dynamically populated experience entries -->
+          <div class="admin-card-body">
+            <div id="resume-experience-container" class="items-list">
+              <!-- Dynamically populated experience entries -->
+            </div>
           </div>
         </div>
 
         <!-- Projects on Resume -->
-        <div class="admin-card">
+        <div class="admin-card" id="sec-resume-proj">
           <div class="admin-card-header">
             <div class="admin-card-title"><i class="fas fa-laptop-code"></i> Projects on Resume</div>
-            <button class="btn btn-sm btn-primary" id="btn-add-resume-project" type="button">
-              <i class="fas fa-plus"></i> Add Project
-            </button>
+            <div class="card-header-actions">
+              <label class="neo-switch-sm" title="Toggle Projects section on resume">
+                <input type="checkbox" class="section-vis-toggle" data-section="projects" checked />
+                <span class="neo-slider-sm"></span>
+              </label>
+              <span class="switch-label-sm">SHOW ON RESUME</span>
+              <button class="btn btn-sm btn-primary" id="btn-add-resume-project" type="button" style="margin-left: 8px;">
+                <i class="fas fa-plus"></i> Add Project
+              </button>
+            </div>
           </div>
-          <div id="resume-projects-container" class="items-list">
-            <!-- Dynamically populated projects on resume -->
+          <div class="admin-card-body">
+            <div id="resume-projects-container" class="items-list">
+              <!-- Dynamically populated projects on resume -->
+            </div>
           </div>
         </div>
 
         <!-- Education -->
-        <div class="admin-card">
+        <div class="admin-card" id="sec-resume-edu">
           <div class="admin-card-header">
             <div class="admin-card-title"><i class="fas fa-graduation-cap"></i> Education</div>
-            <button class="btn btn-sm btn-primary" id="btn-add-education" type="button">
-              <i class="fas fa-plus"></i> Add Education
-            </button>
+            <div class="card-header-actions">
+              <label class="neo-switch-sm" title="Toggle Education section on resume">
+                <input type="checkbox" class="section-vis-toggle" data-section="education" checked />
+                <span class="neo-slider-sm"></span>
+              </label>
+              <span class="switch-label-sm">SHOW ON RESUME</span>
+              <button class="btn btn-sm btn-primary" id="btn-add-education" type="button" style="margin-left: 8px;">
+                <i class="fas fa-plus"></i> Add Education
+              </button>
+            </div>
           </div>
-          <div id="resume-education-container" class="items-list">
-            <!-- Dynamically populated education entries -->
+          <div class="admin-card-body">
+            <div id="resume-education-container" class="items-list">
+              <!-- Dynamically populated education entries -->
+            </div>
           </div>
         </div>
 
         <!-- Recognition & Awards -->
-        <div class="admin-card">
+        <div class="admin-card" id="sec-resume-awards">
           <div class="admin-card-header">
             <div class="admin-card-title"><i class="fas fa-trophy"></i> Recognition &amp; Awards</div>
-            <button class="btn btn-sm btn-primary" id="btn-add-recognition" type="button">
-              <i class="fas fa-plus"></i> Add Item
-            </button>
+            <div class="card-header-actions">
+              <label class="neo-switch-sm" title="Toggle Recognition section on resume">
+                <input type="checkbox" class="section-vis-toggle" data-section="recognition" checked />
+                <span class="neo-slider-sm"></span>
+              </label>
+              <span class="switch-label-sm">SHOW ON RESUME</span>
+              <button class="btn btn-sm btn-primary" id="btn-add-recognition" type="button" style="margin-left: 8px;">
+                <i class="fas fa-plus"></i> Add Item
+              </button>
+            </div>
           </div>
-          <div id="resume-recognition-container" class="items-list">
-            <!-- Dynamically populated recognition bullets -->
+          <div class="admin-card-body">
+            <div id="resume-recognition-container" class="items-list">
+              <!-- Dynamically populated recognition bullets -->
+            </div>
           </div>
         </div>
 
         <!-- Skills -->
-        <div class="admin-card">
+        <div class="admin-card" id="sec-resume-skills">
           <div class="admin-card-header">
             <div class="admin-card-title"><i class="fas fa-screwdriver-wrench"></i> Resume Skills</div>
+            <div class="card-header-actions">
+              <label class="neo-switch-sm" title="Toggle Skills section on resume">
+                <input type="checkbox" class="section-vis-toggle" data-section="skills" checked />
+                <span class="neo-slider-sm"></span>
+              </label>
+              <span class="switch-label-sm">SHOW ON RESUME</span>
+            </div>
           </div>
-          <div class="form-group">
-            <label class="form-label">
-              <span>Skills List (Separated by · or commas)</span>
-            </label>
-            <textarea id="resume-skills" class="form-textarea" rows="3"></textarea>
+          <div class="admin-card-body">
+            <div class="form-group">
+              <label class="form-label">
+                <span>Skills List (Separated by · or commas)</span>
+              </label>
+              <textarea id="resume-skills" class="form-textarea" rows="3"></textarea>
+            </div>
           </div>
         </div>
       </section>

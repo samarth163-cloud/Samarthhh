@@ -338,6 +338,21 @@
           .join("");
       }
     }
+
+    // 5. Resume Link Visibility (Master On/Off)
+    if (data.resume) {
+      const isResumeVisible = data.resume.visible !== false;
+      const menuResumeLinks = document.querySelectorAll('#site-menu a[href*="resume"]');
+      menuResumeLinks.forEach((a) => {
+        const li = a.closest("li");
+        if (li) li.style.display = isResumeVisible ? "" : "none";
+        else a.style.display = isResumeVisible ? "" : "none";
+      });
+      const heroResumeLinks = document.querySelectorAll('.hero-cta a[href*="resume"]');
+      heroResumeLinks.forEach((a) => {
+        a.style.display = isResumeVisible ? "" : "none";
+      });
+    }
   }
 
   // Hydrate Resume Page
@@ -347,6 +362,50 @@
     updateBrowserTabMeta(data, true);
 
     const r = data.resume;
+
+    // Master Visibility Check
+    const isVisible = r.visible !== false;
+    const isAdmin = sessionStorage.getItem("samarth_admin_auth") === "true";
+
+    const resumeSheet = document.querySelector(".resume-sheet");
+    const privateNotice = document.getElementById("resume-private-notice");
+    let adminBanner = document.getElementById("resume-admin-preview-banner");
+
+    if (!isVisible) {
+      if (isAdmin) {
+        // Admin preview mode
+        if (resumeSheet) resumeSheet.style.display = "";
+        if (privateNotice) privateNotice.style.display = "none";
+        if (!adminBanner) {
+          adminBanner = document.createElement("div");
+          adminBanner.id = "resume-admin-preview-banner";
+          adminBanner.className = "admin-preview-banner";
+          adminBanner.innerHTML = `
+            <span><i class="fas fa-eye-slash"></i> <strong>ADMIN PREVIEW MODE:</strong> Resume is currently set to <strong>OFF (Private)</strong> for the public.</span>
+            <a href="/admin/#tab-resume"><i class="fas fa-gear"></i> Turn ON in Admin</a>
+          `;
+          const breadcrumb = document.querySelector(".breadcrumb");
+          if (breadcrumb) {
+            breadcrumb.insertAdjacentElement("afterend", adminBanner);
+          }
+        } else {
+          adminBanner.style.display = "flex";
+        }
+      } else {
+        // Public visitor -> Hide resume sheet, show private neo-brutalist screen
+        if (resumeSheet) resumeSheet.style.display = "none";
+        if (adminBanner) adminBanner.style.display = "none";
+        if (privateNotice) {
+          privateNotice.style.display = "block";
+        }
+        return; // Don't hydrate content for public when hidden
+      }
+    } else {
+      // Normal display
+      if (resumeSheet) resumeSheet.style.display = "";
+      if (privateNotice) privateNotice.style.display = "none";
+      if (adminBanner) adminBanner.style.display = "none";
+    }
 
     // 1. Header
     if (r.header) {
@@ -379,84 +438,200 @@
       }
     }
 
+    // Work Status Badge
+    const secToggles = r.sections || {};
+    const showStatus = r.status && r.status.visible !== false && secToggles.status !== false;
+    let statusContainer = document.getElementById("resume-status-badge-container");
+    if (!statusContainer) {
+      const locEl = document.querySelector(".resume-header .location");
+      if (locEl) {
+        statusContainer = document.createElement("div");
+        statusContainer.id = "resume-status-badge-container";
+        locEl.insertAdjacentElement("afterend", statusContainer);
+      }
+    }
+
+    if (statusContainer) {
+      if (showStatus && r.status.text) {
+        const dot = r.status.dot || "green";
+        const subtextHtml = r.status.subtext
+          ? `<span class="status-subtext">${escapeHtml(r.status.subtext)}</span>`
+          : "";
+        statusContainer.innerHTML = `
+          <div class="resume-status-badge status-${escapeHtml(dot)}">
+            <span class="status-pulse-dot"></span>
+            <span class="status-text">${escapeHtml(r.status.text)}</span>
+            ${subtextHtml}
+          </div>
+        `;
+        statusContainer.style.display = "";
+      } else {
+        statusContainer.innerHTML = "";
+        statusContainer.style.display = "none";
+      }
+    }
+
+    // Coding Stats Section
+    const statsSec = document.getElementById("resume-sec-stats") || document.querySelector(".stats-section");
+    const showStats = r.stats ? r.stats.visible !== false : true;
+    const showStatsSec = secToggles.stats !== false;
+    if (statsSec) {
+      if (!showStats || !showStatsSec) {
+        statsSec.style.display = "none";
+      } else {
+        statsSec.style.display = "";
+        if (r.stats) {
+          const statsH2 = statsSec.querySelector("h2");
+          if (statsH2 && r.stats.title) statsH2.textContent = r.stats.title;
+          const statsP = statsSec.querySelector(".stats-heading p");
+          if (statsP && r.stats.note) statsP.textContent = r.stats.note;
+        }
+      }
+    }
+
     // 2. Sections
     const sections = document.querySelectorAll(".resume-sheet > section");
     sections.forEach((sec) => {
+      const secId = sec.id || "";
       const h2 = sec.querySelector("h2");
-      if (!h2) return;
-      const title = h2.textContent.trim().toLowerCase();
+      const title = h2 ? h2.textContent.trim().toLowerCase() : "";
 
       // Introduction
-      if (title.includes("intro") && r.introduction) {
-        const p = sec.querySelector("p");
-        if (p) p.innerHTML = r.introduction;
+      if (secId === "resume-sec-intro" || title.includes("intro")) {
+        const isIntroVisible = secToggles.intro !== false;
+        sec.style.display = isIntroVisible ? "" : "none";
+        if (isIntroVisible && r.introduction) {
+          const p = sec.querySelector("p");
+          if (p) p.innerHTML = r.introduction;
+        }
+        return;
+      }
+
+      // Stats already handled above
+      if (secId === "resume-sec-stats" || title.includes("stats")) {
+        return;
       }
 
       // Experience
-      if (title.includes("experience") && Array.isArray(r.experience)) {
-        // Keep h2, replace articles
-        const articlesHtml = r.experience
-          .map(
-            (exp) => `
-          <article class="entry">
-            <div class="entry-heading">
-              <h3>${escapeHtml(exp.title || exp.role || "")}</h3>
-              <span>${escapeHtml(exp.period || "")}</span>
-            </div>
-            <ul>
-              ${(exp.bullets || []).map((b) => `<li>${b}</li>`).join("")}
-            </ul>
-          </article>`
-          )
-          .join("");
-        sec.innerHTML = `<h2>Experience</h2>` + articlesHtml;
+      if (secId === "resume-sec-experience" || title.includes("experience")) {
+        const isExpSecVisible = secToggles.experience !== false;
+        if (!isExpSecVisible) {
+          sec.style.display = "none";
+          return;
+        }
+        if (Array.isArray(r.experience)) {
+          const activeExps = r.experience.filter((exp) => exp.visible !== false);
+          if (activeExps.length === 0) {
+            sec.style.display = "none";
+            return;
+          }
+          sec.style.display = "";
+          const articlesHtml = activeExps
+            .map(
+              (exp) => `
+            <article class="entry">
+              <div class="entry-heading">
+                <h3>${escapeHtml(exp.title || exp.role || "")}</h3>
+                <span>${escapeHtml(exp.period || "")}</span>
+              </div>
+              <ul>
+                ${(exp.bullets || []).map((b) => `<li>${b}</li>`).join("")}
+              </ul>
+            </article>`
+            )
+            .join("");
+          sec.innerHTML = `<h2>Experience</h2>` + articlesHtml;
+        }
+        return;
       }
 
       // Projects on Resume
-      if (title.includes("project") && Array.isArray(r.projects)) {
-        const projHtml = r.projects
-          .map(
-            (p) => `
-          <article class="entry">
-            <div class="entry-heading">
-              <h3>${escapeHtml(p.title)}</h3>
-              <span>${escapeHtml(p.meta || p.subtitle || "")}</span>
-            </div>
-            <p>${p.description || ""}</p>
-          </article>`
-          )
-          .join("");
-        sec.innerHTML = `<h2>Some of my (cool?) projects</h2>` + projHtml;
+      if (secId === "resume-sec-projects" || title.includes("project")) {
+        const isProjSecVisible = secToggles.projects !== false;
+        if (!isProjSecVisible) {
+          sec.style.display = "none";
+          return;
+        }
+        if (Array.isArray(r.projects)) {
+          const activeProjs = r.projects.filter((p) => p.visible !== false);
+          if (activeProjs.length === 0) {
+            sec.style.display = "none";
+            return;
+          }
+          sec.style.display = "";
+          const projHtml = activeProjs
+            .map(
+              (p) => `
+            <article class="entry">
+              <div class="entry-heading">
+                <h3>${escapeHtml(p.title)}</h3>
+                <span>${escapeHtml(p.meta || p.subtitle || "")}</span>
+              </div>
+              <p>${p.description || ""}</p>
+            </article>`
+            )
+            .join("");
+          sec.innerHTML = `<h2>Some of my (cool?) projects</h2>` + projHtml;
+        }
+        return;
       }
 
       // Education
-      if (title.includes("education") && Array.isArray(r.education)) {
-        const eduHtml = r.education
-          .map(
-            (ed) => `
-          <article class="entry">
-            <div class="entry-heading">
-              <h3>${escapeHtml(ed.institution || "")}</h3>
-              <span>${escapeHtml(ed.meta || ed.subtitle || "")}</span>
-            </div>
-            <p>${ed.description || ""}</p>
-          </article>`
-          )
-          .join("");
-        sec.innerHTML = `<h2>Education</h2>` + eduHtml;
+      if (secId === "resume-sec-education" || title.includes("education")) {
+        const isEduSecVisible = secToggles.education !== false;
+        if (!isEduSecVisible) {
+          sec.style.display = "none";
+          return;
+        }
+        if (Array.isArray(r.education)) {
+          const activeEdus = r.education.filter((ed) => ed.visible !== false);
+          if (activeEdus.length === 0) {
+            sec.style.display = "none";
+            return;
+          }
+          sec.style.display = "";
+          const eduHtml = activeEdus
+            .map(
+              (ed) => `
+            <article class="entry">
+              <div class="entry-heading">
+                <h3>${escapeHtml(ed.institution || "")}</h3>
+                <span>${escapeHtml(ed.meta || ed.subtitle || "")}</span>
+              </div>
+              <p>${ed.description || ""}</p>
+            </article>`
+            )
+            .join("");
+          sec.innerHTML = `<h2>Education</h2>` + eduHtml;
+        }
+        return;
       }
 
       // Recognition
-      if (title.includes("recognition") && Array.isArray(r.recognition)) {
+      if (secId === "resume-sec-recognition" || title.includes("recognition")) {
+        const isRecSecVisible = secToggles.recognition !== false;
+        if (!isRecSecVisible || !Array.isArray(r.recognition) || r.recognition.length === 0) {
+          sec.style.display = "none";
+          return;
+        }
+        sec.style.display = "";
         sec.innerHTML =
           `<h2>Recognition</h2><ul>` +
           r.recognition.map((rec) => `<li>${rec}</li>`).join("") +
           `</ul>`;
+        return;
       }
 
       // Skills
-      if (title.includes("skill") && r.skills) {
+      if (secId === "resume-sec-skills" || title.includes("skill")) {
+        const isSkillsSecVisible = secToggles.skills !== false;
+        if (!isSkillsSecVisible || !r.skills) {
+          sec.style.display = "none";
+          return;
+        }
+        sec.style.display = "";
         sec.innerHTML = `<h2>Skills</h2><p class="skills">${escapeHtml(r.skills)}</p>`;
+        return;
       }
     });
   }

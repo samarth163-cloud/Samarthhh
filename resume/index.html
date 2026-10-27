@@ -32,6 +32,19 @@
         <span>resume</span>
       </nav>
 
+      <!-- Neo-Brutalist Private Resume Notice (Rendered when Resume is turned OFF) -->
+      <div id="resume-private-notice" class="resume-private-card" style="display: none;">
+        <span class="private-badge"><i class="fas fa-eye-slash"></i> Private Notice</span>
+        <h1>Resume is Currently Private</h1>
+        <p class="private-desc">
+          Samarth's resume is currently set to private or undergoing updates. Explore the main portfolio or check back soon!
+        </p>
+        <div class="private-actions">
+          <a href="/" class="btn-neo-pri"><i class="fas fa-arrow-left"></i> Return to Portfolio</a>
+          <a href="/admin/#tab-resume" class="btn-neo-sec"><i class="fas fa-lock"></i> Admin Portal</a>
+        </div>
+      </div>
+
       <div class="resume-sheet">
         <header class="resume-header">
         <div>
@@ -44,6 +57,13 @@
             <i class="fas fa-location-dot"></i>
             India
           </p>
+          <div id="resume-status-badge-container">
+            <div class="resume-status-badge status-green">
+              <span class="status-pulse-dot"></span>
+              <span class="status-text">Available for opportunities & freelance</span>
+              <span class="status-subtext">Open to internships, open-source & contract work</span>
+            </div>
+          </div>
         </div>
 
         <div class="contact-links">
@@ -86,7 +106,7 @@
         </div>
       </header>
 
-      <section>
+      <section id="resume-sec-intro">
         <h2>Introduction</h2>
         <p>
           I build open-source software, games, and hardware- from custom cameras
@@ -96,7 +116,7 @@
         </p>
       </section>
 
-      <section class="stats-section" aria-labelledby="stats-heading">
+      <section class="stats-section" id="resume-sec-stats" aria-labelledby="stats-heading">
         <div class="stats-heading">
           <h2 id="stats-heading">Stats</h2>
           <p>Live coding activity from Hackatime.</p>
@@ -112,7 +132,7 @@
         </div>
       </section>
 
-      <section>
+      <section id="resume-sec-experience">
         <h2>Experience</h2>
         <article class="entry">
           <div class="entry-heading">
@@ -198,7 +218,7 @@
         </article>
       </section>
 
-      <section>
+      <section id="resume-sec-projects">
         <h2>Some of my (cool?) projects</h2>
         <article class="entry">
           <div class="entry-heading">
@@ -262,7 +282,7 @@
         </article>
       </section>
 
-      <section>
+      <section id="resume-sec-education">
         <h2>Education</h2>
 
         <article class="entry">
@@ -274,7 +294,7 @@
         </article>
       </section>
 
-      <section>
+      <section id="resume-sec-recognition">
         <h2>Recognition</h2>
         <ul>
           <li>
@@ -311,7 +331,7 @@
         </ul>
       </section>
 
-      <section>
+      <section id="resume-sec-skills">
         <h2>Skills</h2>
         <p class="skills">
           JavaScript · TypeScript · Python · C# · C++ · React · Astro · Node.js

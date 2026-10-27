@@ -752,9 +752,81 @@
   // =========================================================================
 
   function renderResumeTab() {
-    const r = state.resume || {};
+    if (!state.resume) state.resume = {};
+    const r = state.resume;
+    if (typeof r.visible !== "boolean") r.visible = true;
+    if (!r.status) {
+      r.status = {
+        visible: true,
+        type: "available",
+        dot: "green",
+        text: "Available for opportunities & freelance",
+        subtext: "Open to internships, open-source & contract work"
+      };
+    }
+    if (!r.stats) {
+      r.stats = {
+        visible: true,
+        username: state.about?.hackatimeUser || "Samarth",
+        title: "Stats",
+        note: r.statsNote || "Live coding activity from Hackatime."
+      };
+    }
+    if (!r.sections) {
+      r.sections = {
+        status: true,
+        intro: true,
+        stats: true,
+        experience: true,
+        projects: true,
+        education: true,
+        recognition: true,
+        skills: true
+      };
+    }
     const h = r.header || {};
 
+    // 1. Master Resume Visibility Switch
+    const visToggle = document.getElementById("resume-visibility-toggle");
+    const visCard = document.getElementById("resume-vis-card");
+    const visBadge = document.getElementById("resume-vis-badge");
+    const visSubtag = document.getElementById("resume-vis-subtag");
+    const visStateText = document.getElementById("resume-vis-state-text");
+
+    function updateVisUI() {
+      const isLive = r.visible !== false;
+      if (visToggle) visToggle.checked = isLive;
+      if (visCard) visCard.classList.toggle("is-offline", !isLive);
+      if (visBadge) {
+        visBadge.textContent = isLive ? "PUBLIC // LIVE" : "PRIVATE // OFFLINE";
+      }
+      if (visSubtag) {
+        visSubtag.innerHTML = isLive
+          ? '<i class="fas fa-globe"></i> Visible on /resume/ & Navigation'
+          : '<i class="fas fa-lock"></i> Hidden from live visitors';
+      }
+      if (visStateText) {
+        visStateText.textContent = isLive ? "DISPLAY: ON" : "DISPLAY: OFF";
+      }
+    }
+    updateVisUI();
+
+    if (visToggle && !visToggle._hasVisBound) {
+      visToggle._hasVisBound = true;
+      visToggle.addEventListener("change", (e) => {
+        r.visible = e.target.checked;
+        updateVisUI();
+        showToast(
+          r.visible ? "Resume is now LIVE on website! 🌐" : "Resume is now set to PRIVATE on website! 🔒",
+          r.visible ? "success" : "warning"
+        );
+      });
+    }
+
+    // 2. Work Status & Availability Badge Section
+    renderResumeStatusSection();
+
+    // 3. Header Fields
     const resName = document.getElementById("resume-name");
     const resHeadline = document.getElementById("resume-headline");
     const resEyebrow = document.getElementById("resume-eyebrow");
@@ -769,20 +841,180 @@
     if (resIntro) resIntro.value = r.introduction || "";
     if (resSkills) resSkills.value = r.skills || "";
 
-    // Contacts
+    // 4. Coding Stats Section
+    renderResumeStatsSection();
+
+    // 5. Section Visibility Toggles
+    renderSectionVisibilityToggles();
+
+    // 6. Sub-lists
     renderResumeContacts(h.contacts || []);
-
-    // Experience
     renderResumeExperience(r.experience || []);
-
-    // Projects
     renderResumeProjects(r.projects || []);
-
-    // Education
     renderResumeEducation(r.education || []);
-
-    // Recognition
     renderResumeRecognition(r.recognition || []);
+  }
+
+  // Work Status & Availability Manager
+  function renderResumeStatusSection() {
+    const st = state.resume.status || {};
+    const stToggle = document.getElementById("resume-status-visible-toggle");
+    const stLabel = document.getElementById("resume-status-visible-label");
+    const stTextInp = document.getElementById("resume-status-text");
+    const stDotSel = document.getElementById("resume-status-dot");
+    const stSubInp = document.getElementById("resume-status-subtext");
+    const previewPulse = document.getElementById("preview-pulse-dot");
+    const previewText = document.getElementById("preview-status-text");
+
+    function updateStatusPreview() {
+      const isVis = st.visible !== false;
+      if (stToggle) stToggle.checked = isVis;
+      if (stLabel) stLabel.textContent = isVis ? "SHOW ON RESUME" : "HIDDEN";
+      const dot = st.dot || "green";
+      const txt = st.text || "Available for opportunities & freelance";
+      if (previewPulse) previewPulse.className = `pulse-dot ${dot}`;
+      if (previewText) previewText.textContent = txt;
+      const card = document.getElementById("sec-resume-status");
+      if (card) card.classList.toggle("card-section-hidden", !isVis);
+    }
+
+    if (stTextInp) stTextInp.value = st.text || "";
+    if (stDotSel) stDotSel.value = st.dot || "green";
+    if (stSubInp) stSubInp.value = st.subtext || "";
+
+    updateStatusPreview();
+
+    if (stToggle && !stToggle._hasBound) {
+      stToggle._hasBound = true;
+      stToggle.addEventListener("change", (e) => {
+        st.visible = e.target.checked;
+        updateStatusPreview();
+      });
+    }
+    if (stTextInp && !stTextInp._hasBound) {
+      stTextInp._hasBound = true;
+      stTextInp.addEventListener("input", (e) => {
+        st.text = e.target.value;
+        updateStatusPreview();
+      });
+    }
+    if (stDotSel && !stDotSel._hasBound) {
+      stDotSel._hasBound = true;
+      stDotSel.addEventListener("change", (e) => {
+        st.dot = e.target.value;
+        updateStatusPreview();
+      });
+    }
+    if (stSubInp && !stSubInp._hasBound) {
+      stSubInp._hasBound = true;
+      stSubInp.addEventListener("input", (e) => {
+        st.subtext = e.target.value;
+      });
+    }
+
+    // Preset buttons
+    const presetBtns = document.querySelectorAll(".status-preset-btn");
+    presetBtns.forEach((btn) => {
+      if (!btn._hasBound) {
+        btn._hasBound = true;
+        btn.addEventListener("click", () => {
+          presetBtns.forEach((b) => b.classList.remove("active"));
+          btn.classList.add("active");
+          const type = btn.getAttribute("data-type");
+          const dot = btn.getAttribute("data-dot");
+          const text = btn.getAttribute("data-text");
+          const sub = btn.getAttribute("data-sub");
+
+          st.type = type;
+          st.dot = dot;
+          st.text = text;
+          st.subtext = sub;
+
+          if (stTextInp) stTextInp.value = text;
+          if (stDotSel) stDotSel.value = dot;
+          if (stSubInp) stSubInp.value = sub;
+          updateStatusPreview();
+        });
+      }
+    });
+  }
+
+  // Coding Stats Manager
+  function renderResumeStatsSection() {
+    const stats = state.resume.stats || {};
+    const sToggle = document.getElementById("resume-stats-visible-toggle");
+    const sLabel = document.getElementById("resume-stats-visible-label");
+    const sUser = document.getElementById("resume-stats-user");
+    const sTitle = document.getElementById("resume-stats-title");
+    const sNote = document.getElementById("resume-stats-note");
+
+    function updateStatsUI() {
+      const isVis = stats.visible !== false;
+      if (sToggle) sToggle.checked = isVis;
+      if (sLabel) sLabel.textContent = isVis ? "SHOW ON RESUME" : "HIDDEN";
+      const card = document.getElementById("sec-resume-stats");
+      if (card) card.classList.toggle("card-section-hidden", !isVis);
+    }
+
+    if (sUser) sUser.value = stats.username || "Samarth";
+    if (sTitle) sTitle.value = stats.title || "Stats";
+    if (sNote) sNote.value = stats.note || "Live coding activity from Hackatime.";
+
+    updateStatsUI();
+
+    if (sToggle && !sToggle._hasBound) {
+      sToggle._hasBound = true;
+      sToggle.addEventListener("change", (e) => {
+        stats.visible = e.target.checked;
+        updateStatsUI();
+      });
+    }
+    if (sUser && !sUser._hasBound) {
+      sUser._hasBound = true;
+      sUser.addEventListener("input", (e) => {
+        stats.username = e.target.value;
+      });
+    }
+    if (sTitle && !sTitle._hasBound) {
+      sTitle._hasBound = true;
+      sTitle.addEventListener("input", (e) => {
+        stats.title = e.target.value;
+      });
+    }
+    if (sNote && !sNote._hasBound) {
+      sNote._hasBound = true;
+      sNote.addEventListener("input", (e) => {
+        stats.note = e.target.value;
+      });
+    }
+  }
+
+  // Section Visibility Toggles
+  function renderSectionVisibilityToggles() {
+    if (!state.resume.sections) state.resume.sections = {};
+    const toggles = document.querySelectorAll(".section-vis-toggle");
+    toggles.forEach((t) => {
+      const sec = t.getAttribute("data-section");
+      const isVis = state.resume.sections[sec] !== false;
+      t.checked = isVis;
+      const card = t.closest(".admin-card");
+      if (card) card.classList.toggle("card-section-hidden", !isVis);
+      const lbl = t.parentElement.nextElementSibling;
+      if (lbl && lbl.classList.contains("switch-label-sm")) {
+        lbl.textContent = isVis ? "SHOW ON RESUME" : "HIDDEN";
+      }
+
+      if (!t._hasSecBound) {
+        t._hasSecBound = true;
+        t.addEventListener("change", (e) => {
+          const checked = e.target.checked;
+          state.resume.sections[sec] = checked;
+          const parentCard = t.closest(".admin-card");
+          if (parentCard) parentCard.classList.toggle("card-section-hidden", !checked);
+          if (lbl) lbl.textContent = checked ? "SHOW ON RESUME" : "HIDDEN";
+        });
+      }
+    });
   }
 
   // Resume Contacts
@@ -852,19 +1084,31 @@
     if (!container) return;
     container.innerHTML = list
       .map(
-        (exp, idx) => `
-      <div class="sub-item-card" data-exp-idx="${idx}">
+        (exp, idx) => {
+          const isVis = exp.visible !== false;
+          return `
+      <div class="sub-item-card ${!isVis ? 'is-hidden' : ''}" data-exp-idx="${idx}">
         <div class="sub-item-header">
-          <span style="font-family: var(--font-anton); font-size: 16px;">#${idx + 1}: ${escapeHtml(
-          exp.title || "Experience Entry"
-        )}</span>
-          <div style="display: flex; gap: 6px;">
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <span style="font-family: var(--font-anton); font-size: 16px;">#${idx + 1}: ${escapeHtml(
+              exp.title || "Experience Entry"
+            )}</span>
+            ${!isVis ? '<span class="item-vis-tag">HIDDEN</span>' : ''}
+          </div>
+          <div style="display: flex; gap: 6px; align-items: center;">
+            <button type="button" class="btn btn-sm btn-toggle-exp-vis" data-exp-idx="${idx}" title="${isVis ? 'Hide from live resume' : 'Show on live resume'}" style="${!isVis ? 'background: #cbd5e1; color: #000;' : ''}">
+              <i class="${isVis ? 'fas fa-eye' : 'fas fa-eye-slash'}"></i>
+              <span>${isVis ? 'Visible' : 'Hidden'}</span>
+            </button>
+            <button type="button" class="btn btn-sm btn-duplicate-exp" data-exp-idx="${idx}" title="Clone this entry">
+              <i class="fas fa-copy"></i>
+            </button>
             <button type="button" class="btn btn-sm btn-reorder-exp-up" data-exp-idx="${idx}" ${
-          idx === 0 ? "disabled" : ""
-        }><i class="fas fa-arrow-up"></i></button>
+              idx === 0 ? "disabled" : ""
+            }><i class="fas fa-arrow-up"></i></button>
             <button type="button" class="btn btn-sm btn-reorder-exp-down" data-exp-idx="${idx}" ${
-          idx === list.length - 1 ? "disabled" : ""
-        }><i class="fas fa-arrow-down"></i></button>
+              idx === list.length - 1 ? "disabled" : ""
+            }><i class="fas fa-arrow-down"></i></button>
             <button type="button" class="btn btn-sm btn-danger btn-remove-exp" data-exp-idx="${idx}"><i class="fas fa-trash"></i></button>
           </div>
         </div>
@@ -899,7 +1143,8 @@
               .join("")}
           </div>
         </div>
-      </div>`
+      </div>`;
+        }
       )
       .join("");
 
@@ -928,6 +1173,31 @@
           10
         );
         state.resume.experience[expIdx].bullets[bIdx] = e.target.value;
+      });
+    });
+
+    // Item Visibility Toggle
+    container.querySelectorAll(".btn-toggle-exp-vis").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const idx = parseInt(btn.getAttribute("data-exp-idx"), 10);
+        const current = state.resume.experience[idx].visible !== false;
+        state.resume.experience[idx].visible = !current;
+        renderResumeExperience(state.resume.experience);
+      });
+    });
+
+    // Duplicate Experience Entry
+    container.querySelectorAll(".btn-duplicate-exp").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const idx = parseInt(btn.getAttribute("data-exp-idx"), 10);
+        const orig = state.resume.experience[idx];
+        const copy = JSON.parse(JSON.stringify(orig));
+        copy.id = "exp-" + Date.now();
+        copy.title = (copy.title || "Experience") + " (Copy)";
+        state.resume.experience.splice(idx + 1, 0, copy);
+        renderResumeExperience(state.resume.experience);
+        updateCounters();
+        showToast("Experience entry duplicated!", "info");
       });
     });
 
@@ -989,6 +1259,7 @@
       if (!Array.isArray(state.resume.experience)) state.resume.experience = [];
       state.resume.experience.push({
         id: "exp-" + Date.now(),
+        visible: true,
         title: "Company / Project — Role",
         period: "2026 · Remote",
         bullets: ["Led technical development and built core systems."],
@@ -1004,13 +1275,27 @@
     if (!container) return;
     container.innerHTML = list
       .map(
-        (p, idx) => `
-      <div class="sub-item-card" data-proj-idx="${idx}">
+        (p, idx) => {
+          const isVis = p.visible !== false;
+          return `
+      <div class="sub-item-card ${!isVis ? 'is-hidden' : ''}" data-proj-idx="${idx}">
         <div class="sub-item-header">
-          <span style="font-family: var(--font-anton); font-size: 16px;">${escapeHtml(
-            p.title || "Resume Project"
-          )}</span>
-          <button type="button" class="btn btn-sm btn-danger btn-remove-res-proj" data-proj-idx="${idx}"><i class="fas fa-trash"></i></button>
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <span style="font-family: var(--font-anton); font-size: 16px;">${escapeHtml(
+              p.title || "Resume Project"
+            )}</span>
+            ${!isVis ? '<span class="item-vis-tag">HIDDEN</span>' : ''}
+          </div>
+          <div style="display: flex; gap: 6px; align-items: center;">
+            <button type="button" class="btn btn-sm btn-toggle-res-proj-vis" data-proj-idx="${idx}" title="${isVis ? 'Hide from live resume' : 'Show on live resume'}" style="${!isVis ? 'background: #cbd5e1; color: #000;' : ''}">
+              <i class="${isVis ? 'fas fa-eye' : 'fas fa-eye-slash'}"></i>
+              <span>${isVis ? 'Visible' : 'Hidden'}</span>
+            </button>
+            <button type="button" class="btn btn-sm btn-duplicate-res-proj" data-proj-idx="${idx}" title="Clone this project">
+              <i class="fas fa-copy"></i>
+            </button>
+            <button type="button" class="btn btn-sm btn-danger btn-remove-res-proj" data-proj-idx="${idx}"><i class="fas fa-trash"></i></button>
+          </div>
         </div>
         <div class="form-grid">
           <div class="form-group">
@@ -1028,7 +1313,8 @@
           <label class="form-label">Description (HTML allowed)</label>
           <textarea class="form-textarea res-p-desc" rows="2">${p.description || ""}</textarea>
         </div>
-      </div>`
+      </div>`;
+        }
       )
       .join("");
 
@@ -1050,6 +1336,31 @@
         state.resume.projects[idx].description = e.target.value;
       });
     });
+
+    // Toggle Project Visibility
+    container.querySelectorAll(".btn-toggle-res-proj-vis").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const idx = parseInt(btn.getAttribute("data-proj-idx"), 10);
+        const current = state.resume.projects[idx].visible !== false;
+        state.resume.projects[idx].visible = !current;
+        renderResumeProjects(state.resume.projects);
+      });
+    });
+
+    // Duplicate Project
+    container.querySelectorAll(".btn-duplicate-res-proj").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const idx = parseInt(btn.getAttribute("data-proj-idx"), 10);
+        const orig = state.resume.projects[idx];
+        const copy = JSON.parse(JSON.stringify(orig));
+        copy.id = "rp-" + Date.now();
+        copy.title = (copy.title || "Project") + " (Copy)";
+        state.resume.projects.splice(idx + 1, 0, copy);
+        renderResumeProjects(state.resume.projects);
+        showToast("Project entry duplicated!", "info");
+      });
+    });
+
     container.querySelectorAll(".btn-remove-res-proj").forEach((btn) => {
       btn.addEventListener("click", () => {
         const idx = parseInt(btn.getAttribute("data-proj-idx"), 10);
@@ -1065,6 +1376,7 @@
       if (!Array.isArray(state.resume.projects)) state.resume.projects = [];
       state.resume.projects.push({
         id: "rp-" + Date.now(),
+        visible: true,
         title: "New Project",
         meta: "2026 · Tech Stack",
         description: "Built and open-sourced a high-performance system.",
@@ -1079,13 +1391,27 @@
     if (!container) return;
     container.innerHTML = list
       .map(
-        (ed, idx) => `
-      <div class="sub-item-card" data-edu-idx="${idx}">
+        (ed, idx) => {
+          const isVis = ed.visible !== false;
+          return `
+      <div class="sub-item-card ${!isVis ? 'is-hidden' : ''}" data-edu-idx="${idx}">
         <div class="sub-item-header">
-          <span style="font-family: var(--font-anton); font-size: 16px;">${escapeHtml(
-            ed.institution || "School / Institution"
-          )}</span>
-          <button type="button" class="btn btn-sm btn-danger btn-remove-edu" data-edu-idx="${idx}"><i class="fas fa-trash"></i></button>
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <span style="font-family: var(--font-anton); font-size: 16px;">${escapeHtml(
+              ed.institution || "School / Institution"
+            )}</span>
+            ${!isVis ? '<span class="item-vis-tag">HIDDEN</span>' : ''}
+          </div>
+          <div style="display: flex; gap: 6px; align-items: center;">
+            <button type="button" class="btn btn-sm btn-toggle-edu-vis" data-edu-idx="${idx}" title="${isVis ? 'Hide from live resume' : 'Show on live resume'}" style="${!isVis ? 'background: #cbd5e1; color: #000;' : ''}">
+              <i class="${isVis ? 'fas fa-eye' : 'fas fa-eye-slash'}"></i>
+              <span>${isVis ? 'Visible' : 'Hidden'}</span>
+            </button>
+            <button type="button" class="btn btn-sm btn-duplicate-edu" data-edu-idx="${idx}" title="Clone this entry">
+              <i class="fas fa-copy"></i>
+            </button>
+            <button type="button" class="btn btn-sm btn-danger btn-remove-edu" data-edu-idx="${idx}"><i class="fas fa-trash"></i></button>
+          </div>
         </div>
         <div class="form-grid">
           <div class="form-group">
@@ -1107,7 +1433,8 @@
             ed.description || ""
           )}" />
         </div>
-      </div>`
+      </div>`;
+        }
       )
       .join("");
 
@@ -1129,6 +1456,31 @@
         state.resume.education[idx].description = e.target.value;
       });
     });
+
+    // Toggle Education Visibility
+    container.querySelectorAll(".btn-toggle-edu-vis").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const idx = parseInt(btn.getAttribute("data-edu-idx"), 10);
+        const current = state.resume.education[idx].visible !== false;
+        state.resume.education[idx].visible = !current;
+        renderResumeEducation(state.resume.education);
+      });
+    });
+
+    // Duplicate Education
+    container.querySelectorAll(".btn-duplicate-edu").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const idx = parseInt(btn.getAttribute("data-edu-idx"), 10);
+        const orig = state.resume.education[idx];
+        const copy = JSON.parse(JSON.stringify(orig));
+        copy.id = "edu-" + Date.now();
+        copy.institution = (copy.institution || "School") + " (Copy)";
+        state.resume.education.splice(idx + 1, 0, copy);
+        renderResumeEducation(state.resume.education);
+        showToast("Education entry duplicated!", "info");
+      });
+    });
+
     container.querySelectorAll(".btn-remove-edu").forEach((btn) => {
       btn.addEventListener("click", () => {
         const idx = parseInt(btn.getAttribute("data-edu-idx"), 10);
@@ -1144,6 +1496,7 @@
       if (!Array.isArray(state.resume.education)) state.resume.education = [];
       state.resume.education.push({
         id: "edu-" + Date.now(),
+        visible: true,
         institution: "High School / University",
         meta: "2024 - 2026",
         description: "<b>Straight A's</b> and honors.",

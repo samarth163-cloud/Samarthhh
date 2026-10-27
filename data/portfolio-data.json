@@ -166,7 +166,8 @@
         "id": "res-rune",
         "meta": "2023 · Rune SDK",
         "title": "Multiplayer Games on Rune",
-        "description": "Shipped six multiplayer games on Rune, reaching <b>1 million+ combined plays</b>, <b>247,000+ players</b>, and <b>17,000+ hours played</b>."
+        "description": "Shipped six multiplayer games on Rune, reaching <b>1 million+ combined plays</b>, <b>247,000+ players</b>, and <b>17,000+ hours played</b>.",
+        "visible": true
       },
       {
         "id": "res-arena",
@@ -254,7 +255,8 @@
         "bullets": [
           "Managed the MarkMUN 2023 Instagram account and grew its view rate past 1,000.",
           "Led the Media team, and managed video editing and footage processing for MarkMUN '23 and produced the school end-of-year recap video."
-        ]
+        ],
+        "visible": true
       }
     ],
     "recognition": [
@@ -266,7 +268,31 @@
       "Won <b>1st place</b> in international hackathon.",
       "Won <b>1st place</b> in international hackathon."
     ],
-    "introduction": "I build open-source software, games, and hardware- from custom cameras and devboards to web platforms. My work spans full-stack development, game development, and hardware prototyping, with projects used by thousands of people across the Hack Club and Rune communities."
+    "introduction": "I build open-source software, games, and hardware- from custom cameras and devboards to web platforms. My work spans full-stack development, game development, and hardware prototyping, with projects used by thousands of people across the Hack Club and Rune communities.",
+    "visible": true,
+    "status": {
+      "visible": true,
+      "type": "available",
+      "dot": "green",
+      "text": "Available for opportunities & freelance",
+      "subtext": "Open to internships, open-source & contract work"
+    },
+    "stats": {
+      "visible": true,
+      "username": "Samarth",
+      "title": "Stats",
+      "note": "Live coding activity from Hackatime."
+    },
+    "sections": {
+      "status": true,
+      "intro": true,
+      "stats": true,
+      "experience": true,
+      "projects": true,
+      "education": true,
+      "recognition": true,
+      "skills": true
+    }
   },
   "general": {
     "name": "Samarth Haveliwala",
@@ -545,5 +571,5 @@
       "description": "ssh samarth@hackclub.app"
     }
   ],
-  "_updatedAt": 1793136289023
+  "_updatedAt": 1793137015106
 }
