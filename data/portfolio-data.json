@@ -332,7 +332,8 @@
     "role": "Developer & Open Source Creator",
     "avatars": [
       "assets/profile/1.jpg",
-      "assets/profile/3.jpg"
+      "assets/profile/3.jpg",
+      "https://npzqpcagdtnfuqhyngro.supabase.co/storage/v1/object/public/portfolio-assets/IMG-20241110-WA0045__3__jpg-1793206297431.jpeg"
     ],
     "ctaText": "Explore projects",
     "socials": [
@@ -638,5 +639,5 @@
       "description": "An open-source npm package for unit conversion."
     }
   ],
-  "_updatedAt": 1793206183157
+  "_updatedAt": 1793206299643
 }
