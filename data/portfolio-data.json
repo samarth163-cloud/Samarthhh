@@ -273,7 +273,7 @@
         "id": "edu-1793210306786",
         "visible": true,
         "institution": "Higher Secondary Certificate - 12th",
-        "meta": "69.99% · 2023 - 2024",
+        "meta": " 2023 - 2024 · 69.99%",
         "description": "Shree R. D. Ghahel Jeevan Bharti, surat"
       },
       {
@@ -655,5 +655,5 @@
       "description": "An open-source npm package for unit conversion."
     }
   ],
-  "_updatedAt": 1793210682316
+  "_updatedAt": 1793210707567
 }
