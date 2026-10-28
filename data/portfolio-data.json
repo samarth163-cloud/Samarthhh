@@ -570,21 +570,21 @@
       "description": "An open-source npm package for unit conversion."
     },
     {
-      "id": "adobe-prset-pak-store",
+      "id": "creator-assets-text-animations-luts",
+      "title": "Creator Assets — Text Animations & LUTs",
+      "description": "A creative video editing website showcasing text animations, cinematic LUTs, and visual effects for content creators. Built with HTML, CSS, and JavaScript, it features product previews, a modern dark design, and a simple way to explore editing assets.",
+      "image": "https://image.thum.io/get/width/1200/crop/800/https://web-olive-eta-49.vercel.app",
+      "sourceUrl": "https://github.com/samarth163-cloud/WEB",
+      "visitUrl": "https://web-olive-eta-49.vercel.app",
+      "visitLabel": "visit",
+      "featured": true,
       "tech": [
         {
           "icon": "fab fa-html5",
           "name": "HTML"
         }
-      ],
-      "image": "https://image.thum.io/get/width/1200/crop/800/https://web-olive-eta-49.vercel.app",
-      "title": "adobe prset pak store",
-      "featured": true,
-      "visitUrl": "https://web-olive-eta-49.vercel.app",
-      "sourceUrl": "https://github.com/samarth163-cloud/WEB",
-      "visitLabel": "visit",
-      "description": ""
+      ]
     }
   ],
-  "_updatedAt": 1793202617322
+  "_updatedAt": 1793205349116
 }
