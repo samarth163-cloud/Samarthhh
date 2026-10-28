@@ -370,6 +370,22 @@
   },
   "projects": [
     {
+      "id": "food-website",
+      "title": "Food Website",
+      "description": "",
+      "image": "https://opengraph.githubassets.com/1/samarth163-cloud/food-website-by-sam",
+      "sourceUrl": "https://github.com/samarth163-cloud/food-website-by-sam",
+      "visitUrl": "",
+      "visitLabel": "Visit",
+      "featured": true,
+      "tech": [
+        {
+          "name": "ASP.NET",
+          "icon": "fas fa-code"
+        }
+      ]
+    },
+    {
       "id": "samarth-s-portfolio",
       "tech": [
         {
@@ -622,5 +638,5 @@
       ]
     }
   ],
-  "_updatedAt": 1793205772414
+  "_updatedAt": 1793205831830
 }
