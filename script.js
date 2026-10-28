@@ -72,7 +72,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const avatarDoodle = document.getElementById("avatar-click-doodle");
 
   // Read initial avatars from localStorage synchronously or use clean default
-  let initialAvatars = ["assets/profile/1.jpg", "assets/profile/3.jpg"];
+  let initialAvatars = ["https://npzqpcagdtnfuqhyngro.supabase.co/storage/v1/object/public/portfolio-assets/assets/profile/1.jpg", "https://npzqpcagdtnfuqhyngro.supabase.co/storage/v1/object/public/portfolio-assets/assets/profile/3.jpg"];
   try {
     const raw = localStorage.getItem("samarth_portfolio_data") || localStorage.getItem("samarth_portfolio_data_v1");
     if (raw) {

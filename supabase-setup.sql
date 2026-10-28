@@ -122,3 +122,4 @@ USING (bucket_id = 'portfolio-assets');
 -- 4. Check "Auto Confirm User?" so no email verification is needed
 -- 5. Log in at /admin/ with those credentials!
 -- =========================================================================
+

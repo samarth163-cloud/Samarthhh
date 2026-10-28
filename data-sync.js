@@ -102,7 +102,12 @@
     if (url.startsWith("data:") || url.startsWith("blob:") || url.startsWith("http://") || url.startsWith("https://")) {
       return url;
     }
-    const cleanUrl = url.startsWith("/") ? url : "/" + url;
+    const clean = url.replace(/^\/+/, "");
+    // Resolve relative asset paths to Supabase Cloud Storage CDN
+    if (clean.startsWith("assets/")) {
+      return "https://npzqpcagdtnfuqhyngro.supabase.co/storage/v1/object/public/portfolio-assets/" + clean.split("/").map(encodeURIComponent).join("/") + (updatedAt ? `?v=${updatedAt}` : "");
+    }
+    const cleanUrl = "/" + clean;
     if (updatedAt) {
       return `${cleanUrl}?v=${updatedAt}`;
     }
