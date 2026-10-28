@@ -128,11 +128,8 @@
   },
   "resume": {
     "stats": {
-      "note": "Live coding activity from Hackatime.",
-      "title": "Stats",
-      "visible": true,
-      "username": "Samarth",
-      "mode": "auto",
+      "mode": "custom",
+      "note": "activaty",
       "cards": [
         {
           "label": "Total coding time",
@@ -154,7 +151,10 @@
           "value": "Cozy Farm",
           "detail": "35h"
         }
-      ]
+      ],
+      "title": "stats",
+      "visible": true,
+      "username": "Samarth"
     },
     "header": {
       "name": "Samarth Haveliwala",
@@ -171,7 +171,7 @@
           "label": "GitHub"
         },
         {
-          "url": "https://www.linkedin.com/",
+          "url": "https://www.linkedin.com/samarth-haveliwala-99bb22446",
           "icon": "fab fa-linkedin",
           "label": "LinkedIn"
         },
@@ -191,10 +191,10 @@
     },
     "skills": "JavaScript · TypeScript · Python · C# · C++ · React · Astro · Node.js · HTML/CSS · Unity · Raspberry Pi · Arduino · KiCad · MongoDB · Git/GitHub",
     "status": {
-      "dot": "green",
-      "text": "Available for opportunities & freelance",
-      "type": "available",
-      "subtext": "Open to internships, open-source & contract work",
+      "dot": "purple",
+      "text": "Freelance Developer & Consultant",
+      "type": "freelance",
+      "subtext": "Available for select technical client work",
       "visible": true
     },
     "visible": true,
@@ -251,6 +251,7 @@
       {
         "id": "res-edu-benchmark",
         "meta": "O Levels · 2021 - 2024",
+        "visible": false,
         "description": "<b>Straight 9 A's</b>: <b>7 A*</b> and <b>2 A</b>.",
         "institution": "Benchmark School System"
       },
@@ -263,8 +264,8 @@
       {
         "id": "edu-1793131062535",
         "meta": "2024 - 2026",
-        "description": "<b>Straight A's</b> and honors.",
-        "institution": "High School / University"
+        "description": "Veer Narmad South Gujarat University (VNSGU), Surat",
+        "institution": "Bachelor of Computer Applications (BCA)"
       }
     ],
     "statsNote": "Live coding activity from Hackatime.",
@@ -315,7 +316,16 @@
       "Won <b>1st place</b> in international hackathon.",
       "Won <b>1st place</b> in international hackathon."
     ],
-    "introduction": "I build open-source software, games, and hardware- from custom cameras and devboards to web platforms. My work spans full-stack development, game development, and hardware prototyping, with projects used by thousands of people across the Hack Club and Rune communities."
+    "introduction": "I build open-source software, games, and hardware- from custom cameras and devboards to web platforms. My work spans full-stack development, game development, and hardware prototyping, with projects used by thousands of people across the Hack Club and Rune communities.",
+    "sectionTitles": {
+      "intro": "Introduction",
+      "stats": "Stats",
+      "skills": "Skills",
+      "projects": "Some of my (cool?) projects",
+      "education": "Education",
+      "experience": "Experience",
+      "recognition": "Recognition"
+    }
   },
   "general": {
     "name": "Samarth Haveliwala",
@@ -570,29 +580,21 @@
       "description": "An open-source npm package for unit conversion."
     },
     {
-      "id": "terminal-portfolio",
+      "id": "adobe-prset-pak-store",
       "tech": [
         {
-          "icon": "fas fa-terminal",
-          "name": "Terminal"
-        },
-        {
-          "icon": "fab fa-linux",
-          "name": "Linux"
-        },
-        {
-          "icon": "fas fa-network-wired",
-          "name": "SSH"
+          "icon": "fab fa-html5",
+          "name": "HTML"
         }
       ],
-      "image": "assets/projects/terminal-portfolio.png",
-      "title": "Terminal Portfolio",
+      "image": "https://image.thum.io/get/width/1200/crop/800/https://web-olive-eta-49.vercel.app",
+      "title": "adobe prset pak store",
       "featured": true,
-      "visitUrl": "",
-      "sourceUrl": "https://github.com/samarth163-cloud/Samarthhh/blob/main/portfolio.sh",
-      "visitLabel": "",
-      "description": "ssh samarth@hackclub.app"
+      "visitUrl": "https://web-olive-eta-49.vercel.app",
+      "sourceUrl": "https://github.com/samarth163-cloud/WEB",
+      "visitLabel": "visit",
+      "description": ""
     }
   ],
-  "_updatedAt": 1793137393349
+  "_updatedAt": 1793202301298
 }
