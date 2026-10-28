@@ -274,6 +274,20 @@
         "meta": "2024 - 2026",
         "description": "Veer Narmad South Gujarat University (VNSGU), Surat",
         "institution": "Bachelor of Computer Applications (BCA)"
+      },
+      {
+        "id": "edu-1793210306786",
+        "visible": true,
+        "institution": "Higher Secondary Certificate",
+        "meta": "2023 - 2024",
+        "description": "<b>Straight A's</b> and honors."
+      },
+      {
+        "id": "edu-1793210307194",
+        "visible": true,
+        "institution": "Secondary School Certificate",
+        "meta": "2020 - 2021",
+        "description": "<b>Straight A's</b> and honors."
       }
     ],
     "statsNote": "Live coding activity from Hackatime.",
@@ -412,13 +426,6 @@
     },
     {
       "id": "soft-sb1",
-      "title": "SOFT SB1",
-      "description": "Windows desktop application built with C# and .NET 8 Windows Forms. The project focuses on login authentication, splash screens, dashboard UI, session management, and modular software architecture, with GitHub-based collaboration and testing workflows.",
-      "image": "https://npzqpcagdtnfuqhyngro.supabase.co/storage/v1/object/public/portfolio-assets/ChatGPT_Image_Oct_15__2026__01-1793196048319.png",
-      "sourceUrl": "https://github.com/samarth163-cloud/TEAM-SOFT-SB1",
-      "visitUrl": "",
-      "visitLabel": "Visit",
-      "featured": true,
       "tech": [
         {
           "icon": "fab fa-js",
@@ -428,7 +435,14 @@
           "icon": "fab fa-node",
           "name": "Node.js"
         }
-      ]
+      ],
+      "image": "https://npzqpcagdtnfuqhyngro.supabase.co/storage/v1/object/public/portfolio-assets/ChatGPT_Image_Oct_15__2026__01-1793196048319.png",
+      "title": "SOFT SB1",
+      "featured": true,
+      "visitUrl": "",
+      "sourceUrl": "https://github.com/samarth163-cloud/TEAM-SOFT-SB1",
+      "visitLabel": "Visit",
+      "description": "Windows desktop application built with C# and .NET 8 Windows Forms. The project focuses on login authentication, splash screens, dashboard UI, session management, and modular software architecture, with GitHub-based collaboration and testing workflows."
     },
     {
       "id": "pip-video-extension",
@@ -647,5 +661,5 @@
       "description": "An open-source npm package for unit conversion."
     }
   ],
-  "_updatedAt": 1793209187064
+  "_updatedAt": 1793210382031
 }
