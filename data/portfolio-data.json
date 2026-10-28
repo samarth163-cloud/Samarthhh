@@ -82,7 +82,7 @@
       },
       {
         "id": "hl-1793208112447",
-        "text": "Contributed to <a href=\"https://github.com/samarth163-cloud/TEAM-SOFT-SB1\" target=\"_blank\" rel=\"noopener noreferrer\"><b>S TOM'S Project SBV1</b></a> as a <b>Project Manager</b>, coordinating team tasks, organizing development workflows, and supporting collaboration on a C# and .NET 8 Windows desktop application."
+        "text": "Contributed to <a href=\"https://github.com/samarth163-cloud/TEAM-SOFT-SB1\" target=\"_blank\" rel=\"noopener noreferrer\"> S TOM'S Project SBV1 </a> as a <b>Project Manager</b>, coordinating team tasks, organizing development workflows, and supporting collaboration on a C# and .NET 8 Windows desktop application."
       }
     ],
     "hackatimeUser": "Samarth",
@@ -651,5 +651,5 @@
       "description": "An open-source npm package for unit conversion."
     }
   ],
-  "_updatedAt": 1793208216078
+  "_updatedAt": 1793208255453
 }
