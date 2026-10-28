@@ -133,7 +133,7 @@
         "category": "Communication"
       },
       {
-        "skills": "Adobe Premiere Pro, Adobe After Effects",
+        "skills": "Adobe Premiere Pro, <i class=\"fa-brands fa-apple\"></i> Adobe After Effects",
         "category": "Video Editing"
       }
     ]
@@ -651,5 +651,5 @@
       "description": "An open-source npm package for unit conversion."
     }
   ],
-  "_updatedAt": 1793208278576
+  "_updatedAt": 1793208759306
 }
