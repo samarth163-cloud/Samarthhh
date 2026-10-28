@@ -3429,6 +3429,23 @@
     const btnSavePost = document.getElementById("btn-save-current-post");
     if (btnSavePost) {
       btnSavePost.addEventListener("click", () => {
+        if (state.blog && state.blog[currentBlogIndex]) {
+          const tInp = document.getElementById("notion-input-title");
+          if (tInp) state.blog[currentBlogIndex].title = tInp.value;
+          const eInp = document.getElementById("notion-prop-excerpt");
+          if (eInp) state.blog[currentBlogIndex].description = eInp.value;
+          const sInp = document.getElementById("notion-prop-slug");
+          if (sInp && sInp.value) {
+            state.blog[currentBlogIndex].slug = sInp.value;
+            state.blog[currentBlogIndex].url = `/blog/${sInp.value}/`;
+          }
+          const dInp = document.getElementById("notion-prop-date");
+          if (dInp) state.blog[currentBlogIndex].date = dInp.value;
+          const rInp = document.getElementById("notion-prop-reading-time");
+          if (rInp) state.blog[currentBlogIndex].readingTime = rInp.value;
+          const canvasEl = document.getElementById("notion-editor-canvas");
+          if (canvasEl) state.blog[currentBlogIndex].contentHtml = canvasEl.innerHTML;
+        }
         performMasterSave();
       });
     }
@@ -3664,6 +3681,11 @@
 
     // Canvas Input Sync & Selection Tracker
     const canvas = document.getElementById("notion-editor-canvas");
+    let isSlashMenuOpen = false;
+    let savedSlashRange = null;
+    let slashTextNode = null;
+    let slashOffset = -1;
+
     if (canvas) {
       canvas.addEventListener("input", () => {
         if (state.blog[currentBlogIndex]) {
@@ -3675,12 +3697,88 @@
       // Keep selection fresh
       canvas.addEventListener("mouseup", saveCurrentCanvasSelection);
       canvas.addEventListener("touchend", saveCurrentCanvasSelection);
+
+      // Keyboard navigation for Slash Menu
+      canvas.addEventListener("keydown", (e) => {
+        if (isSlashMenuOpen) {
+          const slashMenu = document.getElementById("notion-slash-menu");
+          if (!slashMenu) return;
+          const visibleItems = Array.from(slashMenu.querySelectorAll(".slash-item")).filter(i => i.style.display !== "none");
+
+          if (e.key === "ArrowDown") {
+            e.preventDefault();
+            let curIdx = visibleItems.findIndex(i => i.classList.contains("selected"));
+            if (curIdx >= 0) visibleItems[curIdx].classList.remove("selected");
+            let nextIdx = (curIdx + 1) % visibleItems.length;
+            if (visibleItems[nextIdx]) {
+              visibleItems[nextIdx].classList.add("selected");
+              visibleItems[nextIdx].scrollIntoView({ block: "nearest" });
+            }
+            return;
+          }
+
+          if (e.key === "ArrowUp") {
+            e.preventDefault();
+            let curIdx = visibleItems.findIndex(i => i.classList.contains("selected"));
+            if (curIdx >= 0) visibleItems[curIdx].classList.remove("selected");
+            let prevIdx = (curIdx - 1 + visibleItems.length) % visibleItems.length;
+            if (visibleItems[prevIdx]) {
+              visibleItems[prevIdx].classList.add("selected");
+              visibleItems[prevIdx].scrollIntoView({ block: "nearest" });
+            }
+            return;
+          }
+
+          if (e.key === "Enter") {
+            e.preventDefault();
+            const selected = visibleItems.find(i => i.classList.contains("selected")) || visibleItems[0];
+            if (selected) {
+              const action = selected.getAttribute("data-action");
+              executeNotionSlashAction(action);
+              closeNotionSlashMenu();
+            }
+            return;
+          }
+
+          if (e.key === "Escape") {
+            e.preventDefault();
+            closeNotionSlashMenu();
+            return;
+          }
+        }
+      });
+
       canvas.addEventListener("keyup", (e) => {
         saveCurrentCanvasSelection();
+
+        // If user just typed '/'
         if (e.key === "/") {
           openNotionSlashMenu();
-        } else if (e.key === "Escape") {
-          closeNotionSlashMenu();
+          return;
+        }
+
+        // If menu is currently active, filter as user types commands (e.g. /h1, /code)
+        if (isSlashMenuOpen) {
+          if (e.key === "Escape") {
+            closeNotionSlashMenu();
+            return;
+          }
+
+          const sel = window.getSelection();
+          if (!sel || sel.rangeCount === 0) return;
+          const curRange = sel.getRangeAt(0);
+
+          if (curRange.startContainer === slashTextNode) {
+            const nodeText = slashTextNode.textContent || "";
+            if (slashOffset >= 0 && nodeText.charAt(slashOffset) === "/") {
+              const query = nodeText.substring(slashOffset + 1, curRange.startOffset);
+              filterSlashMenu(query);
+            } else {
+              closeNotionSlashMenu();
+            }
+          } else {
+            closeNotionSlashMenu();
+          }
         }
       });
 
@@ -3737,9 +3835,16 @@
       });
     }
 
-    // Formatting Toolbar Buttons
+    // Formatting Toolbar Buttons - Prevent selection loss via mousedown
     const toolbar = document.getElementById("notion-toolbar");
     if (toolbar) {
+      toolbar.addEventListener("mousedown", (e) => {
+        const btn = e.target.closest("button");
+        if (btn) {
+          e.preventDefault(); // Keeps cursor alive in contenteditable canvas
+        }
+      });
+
       toolbar.querySelectorAll("[data-cmd]").forEach(btn => {
         btn.addEventListener("click", () => {
           const cmd = btn.getAttribute("data-cmd");
@@ -3764,24 +3869,35 @@
       const btnCallout = document.getElementById("btn-insert-callout");
       if (btnCallout) {
         btnCallout.addEventListener("click", () => {
-          insertNotionCallout();
+          executeNotionSlashAction("callout");
         });
       }
 
       const btnCode = document.getElementById("btn-insert-code");
       if (btnCode) {
         btnCode.addEventListener("click", () => {
-          insertNotionCodeBlock();
+          executeNotionSlashAction("code");
         });
       }
 
       const btnDivider = document.getElementById("btn-insert-divider");
       if (btnDivider) {
         btnDivider.addEventListener("click", () => {
-          document.execCommand("insertHorizontalRule", false, null);
-          if (canvas && state.blog[currentBlogIndex]) {
-            state.blog[currentBlogIndex].contentHtml = canvas.innerHTML;
-          }
+          executeNotionSlashAction("divider");
+        });
+      }
+
+      const btnTable = document.getElementById("btn-insert-table");
+      if (btnTable) {
+        btnTable.addEventListener("click", () => {
+          executeNotionSlashAction("table");
+        });
+      }
+
+      const btnVideo = document.getElementById("btn-insert-video");
+      if (btnVideo) {
+        btnVideo.addEventListener("click", () => {
+          executeNotionSlashAction("video");
         });
       }
 
@@ -3834,23 +3950,32 @@
       }
     }
 
-    // Notion Slash Menu Items
+    // Notion Slash Menu Items & Setup
     const slashMenu = document.getElementById("notion-slash-menu");
     if (slashMenu) {
+      // Prevent mousedown from blurring canvas
+      slashMenu.addEventListener("mousedown", (e) => {
+        e.preventDefault();
+      });
+
       slashMenu.querySelectorAll(".slash-item").forEach(item => {
         item.addEventListener("click", () => {
           const action = item.getAttribute("data-action");
-          handleNotionSlashAction(action);
+          executeNotionSlashAction(action);
           closeNotionSlashMenu();
         });
       });
     }
 
-    // Close slash menu on outside click
+    // Close slash menu on outside click or window resize
     document.addEventListener("click", (e) => {
       if (isSlashMenuOpen && !e.target.closest("#notion-slash-menu")) {
         closeNotionSlashMenu();
       }
+    });
+
+    window.addEventListener("resize", () => {
+      if (isSlashMenuOpen) closeNotionSlashMenu();
     });
   }
 
@@ -3859,17 +3984,42 @@
     const canvas = document.getElementById("notion-editor-canvas");
     if (!slashMenu || !canvas) return;
 
-    const selection = window.getSelection();
-    if (selection && selection.rangeCount > 0) {
-      const range = selection.getRangeAt(0);
-      const rect = range.getBoundingClientRect();
-      const canvasRect = canvas.getBoundingClientRect();
+    const sel = window.getSelection();
+    if (!sel || sel.rangeCount === 0) return;
+    const range = sel.getRangeAt(0);
 
-      slashMenu.style.top = `${Math.min(rect.bottom - canvasRect.top + 30, canvasRect.height - 200)}px`;
-      slashMenu.style.left = `${Math.max(20, rect.left - canvasRect.left)}px`;
-      slashMenu.style.display = "block";
-      isSlashMenuOpen = true;
+    // Verify selection is inside canvas
+    if (!canvas.contains(range.commonAncestorContainer)) return;
+
+    savedSlashRange = range.cloneRange();
+    slashTextNode = range.startContainer;
+    slashOffset = Math.max(0, range.startOffset - 1);
+
+    const rect = range.getBoundingClientRect();
+    const menuWidth = 310;
+    const menuHeight = 360;
+
+    // Viewport-anchored positioning with safety clamping
+    let top = rect.bottom + 8;
+    let left = rect.left;
+
+    if (left + menuWidth > window.innerWidth - 20) {
+      left = window.innerWidth - menuWidth - 20;
     }
+    if (left < 20) left = 20;
+
+    // Flip above cursor if close to bottom of screen
+    if (top + menuHeight > window.innerHeight - 20) {
+      top = Math.max(20, rect.top - menuHeight - 8);
+    }
+
+    slashMenu.style.position = "fixed";
+    slashMenu.style.top = `${top}px`;
+    slashMenu.style.left = `${left}px`;
+    slashMenu.style.display = "block";
+    isSlashMenuOpen = true;
+
+    filterSlashMenu("");
   }
 
   function closeNotionSlashMenu() {
@@ -3877,81 +4027,255 @@
     if (slashMenu) {
       slashMenu.style.display = "none";
       isSlashMenuOpen = false;
+      savedSlashRange = null;
+      slashTextNode = null;
+      slashOffset = -1;
     }
   }
 
-  function handleNotionSlashAction(action) {
+  function filterSlashMenu(query = "") {
+    const slashMenu = document.getElementById("notion-slash-menu");
+    if (!slashMenu) return;
+
+    const q = query.toLowerCase().trim();
+    const header = document.getElementById("slash-menu-header");
+    if (header) {
+      header.textContent = q ? `COMMANDS MATCHING "/${q}"` : "BASIC BLOCKS";
+    }
+
+    const items = Array.from(slashMenu.querySelectorAll(".slash-item"));
+    let firstVisible = null;
+
+    items.forEach(item => {
+      const action = item.getAttribute("data-action") || "";
+      const title = item.querySelector("strong")?.textContent.toLowerCase() || "";
+      const desc = item.querySelector("span")?.textContent.toLowerCase() || "";
+
+      const matches = !q || action.includes(q) || title.includes(q) || desc.includes(q);
+      item.style.display = matches ? "flex" : "none";
+      item.classList.remove("selected");
+
+      if (matches && !firstVisible) {
+        firstVisible = item;
+      }
+    });
+
+    if (firstVisible) {
+      firstVisible.classList.add("selected");
+    }
+  }
+
+  function executeNotionSlashAction(action) {
     const canvas = document.getElementById("notion-editor-canvas");
     if (!canvas) return;
     canvas.focus();
 
-    // Clean up trailing slash
-    document.execCommand("delete", false, null);
+    // 1. Cleanly delete the typed '/' and any filter query
+    const sel = window.getSelection();
+    if (slashTextNode && slashOffset >= 0) {
+      try {
+        const nodeText = slashTextNode.textContent || "";
+        const curEnd = (sel && sel.rangeCount > 0 && sel.getRangeAt(0).startContainer === slashTextNode)
+          ? sel.getRangeAt(0).startOffset
+          : nodeText.length;
+
+        if (slashOffset < nodeText.length) {
+          const before = nodeText.substring(0, slashOffset);
+          const after = nodeText.substring(curEnd);
+          slashTextNode.textContent = before + after;
+
+          // Reposition cursor at insertion point
+          const r = document.createRange();
+          r.setStart(slashTextNode, before.length);
+          r.collapse(true);
+          sel.removeAllRanges();
+          sel.addRange(r);
+          savedSlashRange = r;
+        }
+      } catch (err) {
+        console.warn("Could not delete slash text node:", err);
+      }
+    }
+
+    // Helper to insert a block element cleanly
+    function insertElementAtRange(el, selectInside = true) {
+      let r = (sel && sel.rangeCount > 0) ? sel.getRangeAt(0) : savedSlashRange;
+      if (!r || !canvas.contains(r.commonAncestorContainer)) {
+        canvas.appendChild(el);
+        const trailingP = document.createElement("p");
+        trailingP.innerHTML = "<br>";
+        canvas.appendChild(trailingP);
+        return;
+      }
+
+      // Find enclosing block inside canvas
+      let block = r.startContainer;
+      while (block && block.parentNode !== canvas) {
+        block = block.parentNode;
+      }
+
+      const isEmptyP = block && block.tagName === "P" && (block.textContent.trim() === "" || block.innerHTML === "<br>");
+      if (isEmptyP) {
+        canvas.replaceChild(el, block);
+      } else if (block && block.parentNode === canvas) {
+        block.insertAdjacentElement("afterend", el);
+      } else {
+        r.insertNode(el);
+      }
+
+      // Ensure trailing paragraph exists
+      let nextBlock = el.nextElementSibling;
+      if (!nextBlock) {
+        const trailingP = document.createElement("p");
+        trailingP.innerHTML = "<br>";
+        el.insertAdjacentElement("afterend", trailingP);
+      }
+
+      if (selectInside) {
+        try {
+          const target = el.querySelector("p, h1, h2, h3, li, blockquote, code, td, .notion-callout-text") || el;
+          const newRange = document.createRange();
+          newRange.selectNodeContents(target);
+          newRange.collapse(false);
+          sel.removeAllRanges();
+          sel.addRange(newRange);
+        } catch (e) {}
+      }
+    }
 
     switch (action) {
-      case "h1":
-        document.execCommand("formatBlock", false, "<h1>");
+      case "h1": {
+        const h1 = document.createElement("h1");
+        h1.textContent = "Heading 1";
+        insertElementAtRange(h1);
         break;
-      case "h2":
-        document.execCommand("formatBlock", false, "<h2>");
+      }
+      case "h2": {
+        const h2 = document.createElement("h2");
+        h2.textContent = "Heading 2";
+        insertElementAtRange(h2);
         break;
-      case "h3":
-        document.execCommand("formatBlock", false, "<h3>");
+      }
+      case "h3": {
+        const h3 = document.createElement("h3");
+        h3.textContent = "Heading 3";
+        insertElementAtRange(h3);
         break;
-      case "text":
-        document.execCommand("formatBlock", false, "<p>");
+      }
+      case "text": {
+        const p = document.createElement("p");
+        p.innerHTML = "Type text here...";
+        insertElementAtRange(p);
         break;
-      case "bullet":
-        document.execCommand("insertUnorderedList", false, null);
+      }
+      case "bullet": {
+        const ul = document.createElement("ul");
+        ul.className = "notion-bullet-list";
+        const li = document.createElement("li");
+        li.textContent = "List item";
+        ul.appendChild(li);
+        insertElementAtRange(ul);
         break;
-      case "number":
-        document.execCommand("insertOrderedList", false, null);
+      }
+      case "number": {
+        const ol = document.createElement("ol");
+        ol.className = "notion-numbered-list";
+        const li = document.createElement("li");
+        li.textContent = "First item";
+        ol.appendChild(li);
+        insertElementAtRange(ol);
         break;
-      case "callout":
-        insertNotionCallout();
+      }
+      case "callout": {
+        const callout = document.createElement("div");
+        callout.className = "notion-callout";
+        callout.contentEditable = "true";
+        callout.innerHTML = `
+          <span class="notion-callout-icon">💡</span>
+          <div class="notion-callout-text"><b>Tip:</b> Add your important note or key takeaway here...</div>
+        `;
+        insertElementAtRange(callout);
         break;
-      case "code":
-        insertNotionCodeBlock();
+      }
+      case "code": {
+        const pre = document.createElement("pre");
+        pre.className = "notion-code-block";
+        pre.contentEditable = "true";
+        pre.innerHTML = `<code>// Write your code snippet here\nfunction example() {\n  return "Samarth Blog";\n}</code>`;
+        insertElementAtRange(pre);
         break;
-      case "quote":
-        document.execCommand("formatBlock", false, "<blockquote>");
+      }
+      case "quote": {
+        const bq = document.createElement("blockquote");
+        bq.className = "notion-quote";
+        bq.innerHTML = `"Add an inspiring quote or key takeaway statement here..."`;
+        insertElementAtRange(bq);
         break;
-      case "divider":
-        document.execCommand("insertHorizontalRule", false, null);
+      }
+      case "table": {
+        const table = document.createElement("table");
+        table.className = "notion-table";
+        table.innerHTML = `
+          <thead>
+            <tr>
+              <th>Feature</th>
+              <th>Description</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Hardware Prototyping</td>
+              <td>Raspberry Pi Zero 2W custom casing</td>
+              <td>Completed</td>
+            </tr>
+            <tr>
+              <td>Game Jam Entry</td>
+              <td>Unity retro arcade arcade game</td>
+              <td>1st Place</td>
+            </tr>
+          </tbody>
+        `;
+        insertElementAtRange(table);
         break;
-      case "image":
+      }
+      case "video": {
+        const rawUrl = prompt("Enter YouTube Video URL (e.g. https://www.youtube.com/watch?v=... or https://youtu.be/...):");
+        if (rawUrl) {
+          let videoId = "";
+          const m = rawUrl.match(/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/i);
+          if (m && m[1]) videoId = m[1];
+          if (videoId) {
+            const wrap = document.createElement("div");
+            wrap.className = "notion-video-embed";
+            wrap.innerHTML = `<iframe src="https://www.youtube.com/embed/${videoId}" allowfullscreen frameborder="0"></iframe>`;
+            insertElementAtRange(wrap, false);
+          } else {
+            showToast("Invalid YouTube URL. Please provide a standard YouTube video link.", "error");
+          }
+        }
+        break;
+      }
+      case "divider": {
+        const hr = document.createElement("hr");
+        hr.className = "notion-divider";
+        insertElementAtRange(hr, false);
+        break;
+      }
+      case "image": {
         saveCurrentCanvasSelection();
         const imgInput = document.getElementById("notion-inline-image-input");
         if (imgInput) imgInput.click();
         break;
+      }
     }
 
-    if (state.blog[currentBlogIndex]) {
+    // Keep state fresh and update counters
+    if (state.blog && state.blog[currentBlogIndex]) {
       state.blog[currentBlogIndex].contentHtml = canvas.innerHTML;
     }
-  }
-
-  function insertNotionCallout() {
-    const canvas = document.getElementById("notion-editor-canvas");
-    const calloutHtml = `
-      <div class="notion-callout" contenteditable="true">
-        <span class="notion-callout-icon">💡</span>
-        <div class="notion-callout-text"><b>Tip:</b> Add your important note or key takeaway here...</div>
-      </div><p><br></p>`;
-    document.execCommand("insertHTML", false, calloutHtml);
-    if (canvas && state.blog[currentBlogIndex]) {
-      state.blog[currentBlogIndex].contentHtml = canvas.innerHTML;
-    }
-  }
-
-  function insertNotionCodeBlock() {
-    const canvas = document.getElementById("notion-editor-canvas");
-    const codeHtml = `
-      <pre class="notion-code-block" contenteditable="true"><code>// Write your code snippet here\nfunction example() {\n  return "Samarth Blog";\n}</code></pre><p><br></p>`;
-    document.execCommand("insertHTML", false, codeHtml);
-    if (canvas && state.blog[currentBlogIndex]) {
-      state.blog[currentBlogIndex].contentHtml = canvas.innerHTML;
-    }
+    updateNotionStats();
+    renderNotionLivePreview();
   }
 
   // =========================================================================

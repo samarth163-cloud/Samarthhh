@@ -889,6 +889,64 @@ h1[data-astro-cid-bvzihdzo] {
   margin: 3rem 0;
 }
 
+/* Notion Tables on Public Blog */
+.prose table.notion-table,
+table.notion-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 2rem 0;
+  font-family: var(--font-display);
+  font-size: 1rem;
+  background: var(--card-bg-color);
+  border: 2.5px solid var(--border-color);
+  box-shadow: var(--hard-shadow);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.prose table.notion-table th,
+table.notion-table th {
+  background: var(--accent-yellow);
+  color: #000;
+  font-weight: 800;
+  font-family: var(--font-mono);
+  padding: 12px 16px;
+  border: 1.5px solid var(--border-color);
+  text-align: left;
+}
+
+.prose table.notion-table td,
+table.notion-table td {
+  padding: 12px 16px;
+  border: 1.5px solid var(--border-color);
+  color: var(--text-color);
+}
+
+/* Notion Video Embeds */
+.prose .notion-video-embed,
+.notion-video-embed {
+  position: relative;
+  width: 100%;
+  padding-bottom: 56.25%;
+  height: 0;
+  margin: 2rem 0;
+  border: 2.5px solid var(--border-color);
+  box-shadow: var(--hard-shadow);
+  border-radius: 8px;
+  overflow: hidden;
+  background: #000;
+}
+
+.prose .notion-video-embed iframe,
+.notion-video-embed iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+
 /* Images & Figures inside articles */
 .prose img {
   border: 2px solid var(--border-color);

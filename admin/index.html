@@ -1243,6 +1243,8 @@
                   <button type="button" class="toolbar-btn" id="btn-insert-link" title="Insert Link"><i class="fas fa-link"></i> Link</button>
                   <button type="button" class="toolbar-btn" id="btn-insert-image" title="Upload Image from PC (Saves to Supabase Database)"><i class="fas fa-image"></i> Image</button>
                   <button type="button" class="toolbar-btn" id="btn-insert-cloud-media" title="Insert from Supabase Cloud Media"><i class="fas fa-cloud"></i> Media</button>
+                  <button type="button" class="toolbar-btn" id="btn-insert-table" title="Insert Table"><i class="fas fa-table"></i> Table</button>
+                  <button type="button" class="toolbar-btn" id="btn-insert-video" title="Embed YouTube Video"><i class="fab fa-youtube"></i> Video</button>
                   <input type="file" id="notion-inline-image-input" accept="image/*" style="display: none;" />
                 </div>
 
@@ -1259,7 +1261,7 @@
 
               <!-- Notion Slash Command Menu -->
               <div class="notion-slash-menu" id="notion-slash-menu" style="display: none;">
-                <div class="slash-header">BASIC BLOCKS</div>
+                <div class="slash-header" id="slash-menu-header">BASIC BLOCKS</div>
                 <button type="button" class="slash-item" data-action="h1">
                   <i class="fas fa-heading"></i>
                   <div>
@@ -1321,6 +1323,20 @@
                   <div>
                     <strong>Quote</strong>
                     <span>Capture a quote or citation</span>
+                  </div>
+                </button>
+                <button type="button" class="slash-item" data-action="table">
+                  <i class="fas fa-table"></i>
+                  <div>
+                    <strong>Table</strong>
+                    <span>Clean data table</span>
+                  </div>
+                </button>
+                <button type="button" class="slash-item" data-action="video">
+                  <i class="fab fa-youtube" style="color: #ef4444;"></i>
+                  <div>
+                    <strong>YouTube Video</strong>
+                    <span>Embed responsive player</span>
                   </div>
                 </button>
                 <button type="button" class="slash-item" data-action="divider">

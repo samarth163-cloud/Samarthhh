@@ -2857,26 +2857,29 @@ body.dark .preview-viewport-frame .article-main {
 
 /* Notion Slash Command Menu */
 .notion-slash-menu {
-  position: absolute;
-  z-index: 2000;
-  width: 290px;
+  position: fixed;
+  z-index: 999999;
+  width: 310px;
   background: var(--bg-surface);
   border: 2.5px solid var(--border-color);
-  box-shadow: var(--hard-shadow);
-  border-radius: 6px;
-  max-height: 340px;
+  box-shadow: 4px 4px 0px var(--border-color);
+  border-radius: 8px;
+  max-height: 380px;
   overflow-y: auto;
   padding: 6px;
+  backdrop-filter: blur(12px);
 }
 
 .slash-header {
   font-family: var(--font-mono);
   font-size: 10px;
   font-weight: 800;
-  color: var(--text-muted);
+  color: var(--accent-red);
   text-transform: uppercase;
-  padding: 6px 8px 4px;
+  padding: 6px 10px 4px;
   letter-spacing: 0.05em;
+  border-bottom: 1.5px dashed var(--border-color);
+  margin-bottom: 4px;
 }
 
 .slash-item {
@@ -2885,26 +2888,29 @@ body.dark .preview-viewport-frame .article-main {
   align-items: center;
   gap: 12px;
   padding: 8px 10px;
-  border: none;
+  border: 1.5px solid transparent;
   background: transparent;
   color: var(--text-color);
   cursor: pointer;
-  border-radius: 4px;
+  border-radius: 6px;
   text-align: left;
-  transition: all 0.15s ease;
+  transition: all 0.12s ease;
+  user-select: none;
 }
 
 .slash-item i {
   font-size: 15px;
-  width: 20px;
+  width: 22px;
   text-align: center;
   color: var(--text-muted);
+  transition: color 0.12s ease;
 }
 
 .slash-item div strong {
   display: block;
   font-size: 13px;
   font-family: var(--font-display);
+  font-weight: 700;
 }
 
 .slash-item div span {
@@ -2916,6 +2922,9 @@ body.dark .preview-viewport-frame .article-main {
 .slash-item:hover, .slash-item.selected {
   background: var(--accent-yellow);
   color: #000;
+  border-color: #000;
+  box-shadow: 2px 2px 0 #000;
+  transform: translate(-1px, -1px);
 }
 
 .slash-item:hover i,
@@ -2923,6 +2932,57 @@ body.dark .preview-viewport-frame .article-main {
 .slash-item.selected i,
 .slash-item.selected div span {
   color: #000;
+}
+
+/* Notion Table & Video Embed */
+.notion-canvas table.notion-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 24px 0;
+  font-family: var(--font-display);
+  font-size: 0.95rem;
+  background: var(--bg-surface);
+  border: 2.5px solid var(--border-color);
+  box-shadow: 3px 3px 0 var(--border-color);
+  border-radius: 4px;
+}
+
+.notion-canvas table.notion-table th {
+  background: var(--accent-yellow);
+  color: #000;
+  font-weight: 800;
+  font-family: var(--font-mono);
+  padding: 10px 14px;
+  border: 1.5px solid var(--border-color);
+  text-align: left;
+}
+
+.notion-canvas table.notion-table td {
+  padding: 10px 14px;
+  border: 1.5px solid var(--border-color);
+  color: var(--text-color);
+}
+
+.notion-canvas .notion-video-embed {
+  position: relative;
+  width: 100%;
+  padding-bottom: 56.25%;
+  height: 0;
+  margin: 24px 0;
+  border: 2.5px solid var(--border-color);
+  box-shadow: 4px 4px 0 var(--border-color);
+  border-radius: 8px;
+  overflow: hidden;
+  background: #000;
+}
+
+.notion-canvas .notion-video-embed iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border: none;
 }
 
 /* Notion Editable Canvas */
