@@ -278,14 +278,14 @@
       {
         "id": "edu-1793210306786",
         "visible": true,
-        "institution": "Higher Secondary Certificate",
+        "institution": "Higher Secondary Certificate - 12th",
         "meta": "2023 - 2024",
         "description": "<b>Straight A's</b> and honors."
       },
       {
         "id": "edu-1793210307194",
         "visible": true,
-        "institution": "Secondary School Certificate",
+        "institution": "Secondary School Certificate - 10th",
         "meta": "2020 - 2021",
         "description": "<b>Straight A's</b> and honors."
       }
@@ -661,5 +661,5 @@
       "description": "An open-source npm package for unit conversion."
     }
   ],
-  "_updatedAt": 1793210382031
+  "_updatedAt": 1793210446798
 }
