@@ -362,6 +362,8 @@
     updateBrowserTabMeta(data, true);
 
     const r = data.resume;
+    const secToggles = r.sections || {};
+    const secTitles = r.sectionTitles || {};
 
     // Master Visibility Check
     const isVisible = r.visible !== false;
@@ -438,37 +440,10 @@
       }
     }
 
-    // Work Status Badge
-    const secToggles = r.sections || {};
-    const showStatus = r.status && r.status.visible !== false && secToggles.status !== false;
-    let statusContainer = document.getElementById("resume-status-badge-container");
-    if (!statusContainer) {
-      const locEl = document.querySelector(".resume-header .location");
-      if (locEl) {
-        statusContainer = document.createElement("div");
-        statusContainer.id = "resume-status-badge-container";
-        locEl.insertAdjacentElement("afterend", statusContainer);
-      }
-    }
-
+    // Work status badge removed
+    const statusContainer = document.getElementById("resume-status-badge-container");
     if (statusContainer) {
-      if (showStatus && r.status.text) {
-        const dot = r.status.dot || "green";
-        const subtextHtml = r.status.subtext
-          ? `<span class="status-subtext">${escapeHtml(r.status.subtext)}</span>`
-          : "";
-        statusContainer.innerHTML = `
-          <div class="resume-status-badge status-${escapeHtml(dot)}">
-            <span class="status-pulse-dot"></span>
-            <span class="status-text">${escapeHtml(r.status.text)}</span>
-            ${subtextHtml}
-          </div>
-        `;
-        statusContainer.style.display = "";
-      } else {
-        statusContainer.innerHTML = "";
-        statusContainer.style.display = "none";
-      }
+      statusContainer.remove();
     }
 
     // Coding Stats Section
@@ -483,8 +458,25 @@
         if (r.stats) {
           const statsH2 = statsSec.querySelector("h2");
           if (statsH2 && r.stats.title) statsH2.textContent = r.stats.title;
-          const statsP = statsSec.querySelector(".stats-heading p");
+          const statsP = statsSec.querySelector(".stats-heading p, #stats-note");
           if (statsP && r.stats.note) statsP.textContent = r.stats.note;
+
+          if (Array.isArray(r.stats.cards) && r.stats.cards.length > 0) {
+            const grid = document.getElementById("coding-stats");
+            if (grid && r.stats.mode === "custom") {
+              grid.innerHTML = r.stats.cards
+                .map(
+                  (c) => `
+                <article class="stat-card">
+                  <p class="stat-label">${escapeHtml(c.label || "")}</p>
+                  <strong class="stat-value">${escapeHtml(c.value || "--")}</strong>
+                  <span class="stat-detail">${escapeHtml(c.detail || "")}</span>
+                </article>
+              `
+                )
+                .join("");
+            }
+          }
         }
       }
     }
@@ -500,6 +492,7 @@
       if (secId === "resume-sec-intro" || title.includes("intro")) {
         const isIntroVisible = secToggles.intro !== false;
         sec.style.display = isIntroVisible ? "" : "none";
+        if (h2) h2.textContent = secTitles.intro || "Introduction";
         if (isIntroVisible && r.introduction) {
           const p = sec.querySelector("p");
           if (p) p.innerHTML = r.introduction;
@@ -540,7 +533,7 @@
             </article>`
             )
             .join("");
-          sec.innerHTML = `<h2>Experience</h2>` + articlesHtml;
+          sec.innerHTML = `<h2>${escapeHtml(secTitles.experience || "Experience")}</h2>` + articlesHtml;
         }
         return;
       }
@@ -571,7 +564,7 @@
             </article>`
             )
             .join("");
-          sec.innerHTML = `<h2>Some of my (cool?) projects</h2>` + projHtml;
+          sec.innerHTML = `<h2>${escapeHtml(secTitles.projects || "Some of my (cool?) projects")}</h2>` + projHtml;
         }
         return;
       }
@@ -602,7 +595,7 @@
             </article>`
             )
             .join("");
-          sec.innerHTML = `<h2>Education</h2>` + eduHtml;
+          sec.innerHTML = `<h2>${escapeHtml(secTitles.education || "Education")}</h2>` + eduHtml;
         }
         return;
       }
@@ -616,7 +609,7 @@
         }
         sec.style.display = "";
         sec.innerHTML =
-          `<h2>Recognition</h2><ul>` +
+          `<h2>${escapeHtml(secTitles.recognition || "Recognition")}</h2><ul>` +
           r.recognition.map((rec) => `<li>${rec}</li>`).join("") +
           `</ul>`;
         return;
@@ -630,7 +623,7 @@
           return;
         }
         sec.style.display = "";
-        sec.innerHTML = `<h2>Skills</h2><p class="skills">${escapeHtml(r.skills)}</p>`;
+        sec.innerHTML = `<h2>${escapeHtml(secTitles.skills || "Skills")}</h2><p class="skills">${escapeHtml(r.skills)}</p>`;
         return;
       }
     });

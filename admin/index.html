@@ -254,12 +254,18 @@
         <div class="section-hero-banner">
           <div>
             <h2>Resume Customizer &amp; Manager</h2>
-            <p>Full control over your resume.txt — visibility, status badge, coding stats, experiences, projects, education, and skills.</p>
+            <p>Full control over your resume.txt — visibility, header &amp; contact links, coding activity stats, work experience, projects, education, awards, and skills.</p>
           </div>
           <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
             <a href="/resume/" target="_blank" class="btn btn-yellow" title="Open live resume in new tab">
               <i class="fas fa-arrow-up-right-from-square"></i> Preview Resume ↗
             </a>
+            <button type="button" class="btn btn-primary" id="btn-save-resume-top" title="Save resume changes">
+              <i class="fas fa-floppy-disk"></i> Save Resume
+            </button>
+            <button type="button" class="btn btn-sm" id="btn-reset-resume-default" title="Restore default sample data" style="border: 2px dashed #888; background: var(--bg-surface);">
+              <i class="fas fa-rotate-left"></i> Reset Defaults
+            </button>
           </div>
         </div>
 
@@ -289,7 +295,6 @@
         <!-- Quick Section Jump Toolbar -->
         <div class="resume-jump-bar">
           <span class="jump-title"><i class="fas fa-bolt"></i> Jump:</span>
-          <a href="#sec-resume-status" class="jump-chip"><i class="fas fa-signal"></i> Status</a>
           <a href="#sec-resume-header" class="jump-chip"><i class="fas fa-id-badge"></i> Header</a>
           <a href="#sec-resume-intro" class="jump-chip"><i class="fas fa-align-left"></i> Intro</a>
           <a href="#sec-resume-stats" class="jump-chip"><i class="fas fa-chart-line"></i> Stats</a>
@@ -298,74 +303,6 @@
           <a href="#sec-resume-edu" class="jump-chip"><i class="fas fa-graduation-cap"></i> Education</a>
           <a href="#sec-resume-awards" class="jump-chip"><i class="fas fa-trophy"></i> Awards</a>
           <a href="#sec-resume-skills" class="jump-chip"><i class="fas fa-screwdriver-wrench"></i> Skills</a>
-        </div>
-
-        <!-- Work Status & Availability Card -->
-        <div class="admin-card" id="sec-resume-status">
-          <div class="admin-card-header">
-            <div class="admin-card-title">
-              <i class="fas fa-signal"></i> Work Status &amp; Availability Badge
-            </div>
-            <div class="card-header-actions">
-              <label class="neo-switch-sm" title="Show or hide Status badge on resume">
-                <input type="checkbox" id="resume-status-visible-toggle" checked />
-                <span class="neo-slider-sm"></span>
-              </label>
-              <span class="switch-label-sm" id="resume-status-visible-label">SHOW ON RESUME</span>
-            </div>
-          </div>
-          <div class="admin-card-body" id="resume-status-body">
-            <!-- Live Preview -->
-            <div class="status-preview-box">
-              <span class="preview-label">LIVE STATUS PREVIEW:</span>
-              <div class="status-pill-preview" id="resume-status-live-preview">
-                <span class="pulse-dot green" id="preview-pulse-dot"></span>
-                <span class="preview-status-text" id="preview-status-text">Available for opportunities &amp; freelance</span>
-              </div>
-            </div>
-
-            <div class="form-group" style="margin-top: 14px;">
-              <label class="form-label">Quick Presets</label>
-              <div class="status-presets-grid" id="status-presets-container">
-                <button type="button" class="status-preset-btn active" data-type="available" data-dot="green" data-text="Available for opportunities &amp; freelance" data-sub="Open to internships, open-source &amp; contract work">
-                  <span class="dot-indicator green"></span> Open to Work
-                </button>
-                <button type="button" class="status-preset-btn" data-type="busy" data-dot="yellow" data-text="Busy Building · Limited Availability" data-sub="Only considering high-impact opportunities">
-                  <span class="dot-indicator yellow"></span> Busy / Select Projects
-                </button>
-                <button type="button" class="status-preset-btn" data-type="unavailable" data-dot="red" data-text="Not Currently Available" data-sub="Focused on ongoing commitments">
-                  <span class="dot-indicator red"></span> Unavailable
-                </button>
-                <button type="button" class="status-preset-btn" data-type="student" data-dot="blue" data-text="Student &amp; Open Source Contributor" data-sub="Building hardware, games &amp; web apps">
-                  <span class="dot-indicator blue"></span> Student / OSS
-                </button>
-                <button type="button" class="status-preset-btn" data-type="freelance" data-dot="purple" data-text="Freelance Developer &amp; Consultant" data-sub="Available for select technical client work">
-                  <span class="dot-indicator purple"></span> Freelance
-                </button>
-              </div>
-            </div>
-
-            <div class="form-grid" style="margin-top: 14px;">
-              <div class="form-group">
-                <label class="form-label">Status Text Headline</label>
-                <input type="text" id="resume-status-text" class="form-input" placeholder="e.g. Available for opportunities & freelance" />
-              </div>
-              <div class="form-group">
-                <label class="form-label">Indicator Dot Color</label>
-                <select id="resume-status-dot" class="form-input">
-                  <option value="green">🟢 Green (Available / Active)</option>
-                  <option value="yellow">🟡 Yellow (Busy / Limited)</option>
-                  <option value="red">🔴 Red (Unavailable / Do Not Disturb)</option>
-                  <option value="blue">🔵 Blue (Student / Open Source)</option>
-                  <option value="purple">🟣 Purple (Freelance / Creative)</option>
-                </select>
-              </div>
-            </div>
-            <div class="form-group">
-              <label class="form-label">Status Details / Subtext (Optional)</label>
-              <input type="text" id="resume-status-subtext" class="form-input" placeholder="e.g. Open to internships, open-source & contract work" />
-            </div>
-          </div>
         </div>
 
         <!-- Resume Header / Profile -->
@@ -392,10 +329,22 @@
             </div>
           </div>
           <div class="form-group">
-            <label class="form-label">
-              <span>Contact Links</span>
-              <button class="btn btn-sm btn-yellow" id="btn-add-resume-contact" type="button"><i class="fas fa-plus"></i> Add Link</button>
-            </label>
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; margin-bottom: 8px;">
+              <label class="form-label" style="margin-bottom: 0;">Contact Links</label>
+              <button class="btn btn-sm btn-yellow" id="btn-add-resume-contact" type="button"><i class="fas fa-plus"></i> Add Custom Link</button>
+            </div>
+            <!-- Quick Add Presets Bar -->
+            <div style="display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 12px; align-items: center; padding: 8px 10px; background: rgba(0,0,0,0.03); border: 1.5px dashed var(--border-color); border-radius: 4px;">
+              <span style="font-family: var(--font-mono); font-size: 0.72rem; color: var(--text-muted); font-weight: 700;"><i class="fas fa-bolt"></i> QUICK ADD:</span>
+              <button type="button" class="btn-quick-contact" data-preset="email" style="font-family: var(--font-mono); font-size: 0.72rem; padding: 4px 8px; border: 1.5px solid var(--border-color); border-radius: 3px; background: var(--bg-surface); cursor: pointer;"><i class="fas fa-envelope"></i> + Email</button>
+              <button type="button" class="btn-quick-contact" data-preset="github" style="font-family: var(--font-mono); font-size: 0.72rem; padding: 4px 8px; border: 1.5px solid var(--border-color); border-radius: 3px; background: var(--bg-surface); cursor: pointer;"><i class="fab fa-github"></i> + GitHub</button>
+              <button type="button" class="btn-quick-contact" data-preset="linkedin" style="font-family: var(--font-mono); font-size: 0.72rem; padding: 4px 8px; border: 1.5px solid var(--border-color); border-radius: 3px; background: var(--bg-surface); cursor: pointer;"><i class="fab fa-linkedin"></i> + LinkedIn</button>
+              <button type="button" class="btn-quick-contact" data-preset="youtube" style="font-family: var(--font-mono); font-size: 0.72rem; padding: 4px 8px; border: 1.5px solid var(--border-color); border-radius: 3px; background: var(--bg-surface); cursor: pointer;"><i class="fab fa-youtube"></i> + YouTube</button>
+              <button type="button" class="btn-quick-contact" data-preset="instagram" style="font-family: var(--font-mono); font-size: 0.72rem; padding: 4px 8px; border: 1.5px solid var(--border-color); border-radius: 3px; background: var(--bg-surface); cursor: pointer;"><i class="fab fa-instagram"></i> + Instagram</button>
+              <button type="button" class="btn-quick-contact" data-preset="twitter" style="font-family: var(--font-mono); font-size: 0.72rem; padding: 4px 8px; border: 1.5px solid var(--border-color); border-radius: 3px; background: var(--bg-surface); cursor: pointer;"><i class="fab fa-x-twitter"></i> + X / Twitter</button>
+              <button type="button" class="btn-quick-contact" data-preset="discord" style="font-family: var(--font-mono); font-size: 0.72rem; padding: 4px 8px; border: 1.5px solid var(--border-color); border-radius: 3px; background: var(--bg-surface); cursor: pointer;"><i class="fab fa-discord"></i> + Discord</button>
+              <button type="button" class="btn-quick-contact" data-preset="website" style="font-family: var(--font-mono); font-size: 0.72rem; padding: 4px 8px; border: 1.5px solid var(--border-color); border-radius: 3px; background: var(--bg-surface); cursor: pointer;"><i class="fas fa-globe"></i> + Website</button>
+            </div>
             <div id="resume-contacts-container" class="items-list">
               <!-- Dynamically populated contacts -->
             </div>
@@ -415,18 +364,24 @@
             </div>
           </div>
           <div class="admin-card-body">
-            <div class="form-group">
+            <div class="form-grid" style="margin-bottom: 10px;">
+              <div class="form-group" style="margin-bottom: 0;">
+                <label class="form-label">Section Heading Displayed on Resume</label>
+                <input type="text" id="resume-title-intro" class="form-input section-title-input" data-section="intro" placeholder="e.g. Introduction" />
+              </div>
+            </div>
+            <div class="form-group" style="margin-bottom: 0;">
               <label class="form-label">Summary / Intro Paragraph</label>
               <textarea id="resume-intro" class="form-textarea" rows="4"></textarea>
             </div>
           </div>
         </div>
 
-        <!-- Coding Stats Section -->
+        <!-- Coding Stats Section (Customizable 4-Card Developer Stats) -->
         <div class="admin-card" id="sec-resume-stats">
           <div class="admin-card-header">
             <div class="admin-card-title">
-              <i class="fas fa-chart-line"></i> Coding Activity &amp; Stats Section
+              <i class="fas fa-chart-line"></i> Coding Activity &amp; Stats Section (Developer Cards)
             </div>
             <div class="card-header-actions">
               <label class="neo-switch-sm" title="Show or hide stats section on resume">
@@ -437,20 +392,166 @@
             </div>
           </div>
           <div class="admin-card-body" id="resume-stats-body">
+            <!-- Global Config -->
             <div class="form-grid">
+              <div class="form-group">
+                <label class="form-label">Section Heading</label>
+                <input type="text" id="resume-stats-title" class="form-input" placeholder="e.g. Stats" />
+              </div>
+              <div class="form-group">
+                <label class="form-label">Subtitle / Activity Note</label>
+                <input type="text" id="resume-stats-note" class="form-input" placeholder="e.g. Live coding activity from Hackatime." />
+              </div>
+            </div>
+
+            <div class="form-grid" style="margin-top: 8px;">
               <div class="form-group">
                 <label class="form-label">Hackatime Username</label>
                 <input type="text" id="resume-stats-user" class="form-input" placeholder="e.g. Samarth" />
               </div>
               <div class="form-group">
-                <label class="form-label">Section Heading</label>
-                <input type="text" id="resume-stats-title" class="form-input" placeholder="e.g. Stats" />
+                <label class="form-label">Data Display Mode</label>
+                <select id="resume-stats-mode" class="form-input">
+                  <option value="auto">⚡ Auto (Live Hackatime sync + Custom fallbacks)</option>
+                  <option value="custom">✏️ Custom Only (Always use my 4 cards below)</option>
+                </select>
               </div>
             </div>
-            <div class="form-group">
-              <label class="form-label">Subtitle / Activity Note</label>
-              <input type="text" id="resume-stats-note" class="form-input" placeholder="e.g. Live coding activity from Hackatime." />
+
+            <!-- Fetch Button & Toolbar -->
+            <div style="display: flex; align-items: center; justify-content: space-between; margin: 14px 0 16px; padding: 10px 14px; background: #fff8d6; border: 2px solid #000; border-radius: 4px; box-shadow: 2px 2px 0 #000; flex-wrap: wrap; gap: 8px;">
+              <div style="font-family: 'Space Mono', monospace; font-size: 0.82rem; font-weight: 700; color: #111;">
+                <i class="fas fa-wand-magic-sparkles" style="color: #e52521;"></i> Live Hackatime Sync:
+                <span style="font-weight: 400; color: #444;">Fetch latest real hours &amp; auto-fill cards below</span>
+              </div>
+              <button type="button" id="btn-fetch-hackatime-now" class="btn btn-sm btn-yellow" style="cursor: pointer;">
+                <i class="fas fa-arrows-rotate"></i> Fetch &amp; Fill Now
+              </button>
             </div>
+
+            <!-- 4 Editable Cards Grid -->
+            <label class="form-label" style="margin-top: 16px; display: block;">
+              <span>4 Customizable Stat Cards (Matches Live Reference Style):</span>
+            </label>
+            <div class="stats-cards-editor-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; margin-bottom: 20px;">
+              
+              <!-- Card 1 -->
+              <div class="stat-card-edit-box" style="border: 2px solid #000; border-radius: 6px; padding: 12px; background: #faf8f5; box-shadow: 2px 2px 0 #000;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                  <span style="font-family: 'Space Mono', monospace; font-size: 0.72rem; font-weight: 800; background: #e52521; color: #fff; padding: 2px 6px; border-radius: 3px;">CARD 1</span>
+                  <span style="font-size: 0.75rem; color: #666; font-family: monospace;">Total Time</span>
+                </div>
+                <div class="form-group" style="margin-bottom: 8px;">
+                  <label class="form-label" style="font-size: 0.75rem;">Top Label</label>
+                  <input type="text" id="stat-card-0-label" class="form-input" style="padding: 6px 8px; font-size: 0.85rem;" placeholder="e.g. Total coding time" />
+                </div>
+                <div class="form-group" style="margin-bottom: 8px;">
+                  <label class="form-label" style="font-size: 0.75rem;">Main Value (Big Text)</label>
+                  <input type="text" id="stat-card-0-value" class="form-input" style="padding: 6px 8px; font-size: 0.95rem; font-weight: 700;" placeholder="e.g. 656h" />
+                </div>
+                <div class="form-group" style="margin-bottom: 0;">
+                  <label class="form-label" style="font-size: 0.75rem;">Subtext / Detail</label>
+                  <input type="text" id="stat-card-0-detail" class="form-input" style="padding: 6px 8px; font-size: 0.85rem;" placeholder="e.g. tracked on Hackatime" />
+                </div>
+              </div>
+
+              <!-- Card 2 -->
+              <div class="stat-card-edit-box" style="border: 2px solid #000; border-radius: 6px; padding: 12px; background: #faf8f5; box-shadow: 2px 2px 0 #000;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                  <span style="font-family: 'Space Mono', monospace; font-size: 0.72rem; font-weight: 800; background: #111; color: #fff; padding: 2px 6px; border-radius: 3px;">CARD 2</span>
+                  <span style="font-size: 0.75rem; color: #666; font-family: monospace;">Language</span>
+                </div>
+                <div class="form-group" style="margin-bottom: 8px;">
+                  <label class="form-label" style="font-size: 0.75rem;">Top Label</label>
+                  <input type="text" id="stat-card-1-label" class="form-input" style="padding: 6px 8px; font-size: 0.85rem;" placeholder="e.g. Most used language" />
+                </div>
+                <div class="form-group" style="margin-bottom: 8px;">
+                  <label class="form-label" style="font-size: 0.75rem;">Main Value (Big Text)</label>
+                  <input type="text" id="stat-card-1-value" class="form-input" style="padding: 6px 8px; font-size: 0.95rem; font-weight: 700;" placeholder="e.g. JavaScript" />
+                </div>
+                <div class="form-group" style="margin-bottom: 0;">
+                  <label class="form-label" style="font-size: 0.75rem;">Subtext / Detail</label>
+                  <input type="text" id="stat-card-1-detail" class="form-input" style="padding: 6px 8px; font-size: 0.85rem;" placeholder="e.g. 79h" />
+                </div>
+              </div>
+
+              <!-- Card 3 -->
+              <div class="stat-card-edit-box" style="border: 2px solid #000; border-radius: 6px; padding: 12px; background: #faf8f5; box-shadow: 2px 2px 0 #000;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                  <span style="font-family: 'Space Mono', monospace; font-size: 0.72rem; font-weight: 800; background: #111; color: #fff; padding: 2px 6px; border-radius: 3px;">CARD 3</span>
+                  <span style="font-size: 0.75rem; color: #666; font-family: monospace;">Editor</span>
+                </div>
+                <div class="form-group" style="margin-bottom: 8px;">
+                  <label class="form-label" style="font-size: 0.75rem;">Top Label</label>
+                  <input type="text" id="stat-card-2-label" class="form-input" style="padding: 6px 8px; font-size: 0.85rem;" placeholder="e.g. Most used editor" />
+                </div>
+                <div class="form-group" style="margin-bottom: 8px;">
+                  <label class="form-label" style="font-size: 0.75rem;">Main Value (Big Text)</label>
+                  <input type="text" id="stat-card-2-value" class="form-input" style="padding: 6px 8px; font-size: 0.95rem; font-weight: 700;" placeholder="e.g. Unity" />
+                </div>
+                <div class="form-group" style="margin-bottom: 0;">
+                  <label class="form-label" style="font-size: 0.75rem;">Subtext / Detail</label>
+                  <input type="text" id="stat-card-2-detail" class="form-input" style="padding: 6px 8px; font-size: 0.85rem;" placeholder="e.g. 172h" />
+                </div>
+              </div>
+
+              <!-- Card 4 -->
+              <div class="stat-card-edit-box" style="border: 2px solid #000; border-radius: 6px; padding: 12px; background: #faf8f5; box-shadow: 2px 2px 0 #000;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                  <span style="font-family: 'Space Mono', monospace; font-size: 0.72rem; font-weight: 800; background: #111; color: #fff; padding: 2px 6px; border-radius: 3px;">CARD 4</span>
+                  <span style="font-size: 0.75rem; color: #666; font-family: monospace;">Project</span>
+                </div>
+                <div class="form-group" style="margin-bottom: 8px;">
+                  <label class="form-label" style="font-size: 0.75rem;">Top Label</label>
+                  <input type="text" id="stat-card-3-label" class="form-input" style="padding: 6px 8px; font-size: 0.85rem;" placeholder="e.g. Most worked-on project" />
+                </div>
+                <div class="form-group" style="margin-bottom: 8px;">
+                  <label class="form-label" style="font-size: 0.75rem;">Main Value (Big Text)</label>
+                  <input type="text" id="stat-card-3-value" class="form-input" style="padding: 6px 8px; font-size: 0.95rem; font-weight: 700;" placeholder="e.g. Cozy Farm" />
+                </div>
+                <div class="form-group" style="margin-bottom: 0;">
+                  <label class="form-label" style="font-size: 0.75rem;">Subtext / Detail</label>
+                  <input type="text" id="stat-card-3-detail" class="form-input" style="padding: 6px 8px; font-size: 0.85rem;" placeholder="e.g. 35h" />
+                </div>
+              </div>
+
+            </div>
+
+            <!-- Real-Time Visual Preview Box (Matches Resume Page Theme) -->
+            <label class="form-label" style="margin-bottom: 6px; display: block;">
+              <span>Live Visual Output Preview (Matches Resume Page):</span>
+            </label>
+            <div style="background: #f6f3eb; border: 2.5px solid #000; box-shadow: 3px 3px 0 #000; border-radius: 6px; padding: 1.5rem; overflow-x: auto;">
+              <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 14px; gap: 8px; flex-wrap: wrap;">
+                <span id="admin-preview-stats-heading" style="font-family: 'Anton', 'Space Grotesk', sans-serif; font-size: 1.6rem; text-transform: uppercase; color: #111; display: inline-flex; align-items: center; gap: 0.5rem; border-bottom: 3px solid #e52521; padding-bottom: 2px;">
+                  <span style="color: #e52521; font-size: 0.85rem;">▶</span> Stats
+                </span>
+                <span id="admin-preview-stats-note" style="font-family: 'Space Mono', monospace; font-size: 0.82rem; color: #555; font-weight: 500;">Live coding activity from Hackatime.</span>
+              </div>
+              <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px;">
+                <div id="admin-prev-card-0" style="padding: 1rem; background: #ffffff; border: 2px solid #000; box-shadow: 2.5px 2.5px 0 #000; border-radius: 4px;">
+                  <span id="admin-prev-0-label" style="display: block; font-family: 'Space Mono', monospace; font-size: 0.75rem; color: #555; font-weight: 700; margin-bottom: 6px;">Total coding time</span>
+                  <span id="admin-prev-0-value" style="display: block; font-family: 'Space Mono', monospace; font-size: 1.35rem; font-weight: 800; color: #111; margin-bottom: 4px;">656h</span>
+                  <span id="admin-prev-0-detail" style="display: block; font-family: 'Space Mono', monospace; font-size: 0.78rem; font-weight: 700; color: #e52521;">tracked on Hackatime</span>
+                </div>
+                <div id="admin-prev-card-1" style="padding: 1rem; background: #ffffff; border: 2px solid #000; box-shadow: 2.5px 2.5px 0 #000; border-radius: 4px;">
+                  <span id="admin-prev-1-label" style="display: block; font-family: 'Space Mono', monospace; font-size: 0.75rem; color: #555; font-weight: 700; margin-bottom: 6px;">Most used language</span>
+                  <span id="admin-prev-1-value" style="display: block; font-family: 'Space Mono', monospace; font-size: 1.35rem; font-weight: 800; color: #111; margin-bottom: 4px;">JavaScript</span>
+                  <span id="admin-prev-1-detail" style="display: block; font-family: 'Space Mono', monospace; font-size: 0.78rem; font-weight: 700; color: #e52521;">79h</span>
+                </div>
+                <div id="admin-prev-card-2" style="padding: 1rem; background: #ffffff; border: 2px solid #000; box-shadow: 2.5px 2.5px 0 #000; border-radius: 4px;">
+                  <span id="admin-prev-2-label" style="display: block; font-family: 'Space Mono', monospace; font-size: 0.75rem; color: #555; font-weight: 700; margin-bottom: 6px;">Most used editor</span>
+                  <span id="admin-prev-2-value" style="display: block; font-family: 'Space Mono', monospace; font-size: 1.35rem; font-weight: 800; color: #111; margin-bottom: 4px;">Unity</span>
+                  <span id="admin-prev-2-detail" style="display: block; font-family: 'Space Mono', monospace; font-size: 0.78rem; font-weight: 700; color: #e52521;">172h</span>
+                </div>
+                <div id="admin-prev-card-3" style="padding: 1rem; background: #ffffff; border: 2px solid #000; box-shadow: 2.5px 2.5px 0 #000; border-radius: 4px;">
+                  <span id="admin-prev-3-label" style="display: block; font-family: 'Space Mono', monospace; font-size: 0.75rem; color: #555; font-weight: 700; margin-bottom: 6px;">Most worked-on project</span>
+                  <span id="admin-prev-3-value" style="display: block; font-family: 'Space Mono', monospace; font-size: 1.35rem; font-weight: 800; color: #111; margin-bottom: 4px;">Cozy Farm</span>
+                  <span id="admin-prev-3-detail" style="display: block; font-family: 'Space Mono', monospace; font-size: 0.78rem; font-weight: 700; color: #e52521;">35h</span>
+                </div>
+              </div>
+            </div>
+
           </div>
         </div>
 
@@ -470,6 +571,12 @@
             </div>
           </div>
           <div class="admin-card-body">
+            <div class="form-grid" style="margin-bottom: 12px;">
+              <div class="form-group" style="margin-bottom: 0;">
+                <label class="form-label">Section Heading Displayed on Resume</label>
+                <input type="text" id="resume-title-experience" class="form-input section-title-input" data-section="experience" placeholder="e.g. Experience" />
+              </div>
+            </div>
             <div id="resume-experience-container" class="items-list">
               <!-- Dynamically populated experience entries -->
             </div>
@@ -492,6 +599,12 @@
             </div>
           </div>
           <div class="admin-card-body">
+            <div class="form-grid" style="margin-bottom: 12px;">
+              <div class="form-group" style="margin-bottom: 0;">
+                <label class="form-label">Section Heading Displayed on Resume</label>
+                <input type="text" id="resume-title-projects" class="form-input section-title-input" data-section="projects" placeholder="e.g. Some of my (cool?) projects" />
+              </div>
+            </div>
             <div id="resume-projects-container" class="items-list">
               <!-- Dynamically populated projects on resume -->
             </div>
@@ -514,6 +627,12 @@
             </div>
           </div>
           <div class="admin-card-body">
+            <div class="form-grid" style="margin-bottom: 12px;">
+              <div class="form-group" style="margin-bottom: 0;">
+                <label class="form-label">Section Heading Displayed on Resume</label>
+                <input type="text" id="resume-title-education" class="form-input section-title-input" data-section="education" placeholder="e.g. Education" />
+              </div>
+            </div>
             <div id="resume-education-container" class="items-list">
               <!-- Dynamically populated education entries -->
             </div>
@@ -536,6 +655,12 @@
             </div>
           </div>
           <div class="admin-card-body">
+            <div class="form-grid" style="margin-bottom: 12px;">
+              <div class="form-group" style="margin-bottom: 0;">
+                <label class="form-label">Section Heading Displayed on Resume</label>
+                <input type="text" id="resume-title-recognition" class="form-input section-title-input" data-section="recognition" placeholder="e.g. Recognition" />
+              </div>
+            </div>
             <div id="resume-recognition-container" class="items-list">
               <!-- Dynamically populated recognition bullets -->
             </div>
@@ -555,12 +680,42 @@
             </div>
           </div>
           <div class="admin-card-body">
+            <div class="form-grid" style="margin-bottom: 12px;">
+              <div class="form-group" style="margin-bottom: 0;">
+                <label class="form-label">Section Heading Displayed on Resume</label>
+                <input type="text" id="resume-title-skills" class="form-input section-title-input" data-section="skills" placeholder="e.g. Skills" />
+              </div>
+            </div>
             <div class="form-group">
-              <label class="form-label">
-                <span>Skills List (Separated by · or commas)</span>
-              </label>
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; flex-wrap: wrap; gap: 6px;">
+                <label class="form-label" style="margin-bottom: 0;">Skills List (Separated by · or commas)</label>
+                <div style="display: flex; gap: 6px;">
+                  <button type="button" class="btn btn-sm" id="btn-insert-skill-dot" style="font-family: var(--font-mono); font-size: 0.75rem; border: 1.5px solid var(--border-color); background: var(--bg-surface); padding: 2px 8px;">
+                    + Insert " · "
+                  </button>
+                  <button type="button" class="btn btn-sm" id="btn-load-sample-skills" style="font-family: var(--font-mono); font-size: 0.75rem; border: 1.5px solid var(--border-color); background: var(--bg-surface); padding: 2px 8px;">
+                    <i class="fas fa-magic"></i> Load Full Stack
+                  </button>
+                </div>
+              </div>
               <textarea id="resume-skills" class="form-textarea" rows="3"></textarea>
             </div>
+          </div>
+        </div>
+
+        <!-- Resume Action Footer Bar -->
+        <div style="display: flex; justify-content: space-between; align-items: center; padding: 16px; background: var(--bg-card); border: 2.5px solid var(--border-color); box-shadow: var(--hard-shadow); border-radius: 6px; margin-top: 24px; flex-wrap: wrap; gap: 12px;">
+          <div>
+            <strong style="font-family: var(--font-anton); font-size: 1.1rem; letter-spacing: 0.5px;">READY TO PUBLISH?</strong>
+            <p style="margin: 0; font-size: 0.85rem; color: var(--text-muted); font-family: var(--font-mono);">Save your changes to update the live resume and cloud database instantly.</p>
+          </div>
+          <div style="display: flex; gap: 10px; align-items: center;">
+            <a href="/resume/" target="_blank" class="btn btn-yellow">
+              <i class="fas fa-arrow-up-right-from-square"></i> Preview Live Resume
+            </a>
+            <button type="button" class="btn btn-primary" id="btn-save-resume-bottom">
+              <i class="fas fa-floppy-disk"></i> Save Resume (Ctrl+S)
+            </button>
           </div>
         </div>
       </section>
@@ -1442,42 +1597,60 @@
             <textarea id="proj-desc" class="form-textarea" rows="3" required></textarea>
           </div>
 
-          <div class="form-grid">
-            <div class="form-group">
-              <label class="form-label">Image Path or URL</label>
-              <div style="display: flex; gap: 8px;">
-                <input type="text" id="proj-image" class="form-input" placeholder="assets/projects/..." />
-                <label class="btn btn-sm btn-yellow" style="cursor: pointer; white-space: nowrap;">
-                  <i class="fas fa-upload"></i>
-                  <input type="file" id="proj-image-file" accept="image/*" style="display: none;" />
-                </label>
-              </div>
+          <!-- GitHub Smart Auto-Fetch Banner -->
+          <div style="display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; background: #fff8d6; border: 2px solid #000; border-radius: 4px; box-shadow: 2.5px 2.5px 0 #000; margin-bottom: 14px; flex-wrap: wrap; gap: 8px;">
+            <div style="font-family: var(--font-mono); font-size: 0.8rem; font-weight: 700; color: #111;">
+              <i class="fab fa-github" style="color: #e52521; font-size: 1.05rem;"></i> GitHub Smart Auto-Fill:
+              <span style="font-weight: 400; color: #444; display: block; font-size: 0.75rem;">Enter repo URL below to auto-fetch title, description, live link &amp; website image</span>
             </div>
-            <div class="form-group">
-              <label class="form-label">Quick Project Images</label>
-              <select id="proj-quick-image-select" class="form-select">
-                <option value="">-- Choose Existing Asset --</option>
-                <option value="assets/projects/pishot.png">PiShot (assets/projects/pishot.png)</option>
-                <option value="assets/projects/adobe-wakatime.png">Adobe Wakatime</option>
-                <option value="assets/projects/arena.png">Arena</option>
-                <option value="assets/projects/nanodeck.jpg">NanoDeck</option>
-                <option value="assets/projects/hackamon.png">Hackamon</option>
-                <option value="assets/projects/deeplinker.png">deeplinker</option>
-                <option value="assets/projects/hack-club-stickers-manager.png">Stickers Manager</option>
-                <option value="assets/projects/unitease.png">UnitEase</option>
-                <option value="assets/projects/terminal-portfolio.png">Terminal Portfolio</option>
-              </select>
-            </div>
+            <button type="button" id="btn-fetch-github-project" class="btn btn-sm btn-yellow" style="cursor: pointer; font-weight: 700;">
+              <i class="fas fa-wand-magic-sparkles"></i> ⚡ Auto-Fetch from GitHub
+            </button>
           </div>
 
           <div class="form-grid">
             <div class="form-group">
-              <label class="form-label">Source Code URL (GitHub)</label>
-              <input type="url" id="proj-source" class="form-input" placeholder="https://github.com/..." />
+              <label class="form-label">
+                <span>Source Code URL (GitHub)</span>
+              </label>
+              <input type="url" id="proj-source" class="form-input" placeholder="https://github.com/samarth163-cloud/..." />
             </div>
             <div class="form-group">
-              <label class="form-label">Demo / Live URL</label>
+              <label class="form-label">
+                <span>Demo / Live URL</span>
+              </label>
               <input type="url" id="proj-visit" class="form-input" placeholder="https://..." />
+            </div>
+          </div>
+
+          <!-- Project Image Manager (Manual, Cloud Upload & Auto-Screenshot) -->
+          <div class="form-group">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; flex-wrap: wrap; gap: 6px;">
+              <label class="form-label" style="margin-bottom: 0;">Project Image (Local, URL or Direct Device Upload)</label>
+              <div style="display: flex; gap: 6px;">
+                <label class="btn btn-sm btn-yellow" style="cursor: pointer; white-space: nowrap; font-family: var(--font-mono); font-size: 0.75rem; padding: 4px 10px;" title="Upload from computer or phone">
+                  <i class="fas fa-cloud-arrow-up"></i> Upload From Device
+                  <input type="file" id="proj-image-file" accept="image/*" style="display: none;" />
+                </label>
+                <button type="button" id="btn-fetch-site-screenshot" class="btn btn-sm" style="font-family: var(--font-mono); font-size: 0.75rem; padding: 4px 10px; border: 1.5px solid var(--border-color); background: var(--bg-surface);" title="Generate screenshot image from Demo/Live URL">
+                  <i class="fas fa-camera"></i> 📸 Capture Site Image
+                </button>
+              </div>
+            </div>
+            <div style="display: flex; gap: 8px;">
+              <input type="text" id="proj-image" class="form-input" placeholder="https://... or assets/projects/..." style="flex: 1;" />
+              <button type="button" class="btn btn-sm" id="btn-clear-proj-image" title="Reset image to default" style="border: 2px solid var(--border-color); background: var(--bg-surface);">
+                <i class="fas fa-rotate-left"></i>
+              </button>
+            </div>
+            
+            <!-- Immediate Image Preview Bar -->
+            <div id="proj-img-preview-bar" style="display: flex; align-items: center; gap: 12px; margin-top: 8px; padding: 8px 12px; background: rgba(0,0,0,0.03); border: 1.5px dashed var(--border-color); border-radius: 4px;">
+              <img id="proj-thumb-preview" src="/assets/projects/pishot.png" style="width: 56px; height: 42px; object-fit: cover; border: 1.5px solid #000; border-radius: 3px; background: #fff; flex-shrink: 0;" />
+              <div style="flex: 1; font-family: var(--font-mono); font-size: 0.75rem; overflow: hidden;">
+                <span id="proj-img-status" style="font-weight: 700; color: #24b47e;"><i class="fas fa-circle-check"></i> Image Active</span>
+                <div id="proj-img-url-display" style="color: var(--text-muted); font-size: 0.7rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">assets/projects/pishot.png</div>
+              </div>
             </div>
           </div>
 

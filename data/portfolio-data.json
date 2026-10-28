@@ -128,10 +128,33 @@
   },
   "resume": {
     "stats": {
-      "note": "sdds",
-      "title": "Statssssssssssss",
-      "visible": false,
-      "username": "Samarthsdsd"
+      "note": "Live coding activity from Hackatime.",
+      "title": "Stats",
+      "visible": true,
+      "username": "Samarth",
+      "mode": "auto",
+      "cards": [
+        {
+          "label": "Total coding time",
+          "value": "656h",
+          "detail": "tracked on Hackatime"
+        },
+        {
+          "label": "Most used language",
+          "value": "JavaScript",
+          "detail": "79h"
+        },
+        {
+          "label": "Most used editor",
+          "value": "Unity",
+          "detail": "172h"
+        },
+        {
+          "label": "Most worked-on project",
+          "value": "Cozy Farm",
+          "detail": "35h"
+        }
+      ]
     },
     "header": {
       "name": "Samarth Haveliwala",
@@ -171,8 +194,8 @@
       "dot": "green",
       "text": "Available for opportunities & freelance",
       "type": "available",
-      "subtext": "",
-      "visible": false
+      "subtext": "Open to internships, open-source & contract work",
+      "visible": true
     },
     "visible": true,
     "projects": [
@@ -229,8 +252,7 @@
         "id": "res-edu-benchmark",
         "meta": "O Levels · 2021 - 2024",
         "description": "<b>Straight 9 A's</b>: <b>7 A*</b> and <b>2 A</b>.",
-        "institution": "Benchmark School System",
-        "visible": false
+        "institution": "Benchmark School System"
       },
       {
         "id": "edu-1793131062168",
@@ -241,8 +263,8 @@
       {
         "id": "edu-1793131062535",
         "meta": "2024 - 2026",
-        "description": "Veer Narmad South Gujarat University (VNSGU), Surat",
-        "institution": "Bachelor of Computer Applications (BCA)"
+        "description": "<b>Straight A's</b> and honors.",
+        "institution": "High School / University"
       }
     ],
     "statsNote": "Live coding activity from Hackatime.",
@@ -572,5 +594,5 @@
       "description": "ssh samarth@hackclub.app"
     }
   ],
-  "_updatedAt": 1793139116076
+  "_updatedAt": 1793137393349
 }

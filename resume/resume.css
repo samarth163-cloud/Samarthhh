@@ -294,20 +294,61 @@ b {
   font-weight: 800;
 }
 
-/* Stats Section (Direct Reference 1 Style!) */
+/* ==========================================================================
+   STATS SECTION (Settled Neo-Brutalist Theme - Matching Resume Page)
+   ========================================================================== */
+section.stats-section,
+.stats-section {
+  padding: 2.2rem 0;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  border-radius: 0;
+  margin: 0;
+  border-bottom: 2.5px solid var(--border);
+  position: relative;
+}
+
 .stats-heading {
   display: flex;
   align-items: baseline;
   justify-content: space-between;
   gap: 1rem;
   margin-bottom: 1.25rem;
+  flex-wrap: wrap;
 }
 
+.stats-heading h2,
+#stats-heading {
+  font-family: var(--font-anton) !important;
+  font-size: 1.8rem !important;
+  font-weight: 400 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.04em !important;
+  margin: 0 !important;
+  color: var(--text) !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 0.6rem !important;
+  border-bottom: 3px solid var(--accent) !important;
+  padding-bottom: 0.3rem !important;
+}
+
+.stats-heading h2::before,
+#stats-heading::before {
+  content: "▶" !important;
+  display: inline-block !important;
+  color: var(--accent) !important;
+  font-size: 0.9rem !important;
+}
+
+.stats-heading .stats-note,
 .stats-heading p {
   font-family: 'Space Mono', monospace;
   font-size: 0.85rem;
   color: var(--muted);
   margin: 0;
+  font-weight: 500;
 }
 
 .stats-grid {
@@ -317,33 +358,43 @@ b {
 }
 
 .stat-card {
-  padding: 1rem;
-  background: var(--tag-bg);
-  border: 2.5px solid var(--border);
+  padding: 1.15rem 1.1rem;
+  background: var(--card);
+  border: 2px solid var(--border);
   box-shadow: var(--hard-shadow-sm);
   border-radius: 4px;
   text-align: left;
+  transition: transform 0.12s ease, box-shadow 0.12s ease, background-color 0.12s ease;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.stat-card:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: var(--hard-shadow);
+  background: var(--card-hover);
 }
 
 .stat-label {
   display: block;
   font-family: 'Space Mono', monospace;
-  font-size: 0.75rem;
+  font-size: 0.78rem;
   font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: var(--accent);
-  margin-bottom: 0.4rem;
+  color: var(--muted);
+  margin: 0 0 0.5rem 0;
+  text-transform: none;
+  letter-spacing: normal;
 }
 
 .stat-value {
   display: block;
-  font-family: var(--font-anton);
-  font-size: 1.8rem;
-  font-weight: 400;
-  letter-spacing: 0.02em;
+  font-family: 'Space Mono', monospace;
+  font-size: 1.45rem;
+  font-weight: 800;
   color: var(--text);
-  line-height: 1.1;
+  line-height: 1.15;
+  margin: 0 0 0.35rem 0;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -352,9 +403,10 @@ b {
 .stat-detail {
   display: block;
   font-family: 'Space Mono', monospace;
-  font-size: 0.75rem;
-  color: var(--muted);
-  margin-top: 0.35rem;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--accent);
+  margin: 0;
 }
 
 /* Entries / Timeline Cards */
@@ -498,77 +550,8 @@ li a:hover {
 }
 
 /* ==========================================================================
-   WORK STATUS BADGE & PRIVATE NOTICE
+   RESUME PRIVATE NOTICE
    ========================================================================== */
-
-/* Work Status Pill in Resume Header */
-.resume-status-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  background: var(--card);
-  border: 2px solid var(--border);
-  box-shadow: 2.5px 2.5px 0px var(--shadow);
-  border-radius: 999px;
-  padding: 0.35rem 0.95rem;
-  margin-top: 0.75rem;
-  font-family: 'Space Mono', monospace;
-  font-size: 0.82rem;
-  font-weight: 700;
-  transition: transform 0.15s ease;
-}
-
-.resume-status-badge:hover {
-  transform: translateY(-1px);
-}
-
-.status-pulse-dot {
-  width: 9px;
-  height: 9px;
-  border-radius: 50%;
-  display: inline-block;
-  position: relative;
-  flex-shrink: 0;
-}
-
-.status-pulse-dot::after {
-  content: "";
-  position: absolute;
-  inset: -3px;
-  border-radius: 50%;
-  animation: resume-pulse 1.8s infinite;
-  opacity: 0.55;
-}
-
-.resume-status-badge.status-green .status-pulse-dot { background: #10b981; }
-.resume-status-badge.status-green .status-pulse-dot::after { border: 2px solid #10b981; }
-
-.resume-status-badge.status-yellow .status-pulse-dot { background: #f59e0b; }
-.resume-status-badge.status-yellow .status-pulse-dot::after { border: 2px solid #f59e0b; }
-
-.resume-status-badge.status-red .status-pulse-dot { background: #ef4444; }
-.resume-status-badge.status-red .status-pulse-dot::after { border: 2px solid #ef4444; }
-
-.resume-status-badge.status-blue .status-pulse-dot { background: #3b82f6; }
-.resume-status-badge.status-blue .status-pulse-dot::after { border: 2px solid #3b82f6; }
-
-.resume-status-badge.status-purple .status-pulse-dot { background: #8b5cf6; }
-.resume-status-badge.status-purple .status-pulse-dot::after { border: 2px solid #8b5cf6; }
-
-.status-subtext {
-  color: var(--muted);
-  font-size: 0.75rem;
-  font-weight: 400;
-  border-left: 1.5px solid var(--border);
-  padding-left: 8px;
-  margin-left: 2px;
-}
-
-@keyframes resume-pulse {
-  0% { transform: scale(0.95); opacity: 0.8; }
-  50% { transform: scale(1.6); opacity: 0; }
-  100% { transform: scale(0.95); opacity: 0; }
-}
 
 /* Resume Private Notice Card */
 .resume-private-card {

@@ -300,15 +300,35 @@ body.dark .light-icon {
 }
 
 /* Mobile Nav Toggle */
+.menu-toggle,
 .mobile-nav-toggle {
   display: none;
-  background: none;
-  border: 2px solid var(--border-color);
-  padding: 6px 10px;
-  font-size: 1.2rem;
   cursor: pointer;
+  width: 40px;
+  height: 40px;
+  border-radius: 6px;
+  border: 2px solid var(--border-color);
+  background: var(--card-bg-color);
+  box-shadow: 2px 2px 0 var(--border-color);
+  align-items: center;
+  justify-content: center;
   color: var(--text-color);
-  border-radius: 4px;
+  font-size: 1.15rem;
+  transition: all 0.2s ease;
+}
+
+.menu-toggle:hover,
+.mobile-nav-toggle:hover {
+  transform: translate(-1px, -1px);
+  box-shadow: 3px 3px 0 var(--border-color);
+  background: var(--accent-yellow);
+  color: #000000;
+}
+
+.menu-toggle:active,
+.mobile-nav-toggle:active {
+  transform: translate(1px, 1px);
+  box-shadow: 1px 1px 0 var(--border-color);
 }
 
 /* ==========================================================================
@@ -1055,35 +1075,63 @@ h1[data-astro-cid-bvzihdzo] {
 
   .header-actions {
     margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .menu-toggle,
+  .mobile-nav-toggle {
+    display: inline-flex;
   }
 
   .menu {
+    display: none;
     width: 100%;
     order: 3;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: none;
-    padding-bottom: 2px;
+    background: var(--card-bg-color);
+    border: 2px solid var(--border-color);
+    box-shadow: var(--hard-shadow-sm);
+    border-radius: 6px;
+    padding: 0.6rem;
+    margin-top: 0.5rem;
   }
 
-  .menu::-webkit-scrollbar {
-    display: none;
+  .menu.is-open {
+    display: block;
+    animation: menuSlideDown 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  @keyframes menuSlideDown {
+    from {
+      opacity: 0;
+      transform: translateY(-6px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
   }
 
   .menu ul {
     width: 100%;
-    justify-content: flex-start;
+    display: flex;
+    flex-direction: column;
     gap: 0.35rem;
-    flex-wrap: nowrap;
+    align-items: stretch;
   }
 
   .menu ul li {
-    flex-shrink: 0;
+    width: 100%;
   }
 
   .menu ul li a {
-    font-size: 0.85rem;
-    padding: 0.35rem 0.65rem;
+    display: block;
+    width: 100%;
+    font-size: 0.95rem;
+    padding: 0.55rem 0.85rem;
+    border-radius: 4px;
+    text-align: left;
     white-space: nowrap;
   }
 
@@ -1374,7 +1422,9 @@ h1[data-astro-cid-bvzihdzo] {
     padding: 1px 5px;
   }
 
-  .darkmode-toggle {
+  .darkmode-toggle,
+  .menu-toggle,
+  .mobile-nav-toggle {
     width: 36px;
     height: 36px;
     font-size: 1rem;

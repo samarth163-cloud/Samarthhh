@@ -489,6 +489,7 @@
           state.projects.splice(idx, 1);
           renderProjectsList();
           updateCounters();
+          performMasterSave();
           showToast(`Deleted "${proj.title}"`, "info");
         }
       });
@@ -502,6 +503,7 @@
           state.projects[idx] = state.projects[idx - 1];
           state.projects[idx - 1] = temp;
           renderProjectsList();
+          performMasterSave();
         }
       });
     });
@@ -514,6 +516,7 @@
           state.projects[idx] = state.projects[idx + 1];
           state.projects[idx + 1] = temp;
           renderProjectsList();
+          performMasterSave();
         }
       });
     });
@@ -538,13 +541,15 @@
   const projTitle = document.getElementById("proj-title");
   const projDesc = document.getElementById("proj-desc");
   const projImage = document.getElementById("proj-image");
-  const projQuickImg = document.getElementById("proj-quick-image-select");
   const projImageFile = document.getElementById("proj-image-file");
   const projSource = document.getElementById("proj-source");
   const projVisit = document.getElementById("proj-visit");
   const projVisitLabel = document.getElementById("proj-visit-label");
   const projTechContainer = document.getElementById("proj-tech-container");
   const btnAddTech = document.getElementById("btn-add-proj-tech");
+  const btnFetchGitHub = document.getElementById("btn-fetch-github-project");
+  const btnCaptureSiteScreenshot = document.getElementById("btn-fetch-site-screenshot");
+  const btnClearProjImg = document.getElementById("btn-clear-proj-image");
 
   let modalTechBadges = [];
 
@@ -587,34 +592,195 @@
   if (btnCloseModal) btnCloseModal.addEventListener("click", closeProjectModal);
   if (btnCancelModal) btnCancelModal.addEventListener("click", closeProjectModal);
 
-  // Quick image select
-  if (projQuickImg) {
-    projQuickImg.addEventListener("change", (e) => {
-      if (e.target.value) {
-        projImage.value = e.target.value;
-        updateModalPreview();
+  // GitHub Smart Auto-Fetch Logic
+  async function fetchGitHubProjectDetails() {
+    const rawUrl = (projSource?.value || "").trim();
+    if (!rawUrl) {
+      showToast("Please enter a GitHub repo URL first (e.g. https://github.com/user/repo)", "warning");
+      if (projSource) projSource.focus();
+      return;
+    }
+
+    const match = rawUrl.match(/github\.com\/([^\/]+)\/([^\/\?#]+)/);
+    if (!match) {
+      showToast("Invalid GitHub repo URL. Example: https://github.com/samarth163-cloud/Samarthhh", "error");
+      return;
+    }
+
+    const owner = match[1];
+    const repo = match[2].replace(/\.git$/, "");
+    const btn = document.getElementById("btn-fetch-github-project");
+    const origHtml = btn ? btn.innerHTML : "";
+    if (btn) {
+      btn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Fetching...`;
+      btn.disabled = true;
+    }
+
+    try {
+      showToast(`Fetching details from GitHub (${owner}/${repo})...`, "info");
+      const resp = await fetch(`https://api.github.com/repos/${owner}/${repo}`);
+      if (!resp.ok) {
+        if (resp.status === 404) throw new Error("Repository not found (check URL or if repo is private).");
+        if (resp.status === 403) throw new Error("GitHub API rate limit reached. Please edit manually.");
+        throw new Error(`GitHub API error HTTP ${resp.status}`);
       }
+
+      const data = await resp.json();
+
+      // 1. Format clean Title
+      if (data.name) {
+        const cleanName = data.name.replace(/[-_]+/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+        projTitle.value = cleanName;
+      }
+
+      // 2. Description
+      if (data.description) {
+        projDesc.value = data.description;
+      }
+
+      // 3. Demo / Live URL (homepage)
+      if (data.homepage && data.homepage.trim()) {
+        projVisit.value = data.homepage.trim();
+        if (!projVisitLabel.value || projVisitLabel.value === "Visit") {
+          projVisitLabel.value = "Demo";
+        }
+      }
+
+      // 4. Tech stack badges from language and topics
+      const newBadges = [];
+      const iconMap = {
+        javascript: "fab fa-js",
+        typescript: "fab fa-js",
+        python: "fab fa-python",
+        react: "fab fa-react",
+        astro: "fas fa-rocket",
+        nextjs: "fas fa-cube",
+        nodejs: "fab fa-node",
+        node: "fab fa-node",
+        html: "fab fa-html5",
+        css: "fab fa-css3-alt",
+        unity: "fab fa-unity",
+        csharp: "fas fa-code",
+        cpp: "fas fa-code",
+        arduino: "fas fa-microchip",
+        raspberrypi: "fab fa-raspberry-pi",
+        mongodb: "fas fa-database",
+        git: "fab fa-git-alt",
+        docker: "fab fa-docker",
+        vue: "fab fa-vuejs",
+        flutter: "fas fa-mobile-screen"
+      };
+
+      if (data.language) {
+        const key = data.language.toLowerCase().replace(/[^a-z0-9]/g, "");
+        newBadges.push({
+          name: data.language,
+          icon: iconMap[key] || "fas fa-code"
+        });
+      }
+
+      if (Array.isArray(data.topics)) {
+        data.topics.slice(0, 5).forEach((top) => {
+          const key = top.toLowerCase().replace(/[^a-z0-9]/g, "");
+          const formatted = top.charAt(0).toUpperCase() + top.slice(1);
+          if (!newBadges.some((b) => b.name.toLowerCase() === formatted.toLowerCase())) {
+            newBadges.push({
+              name: formatted,
+              icon: iconMap[key] || "fas fa-tag"
+            });
+          }
+        });
+      }
+
+      if (newBadges.length > 0) {
+        modalTechBadges = newBadges;
+        renderModalTechBadges();
+      }
+
+      // 5. Image Auto-Fetch (Website screenshot or GitHub OpenGraph)
+      let fetchedImgUrl = "";
+      if (data.homepage && data.homepage.startsWith("http")) {
+        fetchedImgUrl = `https://image.thum.io/get/width/1200/crop/800/${data.homepage.trim()}`;
+      } else {
+        fetchedImgUrl = `https://opengraph.githubassets.com/1/${owner}/${repo}`;
+      }
+
+      if (fetchedImgUrl) {
+        projImage.value = fetchedImgUrl;
+        updateModalPreview(fetchedImgUrl);
+      }
+
+      showToast(`✓ Auto-fetched "${data.name}" details & image from GitHub!`, "success");
+    } catch (err) {
+      console.error("GitHub fetch error:", err);
+      showToast(`GitHub fetch notice: ${err.message}`, "error");
+    } finally {
+      if (btn) {
+        btn.innerHTML = origHtml;
+        btn.disabled = false;
+      }
+    }
+  }
+
+  if (btnFetchGitHub) {
+    btnFetchGitHub.addEventListener("click", fetchGitHubProjectDetails);
+  }
+
+  // Capture Live Website Screenshot into Project Image
+  if (btnCaptureSiteScreenshot) {
+    btnCaptureSiteScreenshot.addEventListener("click", () => {
+      const siteUrl = (projVisit?.value || "").trim();
+      if (!siteUrl || !siteUrl.startsWith("http")) {
+        showToast("Please enter a valid Demo / Live URL first (e.g. https://...)", "warning");
+        if (projVisit) projVisit.focus();
+        return;
+      }
+      const screenshotUrl = `https://image.thum.io/get/width/1200/crop/800/${siteUrl}`;
+      projImage.value = screenshotUrl;
+      updateModalPreview(screenshotUrl);
+      showToast("📸 Captured live website screenshot!", "success");
     });
   }
 
-  // Upload custom image direct to Supabase Storage
+  // Clear / Reset image button
+  if (btnClearProjImg) {
+    btnClearProjImg.addEventListener("click", () => {
+      projImage.value = "assets/projects/pishot.png";
+      updateModalPreview("assets/projects/pishot.png");
+      showToast("Image reset to default asset", "info");
+    });
+  }
+
+  // Upload custom image direct from Device (phone/PC) with 0ms local preview & cloud sync
   if (projImageFile) {
-    projImageFile.addEventListener("change", async (e) => {
+    projImageFile.addEventListener("change", (e) => {
       const file = e.target.files && e.target.files[0];
-      if (file) {
+      if (!file) return;
+
+      // 1. Instant 0ms Base64 preview for 100% offline & cross-device compatibility
+      const reader = new FileReader();
+      reader.onload = async (ev) => {
+        const dataUrl = ev.target.result;
+        projImage.value = dataUrl;
+        updateModalPreview(dataUrl);
+
+        // 2. Also try uploading to Supabase Storage if configured for CDN URL
         try {
-          showToast(`Uploading "${file.name}" to Supabase Database...`, "info");
+          showToast(`Uploading "${file.name}" to cloud storage...`, "info");
           const res = await uploadSupabaseStorageFile(file);
           if (res && res.url) {
             projImage.value = res.url;
             updateModalPreview(res.url);
-            showToast("✓ Image uploaded & saved to Supabase Database!", "success");
+            showToast("✓ Image uploaded to Cloud Storage & synced everywhere!", "success");
+          } else {
+            showToast("✓ Image loaded from device & ready!", "success");
           }
         } catch (err) {
-          console.error(err);
-          showToast("Upload failed: " + err.message, "error");
+          console.warn("Storage upload bypassed, direct image data kept:", err);
+          showToast("✓ Image loaded from device & ready!", "success");
         }
-      }
+      };
+      reader.readAsDataURL(file);
     });
   }
 
@@ -674,22 +840,31 @@
     });
   }
 
-  // Update Mini Preview
+  // Update Mini Preview & Thumbnail
   function updateModalPreview(overrideSrc = null) {
     const prevImg = document.getElementById("prev-img");
     const prevTitle = document.getElementById("prev-title");
     const prevDesc = document.getElementById("prev-desc");
     const prevTech = document.getElementById("prev-tech");
     const prevVisitTxt = document.getElementById("prev-visit-txt");
+    const thumbImg = document.getElementById("proj-thumb-preview");
+    const thumbUrlDisplay = document.getElementById("proj-img-url-display");
+    const thumbStatus = document.getElementById("proj-img-status");
 
-    if (prevImg) {
-      if (overrideSrc) {
-        prevImg.src = overrideSrc;
-      } else {
-        const v = projImage.value || "assets/projects/pishot.png";
-        prevImg.src = v.startsWith("data:") || v.startsWith("http") ? v : (v.startsWith("/") ? v : `/${v}`);
-      }
+    const v = overrideSrc || projImage.value || "assets/projects/pishot.png";
+    const cleanSrc = v.startsWith("data:") || v.startsWith("http") ? v : (v.startsWith("/") ? v : `/${v}`);
+
+    if (prevImg) prevImg.src = cleanSrc;
+    if (thumbImg) thumbImg.src = cleanSrc;
+    if (thumbUrlDisplay) {
+      thumbUrlDisplay.textContent = v.length > 50 ? v.substring(0, 48) + "..." : v;
     }
+    if (thumbStatus) {
+      thumbStatus.innerHTML = v.startsWith("data:")
+        ? '<i class="fas fa-file-image" style="color: #3b82f6;"></i> Device Uploaded'
+        : (v.startsWith("http") ? '<i class="fas fa-circle-check" style="color: #24b47e;"></i> Online / CDN Image' : '<i class="fas fa-folder-check" style="color: #f59e0b;"></i> Local Asset');
+    }
+
     if (prevTitle) prevTitle.textContent = projTitle.value || "Project Title";
     if (prevDesc) prevDesc.innerHTML = projDesc.value || "Project description...";
     if (prevVisitTxt) prevVisitTxt.textContent = projVisitLabel.value || "Visit";
@@ -707,10 +882,10 @@
   }
 
   [projTitle, projDesc, projImage, projVisitLabel].forEach((el) => {
-    if (el) el.addEventListener("input", updateModalPreview);
+    if (el) el.addEventListener("input", () => updateModalPreview());
   });
 
-  // Save Project in Modal
+  // Save Project in Modal (Insert / Update with instant master save)
   if (btnSaveModal) {
     btnSaveModal.addEventListener("click", () => {
       const title = projTitle.value.trim();
@@ -744,6 +919,7 @@
       closeProjectModal();
       renderProjectsList();
       updateCounters();
+      performMasterSave(); // Instantly persist to disk, localStorage & Supabase!
     });
   }
 
@@ -755,26 +931,10 @@
     if (!state.resume) state.resume = {};
     const r = state.resume;
     if (typeof r.visible !== "boolean") r.visible = true;
-    if (!r.status) {
-      r.status = {
-        visible: true,
-        type: "available",
-        dot: "green",
-        text: "Available for opportunities & freelance",
-        subtext: "Open to internships, open-source & contract work"
-      };
-    }
-    if (!r.stats) {
-      r.stats = {
-        visible: true,
-        username: state.about?.hackatimeUser || "Samarth",
-        title: "Stats",
-        note: r.statsNote || "Live coding activity from Hackatime."
-      };
-    }
+    if (!r.header) r.header = {};
+    if (!Array.isArray(r.header.contacts)) r.header.contacts = [];
     if (!r.sections) {
       r.sections = {
-        status: true,
         intro: true,
         stats: true,
         experience: true,
@@ -784,7 +944,33 @@
         skills: true
       };
     }
-    const h = r.header || {};
+    if (!r.sectionTitles) {
+      r.sectionTitles = {
+        intro: "Introduction",
+        stats: "Stats",
+        experience: "Experience",
+        projects: "Some of my (cool?) projects",
+        education: "Education",
+        recognition: "Recognition",
+        skills: "Skills"
+      };
+    }
+    if (!r.stats) {
+      r.stats = {
+        visible: true,
+        username: state.about?.hackatimeUser || "Samarth",
+        title: "Stats",
+        note: "Live coding activity from Hackatime.",
+        mode: "auto",
+        cards: [
+          { label: "Total coding time", value: "656h", detail: "tracked on Hackatime" },
+          { label: "Most used language", value: "JavaScript", detail: "79h" },
+          { label: "Most used editor", value: "Unity", detail: "172h" },
+          { label: "Most worked-on project", value: "Cozy Farm", detail: "35h" }
+        ]
+      };
+    }
+    const h = r.header;
 
     // 1. Master Resume Visibility Switch
     const visToggle = document.getElementById("resume-visibility-toggle");
@@ -823,10 +1009,7 @@
       });
     }
 
-    // 2. Work Status & Availability Badge Section
-    renderResumeStatusSection();
-
-    // 3. Header Fields
+    // 2. Header Fields
     const resName = document.getElementById("resume-name");
     const resHeadline = document.getElementById("resume-headline");
     const resEyebrow = document.getElementById("resume-eyebrow");
@@ -841,112 +1024,91 @@
     if (resIntro) resIntro.value = r.introduction || "";
     if (resSkills) resSkills.value = r.skills || "";
 
-    // 4. Coding Stats Section
-    renderResumeStatsSection();
-
-    // 5. Section Visibility Toggles
-    renderSectionVisibilityToggles();
-
-    // 6. Sub-lists
-    renderResumeContacts(h.contacts || []);
-    renderResumeExperience(r.experience || []);
-    renderResumeProjects(r.projects || []);
-    renderResumeEducation(r.education || []);
-    renderResumeRecognition(r.recognition || []);
-  }
-
-  // Work Status & Availability Manager
-  function renderResumeStatusSection() {
-    const st = state.resume.status || {};
-    const stToggle = document.getElementById("resume-status-visible-toggle");
-    const stLabel = document.getElementById("resume-status-visible-label");
-    const stTextInp = document.getElementById("resume-status-text");
-    const stDotSel = document.getElementById("resume-status-dot");
-    const stSubInp = document.getElementById("resume-status-subtext");
-    const previewPulse = document.getElementById("preview-pulse-dot");
-    const previewText = document.getElementById("preview-status-text");
-
-    function updateStatusPreview() {
-      const isVis = st.visible !== false;
-      if (stToggle) stToggle.checked = isVis;
-      if (stLabel) stLabel.textContent = isVis ? "SHOW ON RESUME" : "HIDDEN";
-      const dot = st.dot || "green";
-      const txt = st.text || "Available for opportunities & freelance";
-      if (previewPulse) previewPulse.className = `pulse-dot ${dot}`;
-      if (previewText) previewText.textContent = txt;
-      const card = document.getElementById("sec-resume-status");
-      if (card) card.classList.toggle("card-section-hidden", !isVis);
-    }
-
-    if (stTextInp) stTextInp.value = st.text || "";
-    if (stDotSel) stDotSel.value = st.dot || "green";
-    if (stSubInp) stSubInp.value = st.subtext || "";
-
-    updateStatusPreview();
-
-    if (stToggle && !stToggle._hasBound) {
-      stToggle._hasBound = true;
-      stToggle.addEventListener("change", (e) => {
-        st.visible = e.target.checked;
-        updateStatusPreview();
-      });
-    }
-    if (stTextInp && !stTextInp._hasBound) {
-      stTextInp._hasBound = true;
-      stTextInp.addEventListener("input", (e) => {
-        st.text = e.target.value;
-        updateStatusPreview();
-      });
-    }
-    if (stDotSel && !stDotSel._hasBound) {
-      stDotSel._hasBound = true;
-      stDotSel.addEventListener("change", (e) => {
-        st.dot = e.target.value;
-        updateStatusPreview();
-      });
-    }
-    if (stSubInp && !stSubInp._hasBound) {
-      stSubInp._hasBound = true;
-      stSubInp.addEventListener("input", (e) => {
-        st.subtext = e.target.value;
-      });
-    }
-
-    // Preset buttons
-    const presetBtns = document.querySelectorAll(".status-preset-btn");
-    presetBtns.forEach((btn) => {
-      if (!btn._hasBound) {
-        btn._hasBound = true;
-        btn.addEventListener("click", () => {
-          presetBtns.forEach((b) => b.classList.remove("active"));
-          btn.classList.add("active");
-          const type = btn.getAttribute("data-type");
-          const dot = btn.getAttribute("data-dot");
-          const text = btn.getAttribute("data-text");
-          const sub = btn.getAttribute("data-sub");
-
-          st.type = type;
-          st.dot = dot;
-          st.text = text;
-          st.subtext = sub;
-
-          if (stTextInp) stTextInp.value = text;
-          if (stDotSel) stDotSel.value = dot;
-          if (stSubInp) stSubInp.value = sub;
-          updateStatusPreview();
+    // 3. Section Titles
+    document.querySelectorAll(".section-title-input").forEach((inp) => {
+      const sec = inp.getAttribute("data-section");
+      if (sec && r.sectionTitles && r.sectionTitles[sec]) {
+        inp.value = r.sectionTitles[sec];
+      }
+      if (!inp._hasTitleBound) {
+        inp._hasTitleBound = true;
+        inp.addEventListener("input", (e) => {
+          if (!r.sectionTitles) r.sectionTitles = {};
+          r.sectionTitles[sec] = e.target.value;
         });
       }
     });
+
+    // 4. Safely Render All Subsections (Isolated with try-catch so nothing ever breaks the tab)
+    try { renderResumeContacts(h.contacts || []); } catch (e) { console.error("Contacts error", e); }
+    try { renderResumeStatsSection(); } catch (e) { console.error("Stats error", e); }
+    try { renderSectionVisibilityToggles(); } catch (e) { console.error("Section toggles error", e); }
+    try { renderResumeExperience(r.experience || []); } catch (e) { console.error("Experience error", e); }
+    try { renderResumeProjects(r.projects || []); } catch (e) { console.error("Projects error", e); }
+    try { renderResumeEducation(r.education || []); } catch (e) { console.error("Education error", e); }
+    try { renderResumeRecognition(r.recognition || []); } catch (e) { console.error("Recognition error", e); }
+
+    // 5. Action Buttons (Save Top/Bottom, Reset Defaults, Skill Helpers)
+    bindResumeActionButtons();
   }
 
-  // Coding Stats Manager
+  // Coding Stats Manager (Customizable 4-Card Developer Stats matching reference photo)
   function renderResumeStatsSection() {
-    const stats = state.resume.stats || {};
+    if (!state.resume.stats) {
+      state.resume.stats = {
+        visible: true,
+        username: state.about?.hackatimeUser || "Samarth",
+        title: "Stats",
+        note: "Live coding activity from Hackatime.",
+        mode: "auto",
+        cards: [
+          { label: "Total coding time", value: "656h", detail: "tracked on Hackatime" },
+          { label: "Most used language", value: "JavaScript", detail: "79h" },
+          { label: "Most used editor", value: "Unity", detail: "172h" },
+          { label: "Most worked-on project", value: "Cozy Farm", detail: "35h" }
+        ]
+      };
+    }
+
+    const stats = state.resume.stats;
+    if (!Array.isArray(stats.cards) || stats.cards.length === 0) {
+      stats.cards = [
+        { label: "Total coding time", value: "656h", detail: "tracked on Hackatime" },
+        { label: "Most used language", value: "JavaScript", detail: "79h" },
+        { label: "Most used editor", value: "Unity", detail: "172h" },
+        { label: "Most worked-on project", value: "Cozy Farm", detail: "35h" }
+      ];
+    }
+    while (stats.cards.length < 4) {
+      stats.cards.push({ label: `Card ${stats.cards.length + 1}`, value: "--", detail: "" });
+    }
+
     const sToggle = document.getElementById("resume-stats-visible-toggle");
     const sLabel = document.getElementById("resume-stats-visible-label");
     const sUser = document.getElementById("resume-stats-user");
     const sTitle = document.getElementById("resume-stats-title");
     const sNote = document.getElementById("resume-stats-note");
+    const sMode = document.getElementById("resume-stats-mode");
+    const btnFetch = document.getElementById("btn-fetch-hackatime-now");
+
+    // Live preview elements
+    const prevTitle = document.getElementById("admin-preview-stats-heading");
+    const prevNote = document.getElementById("admin-preview-stats-note");
+
+    function updateLivePreview() {
+      if (prevTitle) prevTitle.innerHTML = `<span style="color: #e52521; font-size: 0.85rem;">▶</span> ${stats.title || "Stats"}`;
+      if (prevNote) prevNote.textContent = stats.note || "Live coding activity from Hackatime.";
+
+      for (let i = 0; i < 4; i++) {
+        const c = stats.cards[i] || {};
+        const pLabel = document.getElementById(`admin-prev-${i}-label`);
+        const pValue = document.getElementById(`admin-prev-${i}-value`);
+        const pDetail = document.getElementById(`admin-prev-${i}-detail`);
+        if (pLabel) pLabel.textContent = c.label || "";
+        if (pValue) pValue.textContent = c.value || "--";
+        if (pDetail) pDetail.textContent = c.detail || "";
+      }
+    }
 
     function updateStatsUI() {
       const isVis = stats.visible !== false;
@@ -954,11 +1116,47 @@
       if (sLabel) sLabel.textContent = isVis ? "SHOW ON RESUME" : "HIDDEN";
       const card = document.getElementById("sec-resume-stats");
       if (card) card.classList.toggle("card-section-hidden", !isVis);
+      updateLivePreview();
     }
 
     if (sUser) sUser.value = stats.username || "Samarth";
     if (sTitle) sTitle.value = stats.title || "Stats";
     if (sNote) sNote.value = stats.note || "Live coding activity from Hackatime.";
+    if (sMode) sMode.value = stats.mode || "auto";
+
+    // Populate card inputs
+    for (let i = 0; i < 4; i++) {
+      const c = stats.cards[i] || {};
+      const inpLabel = document.getElementById(`stat-card-${i}-label`);
+      const inpValue = document.getElementById(`stat-card-${i}-value`);
+      const inpDetail = document.getElementById(`stat-card-${i}-detail`);
+
+      if (inpLabel) inpLabel.value = c.label || "";
+      if (inpValue) inpValue.value = c.value || "";
+      if (inpDetail) inpDetail.value = c.detail || "";
+
+      if (inpLabel && !inpLabel._hasBound) {
+        inpLabel._hasBound = true;
+        inpLabel.addEventListener("input", (e) => {
+          stats.cards[i].label = e.target.value;
+          updateLivePreview();
+        });
+      }
+      if (inpValue && !inpValue._hasBound) {
+        inpValue._hasBound = true;
+        inpValue.addEventListener("input", (e) => {
+          stats.cards[i].value = e.target.value;
+          updateLivePreview();
+        });
+      }
+      if (inpDetail && !inpDetail._hasBound) {
+        inpDetail._hasBound = true;
+        inpDetail.addEventListener("input", (e) => {
+          stats.cards[i].detail = e.target.value;
+          updateLivePreview();
+        });
+      }
+    }
 
     updateStatsUI();
 
@@ -979,12 +1177,92 @@
       sTitle._hasBound = true;
       sTitle.addEventListener("input", (e) => {
         stats.title = e.target.value;
+        updateLivePreview();
       });
     }
     if (sNote && !sNote._hasBound) {
       sNote._hasBound = true;
       sNote.addEventListener("input", (e) => {
         stats.note = e.target.value;
+        updateLivePreview();
+      });
+    }
+    if (sMode && !sMode._hasBound) {
+      sMode._hasBound = true;
+      sMode.addEventListener("change", (e) => {
+        stats.mode = e.target.value;
+      });
+    }
+
+    // Live Fetch Button
+    if (btnFetch && !btnFetch._hasBound) {
+      btnFetch._hasBound = true;
+      btnFetch.addEventListener("click", async () => {
+        const username = sUser ? sUser.value.trim() : (stats.username || "Samarth");
+        const origText = btnFetch.innerHTML;
+        btnFetch.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Fetching...`;
+        btnFetch.disabled = true;
+
+        try {
+          const resp = await fetch(`https://hackatime.hackclub.com/api/summary?user_id=${encodeURIComponent(username)}&interval=all_time`);
+          if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+          const data = await resp.json();
+
+          const languages = data.languages ?? [];
+          const unityLanguage = languages.find(l => l.key?.toLowerCase() === "unity");
+          const rankedLanguages = languages.filter(l => l !== unityLanguage);
+          const totalSeconds = languages.reduce((sum, l) => sum + (l.total || 0), 0);
+          const totalHours = Math.floor(totalSeconds / 3600);
+
+          const getTop = (arr) => Array.isArray(arr) && arr.length > 0 ? [...arr].sort((a,b) => b.total - a.total)[0] : null;
+          const topLang = getTop(rankedLanguages);
+          const topEd = unityLanguage ? { ...unityLanguage, key: "Unity" } : getTop(data.editors);
+          const topProj = getTop(data.projects);
+
+          const formatH = (sec) => {
+            const h = Math.floor(sec / 3600);
+            return h < 1 ? `${Math.floor(sec / 60)}m` : `${h}h`;
+          };
+
+          // Fill Card 0 (Total time)
+          stats.cards[0].value = `${totalHours.toLocaleString()}h`;
+          stats.cards[0].detail = "tracked on Hackatime";
+
+          // Fill Card 1 (Language)
+          if (topLang) {
+            stats.cards[1].value = topLang.key;
+            stats.cards[1].detail = formatH(topLang.total);
+          }
+
+          // Fill Card 2 (Editor)
+          if (topEd) {
+            stats.cards[2].value = topEd.key;
+            stats.cards[2].detail = formatH(topEd.total);
+          }
+
+          // Fill Card 3 (Project)
+          if (topProj) {
+            stats.cards[3].value = topProj.key;
+            stats.cards[3].detail = formatH(topProj.total);
+          }
+
+          // Update inputs
+          for (let i = 0; i < 4; i++) {
+            const inpVal = document.getElementById(`stat-card-${i}-value`);
+            const inpDet = document.getElementById(`stat-card-${i}-detail`);
+            if (inpVal) inpVal.value = stats.cards[i].value;
+            if (inpDet) inpDet.value = stats.cards[i].detail;
+          }
+
+          updateLivePreview();
+          showToast(`✅ Synced stats from Hackatime! Total: ${totalHours}h`, "success");
+        } catch (err) {
+          console.error("Hackatime fetch error:", err);
+          showToast(`❌ Could not fetch from Hackatime: ${err.message}`, "error");
+        } finally {
+          btnFetch.innerHTML = origText;
+          btnFetch.disabled = false;
+        }
       });
     }
   }
@@ -1024,18 +1302,25 @@
     container.innerHTML = contacts
       .map(
         (c, idx) => `
-      <div class="sub-item-card" style="padding: 10px;" data-contact-idx="${idx}">
-        <div style="display: flex; gap: 8px; align-items: center;">
+      <div class="sub-item-card" style="padding: 10px; margin-bottom: 8px;" data-contact-idx="${idx}">
+        <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+          <span style="display: inline-flex; align-items: center; justify-content: center; width: 34px; height: 34px; background: var(--accent-yellow); border: 2px solid var(--border-color); border-radius: 4px; font-size: 14px; color: #000; flex-shrink: 0;" title="${escapeHtml(c.label || 'Link')}">
+            <i class="${escapeHtml(c.icon || 'fas fa-link')}"></i>
+          </span>
           <input type="text" class="form-input contact-label" value="${escapeHtml(
             c.label
-          )}" placeholder="Label (e.g. Email)" style="width: 140px;" />
+          )}" placeholder="Label (e.g. Email)" style="width: 130px; font-weight: 700;" />
           <input type="text" class="form-input contact-url" value="${escapeHtml(
             c.url
-          )}" placeholder="URL (e.g. mailto:...)" style="flex: 1;" />
+          )}" placeholder="URL (e.g. mailto:...)" style="flex: 2; min-width: 180px;" />
           <input type="text" class="form-input contact-icon" value="${escapeHtml(
             c.icon
-          )}" placeholder="Icon" style="width: 140px;" />
-          <button type="button" class="btn btn-sm btn-danger btn-remove-contact" data-contact-idx="${idx}"><i class="fas fa-trash"></i></button>
+          )}" placeholder="Icon class (e.g. fab fa-github)" style="flex: 1; min-width: 140px; font-family: var(--font-mono); font-size: 0.8rem;" />
+          <div style="display: flex; gap: 4px;">
+            <button type="button" class="btn btn-sm btn-reorder-contact-up" data-contact-idx="${idx}" ${idx === 0 ? "disabled" : ""} title="Move up"><i class="fas fa-arrow-up"></i></button>
+            <button type="button" class="btn btn-sm btn-reorder-contact-down" data-contact-idx="${idx}" ${idx === contacts.length - 1 ? "disabled" : ""} title="Move down"><i class="fas fa-arrow-down"></i></button>
+            <button type="button" class="btn btn-sm btn-danger btn-remove-contact" data-contact-idx="${idx}" title="Delete link"><i class="fas fa-trash"></i></button>
+          </div>
         </div>
       </div>`
       )
@@ -1057,6 +1342,30 @@
       inp.addEventListener("input", (e) => {
         const idx = parseInt(inp.closest("[data-contact-idx]").getAttribute("data-contact-idx"), 10);
         state.resume.header.contacts[idx].icon = e.target.value;
+        const iconPreview = inp.closest("[data-contact-idx]").querySelector("span i");
+        if (iconPreview) iconPreview.className = e.target.value || "fas fa-link";
+      });
+    });
+    container.querySelectorAll(".btn-reorder-contact-up").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const idx = parseInt(btn.getAttribute("data-contact-idx"), 10);
+        if (idx > 0) {
+          const temp = state.resume.header.contacts[idx];
+          state.resume.header.contacts[idx] = state.resume.header.contacts[idx - 1];
+          state.resume.header.contacts[idx - 1] = temp;
+          renderResumeContacts(state.resume.header.contacts);
+        }
+      });
+    });
+    container.querySelectorAll(".btn-reorder-contact-down").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const idx = parseInt(btn.getAttribute("data-contact-idx"), 10);
+        if (idx < state.resume.header.contacts.length - 1) {
+          const temp = state.resume.header.contacts[idx];
+          state.resume.header.contacts[idx] = state.resume.header.contacts[idx + 1];
+          state.resume.header.contacts[idx + 1] = temp;
+          renderResumeContacts(state.resume.header.contacts);
+        }
       });
     });
     container.querySelectorAll(".btn-remove-contact").forEach((btn) => {
@@ -1076,6 +1385,191 @@
       state.resume.header.contacts.push({ label: "New Link", url: "https://", icon: "fas fa-link" });
       renderResumeContacts(state.resume.header.contacts);
     });
+  }
+
+  // Resume Global Action Buttons (Save, Presets, Defaults, Skills helpers)
+  function bindResumeActionButtons() {
+    // Quick Add Preset Buttons
+    document.querySelectorAll(".btn-quick-contact").forEach((btn) => {
+      if (!btn._hasPresetBound) {
+        btn._hasPresetBound = true;
+        btn.addEventListener("click", () => {
+          const preset = btn.getAttribute("data-preset");
+          if (!state.resume.header) state.resume.header = {};
+          if (!Array.isArray(state.resume.header.contacts)) state.resume.header.contacts = [];
+          const presets = {
+            email: { label: "Email", url: "mailto:donsamarth163@gmail.com", icon: "fas fa-envelope" },
+            github: { label: "GitHub", url: "https://github.com/samarth163-cloud", icon: "fab fa-github" },
+            linkedin: { label: "LinkedIn", url: "https://www.linkedin.com/in/", icon: "fab fa-linkedin" },
+            youtube: { label: "YouTube", url: "https://www.youtube.com/", icon: "fab fa-youtube" },
+            instagram: { label: "Instagram", url: "https://instagram.com/", icon: "fab fa-instagram" },
+            twitter: { label: "X / Twitter", url: "https://x.com/", icon: "fab fa-x-twitter" },
+            discord: { label: "Discord", url: "https://discord.gg/", icon: "fab fa-discord" },
+            website: { label: "Website", url: "https://", icon: "fas fa-globe" }
+          };
+          const item = presets[preset] || { label: "Custom Link", url: "https://", icon: "fas fa-link" };
+          state.resume.header.contacts.push({ ...item });
+          renderResumeContacts(state.resume.header.contacts);
+          showToast(`Added ${item.label} contact link!`, "success");
+        });
+      }
+    });
+
+    // Save Resume Buttons
+    ["btn-save-resume-top", "btn-save-resume-bottom"].forEach((id) => {
+      const btn = document.getElementById(id);
+      if (btn && !btn._hasSaveBound) {
+        btn._hasSaveBound = true;
+        btn.addEventListener("click", () => {
+          performMasterSave();
+        });
+      }
+    });
+
+    // Reset Defaults Button
+    const btnReset = document.getElementById("btn-reset-resume-default");
+    if (btnReset && !btnReset._hasResetBound) {
+      btnReset._hasResetBound = true;
+      btnReset.addEventListener("click", () => {
+        if (confirm("Are you sure you want to restore default resume data? Any unsaved edits will be reset.")) {
+          restoreDefaultResumeData();
+        }
+      });
+    }
+
+    // Skill Dot Inserter
+    const btnDot = document.getElementById("btn-insert-skill-dot");
+    const skillsTextarea = document.getElementById("resume-skills");
+    if (btnDot && skillsTextarea && !btnDot._hasDotBound) {
+      btnDot._hasDotBound = true;
+      btnDot.addEventListener("click", () => {
+        const start = skillsTextarea.selectionStart || skillsTextarea.value.length;
+        const end = skillsTextarea.selectionEnd || skillsTextarea.value.length;
+        const val = skillsTextarea.value;
+        skillsTextarea.value = val.substring(0, start) + " · " + val.substring(end);
+        skillsTextarea.focus();
+        skillsTextarea.selectionStart = skillsTextarea.selectionEnd = start + 3;
+        state.resume.skills = skillsTextarea.value;
+      });
+    }
+
+    // Load Full Stack Helper
+    const btnLoadStack = document.getElementById("btn-load-sample-skills");
+    if (btnLoadStack && skillsTextarea && !btnLoadStack._hasStackBound) {
+      btnLoadStack._hasStackBound = true;
+      btnLoadStack.addEventListener("click", () => {
+        const fullStack = "JavaScript · TypeScript · Python · C# · C++ · React · Astro · Node.js · HTML/CSS · Unity · Raspberry Pi · Arduino · KiCad · MongoDB · Git/GitHub";
+        skillsTextarea.value = fullStack;
+        state.resume.skills = fullStack;
+        showToast("Full tech stack loaded into skills!", "success");
+      });
+    }
+  }
+
+  function restoreDefaultResumeData() {
+    state.resume = {
+      visible: true,
+      header: {
+        name: "Samarth Haveliwala",
+        headline: "Developer building open-source software, games and hardware.",
+        eyebrow: "resume.txt",
+        location: "Surat, Gujarat, India",
+        contacts: [
+          { label: "Email", url: "mailto:donsamarth163@gmail.com", icon: "fas fa-envelope" },
+          { label: "GitHub", url: "https://github.com/samarth163-cloud", icon: "fab fa-github" },
+          { label: "LinkedIn", url: "https://www.linkedin.com/", icon: "fab fa-linkedin" },
+          { label: "YouTube", url: "https://www.youtube.com/", icon: "fab fa-youtube" },
+          { label: "Instagram", url: "https://instagram.com/", icon: "fab fa-instagram" }
+        ]
+      },
+      introduction: "I build open-source software, games, and hardware- from custom cameras and devboards to web platforms. My work spans full-stack development, game development, and hardware prototyping, with projects used by thousands of people across the Hack Club and Rune communities.",
+      stats: {
+        visible: true,
+        username: "Samarth",
+        title: "Stats",
+        note: "Live coding activity from Hackatime.",
+        mode: "auto",
+        cards: [
+          { label: "Total coding time", value: "656h", detail: "tracked on Hackatime" },
+          { label: "Most used language", value: "JavaScript", detail: "79h" },
+          { label: "Most used editor", value: "Unity", detail: "172h" },
+          { label: "Most worked-on project", value: "Cozy Farm", detail: "35h" }
+        ]
+      },
+      sections: {
+        intro: true,
+        stats: true,
+        experience: true,
+        projects: true,
+        education: true,
+        recognition: true,
+        skills: true
+      },
+      sectionTitles: {
+        intro: "Introduction",
+        stats: "Stats",
+        experience: "Experience",
+        projects: "Some of my (cool?) projects",
+        education: "Education",
+        recognition: "Recognition",
+        skills: "Skills"
+      },
+      skills: "JavaScript · TypeScript · Python · C# · C++ · React · Astro · Node.js · HTML/CSS · Unity · Raspberry Pi · Arduino · KiCad · MongoDB · Git/GitHub",
+      experience: [
+        {
+          id: "exp-1",
+          visible: true,
+          title: "Hack Club - Special Activities Division",
+          period: "2024 - Present · Remote · Volunteer",
+          bullets: [
+            "Helped organize Summer of Making, a coding and hardware hackathon by Hack Club and GitHub, with 25,000+ teen participants worldwide.",
+            "Built an open-source submission and peer-voting platform, serving 18,000+ teens."
+          ]
+        },
+        {
+          id: "exp-2",
+          visible: true,
+          title: "Tester Work - QA Tester & Content Writer",
+          period: "2021 - 2024 · Remote",
+          bullets: [
+            "Tested apps for companies including Facebook (Meta), Matterport, and Deezer.",
+            "Wrote 4 software-testing articles for the company blog, reaching 50,000+ views."
+          ]
+        }
+      ],
+      projects: [
+        {
+          id: "res-rune",
+          visible: true,
+          title: "Multiplayer Games on Rune",
+          meta: "2023 · Rune SDK",
+          description: "Shipped six multiplayer games on Rune, reaching <b>1 million+ combined plays</b>, <b>247,000+ players</b>, and <b>17,000+ hours played</b>."
+        },
+        {
+          id: "res-arena",
+          visible: true,
+          title: "Arena",
+          meta: "2025 · React, Node.js",
+          description: "Built an open-source submission, voting, and gallery platform for hackathons and game jams, used by 500+ people through Hack Club events."
+        }
+      ],
+      education: [
+        {
+          id: "edu-1",
+          visible: true,
+          institution: "Benchmark School System",
+          meta: "O Levels · 2021 - 2024",
+          description: "Completed secondary education with strong focus on computer science and STEM."
+        }
+      ],
+      recognition: [
+        "Summer of Making 2024 - Top Open Source Contributor",
+        "MarkMUN 2023 - Media and Technical Lead Recognition"
+      ]
+    };
+    renderResumeTab();
+    updateCounters();
+    showToast("Resume defaults restored! Click Save to apply permanently.", "info");
   }
 
   // Resume Experience
@@ -3466,6 +3960,32 @@
 
   async function performMasterSave() {
     try {
+      // Explicitly scrape all active resume inputs into state.resume
+      if (state.resume) {
+        if (!state.resume.header) state.resume.header = {};
+        if (!state.resume.sectionTitles) state.resume.sectionTitles = {};
+
+        const elName = document.getElementById("resume-name");
+        if (elName) state.resume.header.name = elName.value;
+        const elHeadline = document.getElementById("resume-headline");
+        if (elHeadline) state.resume.header.headline = elHeadline.value;
+        const elEyebrow = document.getElementById("resume-eyebrow");
+        if (elEyebrow) state.resume.header.eyebrow = elEyebrow.value;
+        const elLocation = document.getElementById("resume-location");
+        if (elLocation) state.resume.header.location = elLocation.value;
+        const elIntro = document.getElementById("resume-intro");
+        if (elIntro) state.resume.introduction = elIntro.value;
+        const elSkills = document.getElementById("resume-skills");
+        if (elSkills) state.resume.skills = elSkills.value;
+
+        document.querySelectorAll(".section-title-input").forEach((inp) => {
+          const sec = inp.getAttribute("data-section");
+          if (sec && inp.value.trim()) {
+            state.resume.sectionTitles[sec] = inp.value.trim();
+          }
+        });
+      }
+
       state._updatedAt = Date.now();
       const serialized = JSON.stringify(state, null, 2);
       localStorage.setItem(STORAGE_KEY, serialized);

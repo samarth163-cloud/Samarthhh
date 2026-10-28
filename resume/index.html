@@ -57,13 +57,6 @@
             <i class="fas fa-location-dot"></i>
             India
           </p>
-          <div id="resume-status-badge-container">
-            <div class="resume-status-badge status-green">
-              <span class="status-pulse-dot"></span>
-              <span class="status-text">Available for opportunities & freelance</span>
-              <span class="status-subtext">Open to internships, open-source & contract work</span>
-            </div>
-          </div>
         </div>
 
         <div class="contact-links">
@@ -119,16 +112,35 @@
       <section class="stats-section" id="resume-sec-stats" aria-labelledby="stats-heading">
         <div class="stats-heading">
           <h2 id="stats-heading">Stats</h2>
-          <p>Live coding activity from Hackatime.</p>
+          <p id="stats-note">Live coding activity from Hackatime.</p>
         </div>
 
         <div
           id="coding-stats"
           class="stats-grid"
           aria-live="polite"
-          aria-busy="true"
+          aria-busy="false"
         >
-          <p class="stats-loading">Loading coding stats…</p>
+          <article class="stat-card">
+            <p class="stat-label">Total coding time</p>
+            <strong class="stat-value">656h</strong>
+            <span class="stat-detail">tracked on Hackatime</span>
+          </article>
+          <article class="stat-card">
+            <p class="stat-label">Most used language</p>
+            <strong class="stat-value">JavaScript</strong>
+            <span class="stat-detail">79h</span>
+          </article>
+          <article class="stat-card">
+            <p class="stat-label">Most used editor</p>
+            <strong class="stat-value">Unity</strong>
+            <span class="stat-detail">172h</span>
+          </article>
+          <article class="stat-card">
+            <p class="stat-label">Most worked-on project</p>
+            <strong class="stat-value">Cozy Farm</strong>
+            <span class="stat-detail">35h</span>
+          </article>
         </div>
       </section>
 
