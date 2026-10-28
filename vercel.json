@@ -24,7 +24,7 @@
   ],
   "rewrites": [
     {
-      "source": "/blog/:slug([^/.]+)/?",
+      "source": "/blog/:slug",
       "destination": "/blog/view.html?slug=:slug"
     }
   ]
