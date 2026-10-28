@@ -402,22 +402,6 @@
       "description": "A modern, responsive developer portfolio built to showcase my projects, technical skills, and development journey. Features a custom Neo-Brutalist design, dark and light themes, interactive resume, project showcase, and an admin dashboard for managing portfolio content. Includes GitHub integration and Vercel deployment support."
     },
     {
-      "id": "food-website",
-      "title": "Food Website",
-      "description": "",
-      "image": "https://opengraph.githubassets.com/1/samarth163-cloud/food-website-by-sam",
-      "sourceUrl": "https://github.com/samarth163-cloud/food-website-by-sam",
-      "visitUrl": "",
-      "visitLabel": "Visit",
-      "featured": true,
-      "tech": [
-        {
-          "name": "ASP.NET",
-          "icon": "fas fa-code"
-        }
-      ]
-    },
-    {
       "id": "soft-sb1",
       "title": "SOFT SB1",
       "description": "Windows desktop application built with C# and .NET 8 Windows Forms. The project focuses on login authentication, splash screens, dashboard UI, session management, and modular software architecture, with GitHub-based collaboration and testing workflows.",
@@ -450,6 +434,22 @@
         {
           "name": "JavaScript",
           "icon": "fab fa-js"
+        }
+      ]
+    },
+    {
+      "id": "food-website",
+      "title": "Food Website",
+      "description": "",
+      "image": "https://opengraph.githubassets.com/1/samarth163-cloud/food-website-by-sam",
+      "sourceUrl": "https://github.com/samarth163-cloud/food-website-by-sam",
+      "visitUrl": "",
+      "visitLabel": "Visit",
+      "featured": true,
+      "tech": [
+        {
+          "name": "ASP.NET",
+          "icon": "fas fa-code"
         }
       ]
     },
@@ -638,5 +638,5 @@
       ]
     }
   ],
-  "_updatedAt": 1793205834215
+  "_updatedAt": 1793205836112
 }
