@@ -10,11 +10,11 @@
         "tech",
         "development"
       ],
-      "image": "assets/blog/how-i-won-my-first-game-jam.png",
+      "image": "https://npzqpcagdtnfuqhyngro.supabase.co/storage/v1/object/public/portfolio-assets/ChatGPT_Image_Oct_15__2026__01-1793206063348.png",
       "title": "Untitled Article",
       "featured": false,
-      "coverImage": "assets/blog/how-i-won-my-first-game-jam.png",
-      "contentHtml": "<figure class=\"notion-image-figure\" style=\"margin: 20px 0px; text-align: center; display: block;\"><img src=\"https://npzqpcagdtnfuqhyngro.supabase.co/storage/v1/object/public/portfolio-assets/screenshot-1793113327017-1793130118762.png\" alt=\"screenshot-1793113327017.png\" loading=\"lazy\" style=\"max-width: 100%; height: auto; border-radius: 8px; border: 3px solid rgb(0, 0, 0); box-shadow: rgb(0, 0, 0) 4px 4px 0px; display: inline-block;\"><figcaption style=\"font-size: 12px; color: var(--text-muted, #71717a); margin-top: 8px; font-style: italic;\">screenshot-1793113327017.png</figcaption></figure><p><br></p>",
+      "coverImage": "https://npzqpcagdtnfuqhyngro.supabase.co/storage/v1/object/public/portfolio-assets/ChatGPT_Image_Oct_15__2026__01-1793206063348.png",
+      "contentHtml": "<figure class=\"notion-image-figure\" style=\"margin: 20px 0px; text-align: center; display: block;\"><img src=\"https://npzqpcagdtnfuqhyngro.supabase.co/storage/v1/object/public/portfolio-assets/screenshot-1793113327017-1793130118762.png\" alt=\"screenshot-1793113327017.png\" loading=\"lazy\" style=\"max-width: 100%; height: auto; border-radius: 8px; border: 3px solid rgb(0, 0, 0); box-shadow: rgb(0, 0, 0) 4px 4px 0px; display: inline-block;\"><figcaption style=\"font-size: 12px; color: var(--text-muted, #71717a); margin-top: 8px; font-style: italic;\">screenshot-1793113327017.png</figcaption></figure><table class=\"notion-table\">\n          <thead>\n            <tr>\n              <th>Feature</th>\n              <th>Description</th>\n              <th>Status</th>\n            </tr>\n          </thead>\n          <tbody>\n            <tr>\n              <td>Hardware Prototyping</td>\n              <td>Raspberry Pi Zero 2W custom casing</td>\n              <td>Completed</td>\n            </tr>\n            <tr>\n              <td><br></td>\n              <td>Unity retro arcade arcade game</td>\n              <td>1st Place</td>\n            </tr>\n          </tbody>\n        </table><p><br></p>",
       "description": "A short summary of thSamarth's Portfoliois article...",
       "readingTime": "3 min read"
     },
@@ -405,53 +405,69 @@
       "id": "soft-sb1",
       "title": "SOFT SB1",
       "description": "Windows desktop application built with C# and .NET 8 Windows Forms. The project focuses on login authentication, splash screens, dashboard UI, session management, and modular software architecture, with GitHub-based collaboration and testing workflows.",
-      "image": "https://opengraph.githubassets.com/1/samarth163-cloud/TEAM-SOFT-SB1",
+      "image": "https://npzqpcagdtnfuqhyngro.supabase.co/storage/v1/object/public/portfolio-assets/ChatGPT_Image_Oct_15__2026__01-1793196048319.png",
       "sourceUrl": "https://github.com/samarth163-cloud/TEAM-SOFT-SB1",
       "visitUrl": "",
       "visitLabel": "Visit",
       "featured": true,
       "tech": [
         {
-          "name": "JavaScript",
-          "icon": "fab fa-js"
+          "icon": "fab fa-js",
+          "name": "JavaScript"
         },
         {
-          "name": "Node.js",
-          "icon": "fab fa-node"
+          "icon": "fab fa-node",
+          "name": "Node.js"
         }
       ]
     },
     {
       "id": "pip-video-extension",
-      "title": "Pip Video Extension",
-      "description": "A lightweight Chrome Extension that enables seamless automatic and manual Picture-in-Picture (PiP) transitions for HTML5 videos on platforms like YouTube, Vimeo, and custom video players.",
-      "image": "https://opengraph.githubassets.com/1/samarth163-cloud/pip_video_extension",
-      "sourceUrl": "https://github.com/samarth163-cloud/pip_video_extension",
-      "visitUrl": "",
-      "visitLabel": "Visit",
-      "featured": true,
       "tech": [
         {
-          "name": "JavaScript",
-          "icon": "fab fa-js"
+          "icon": "fab fa-js",
+          "name": "JavaScript"
         }
-      ]
+      ],
+      "image": "https://opengraph.githubassets.com/1/samarth163-cloud/pip_video_extension",
+      "title": "Pip Video Extension",
+      "featured": true,
+      "visitUrl": "",
+      "sourceUrl": "https://github.com/samarth163-cloud/pip_video_extension",
+      "visitLabel": "Visit",
+      "description": "A lightweight Chrome Extension that enables seamless automatic and manual Picture-in-Picture (PiP) transitions for HTML5 videos on platforms like YouTube, Vimeo, and custom video players."
     },
     {
       "id": "food-website",
-      "title": "Food Website",
-      "description": "",
-      "image": "https://opengraph.githubassets.com/1/samarth163-cloud/food-website-by-sam",
-      "sourceUrl": "https://github.com/samarth163-cloud/food-website-by-sam",
-      "visitUrl": "",
-      "visitLabel": "Visit",
-      "featured": true,
       "tech": [
         {
-          "name": "ASP.NET",
-          "icon": "fas fa-code"
+          "icon": "fas fa-code",
+          "name": "ASP.NET"
         }
-      ]
+      ],
+      "image": "https://opengraph.githubassets.com/1/samarth163-cloud/food-website-by-sam",
+      "title": "Food Website",
+      "featured": true,
+      "visitUrl": "",
+      "sourceUrl": "https://github.com/samarth163-cloud/food-website-by-sam",
+      "visitLabel": "Visit",
+      "description": ""
+    },
+    {
+      "id": "creator-assets-text-animations-luts",
+      "tech": [
+        {
+          "icon": "fab fa-html5",
+          "name": "HTML"
+        }
+      ],
+      "image": "https://image.thum.io/get/width/1200/crop/800/https://web-olive-eta-49.vercel.app",
+      "title": "Creator Assets — Text Animations & LUTs",
+      "featured": true,
+      "visitUrl": "https://web-olive-eta-49.vercel.app",
+      "sourceUrl": "https://github.com/samarth163-cloud/WEB",
+      "visitLabel": "visit",
+      "description": "A creative video editing website showcasing text animations, cinematic LUTs, and visual effects for content creators. Built with HTML, CSS, and JavaScript, it features product previews, a modern dark design, and a simple way to explore editing assets."
     },
     {
       "id": "adobe-wakatime",
@@ -476,22 +492,6 @@
       "sourceUrl": "https://github.com/samarth163-cloud/adobe-wakatime",
       "visitLabel": "Visit",
       "description": "Unofficial Wakatime integration for Adobe Products (Photoshop, Illustrator, After Effects, etc)"
-    },
-    {
-      "id": "creator-assets-text-animations-luts",
-      "title": "Creator Assets — Text Animations & LUTs",
-      "description": "A creative video editing website showcasing text animations, cinematic LUTs, and visual effects for content creators. Built with HTML, CSS, and JavaScript, it features product previews, a modern dark design, and a simple way to explore editing assets.",
-      "image": "https://image.thum.io/get/width/1200/crop/800/https://web-olive-eta-49.vercel.app",
-      "sourceUrl": "https://github.com/samarth163-cloud/WEB",
-      "visitUrl": "https://web-olive-eta-49.vercel.app",
-      "visitLabel": "visit",
-      "featured": true,
-      "tech": [
-        {
-          "icon": "fab fa-html5",
-          "name": "HTML"
-        }
-      ]
     },
     {
       "id": "arena",
@@ -638,5 +638,5 @@
       "description": "An open-source npm package for unit conversion."
     }
   ],
-  "_updatedAt": 1793205853193
+  "_updatedAt": 1793206183157
 }
