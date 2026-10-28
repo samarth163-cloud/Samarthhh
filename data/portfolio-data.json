@@ -58,7 +58,7 @@
     }
   ],
   "about": {
-    "bio": "Hi!! I am <b>Samarth</b>, a developer passionate about building software, games, and hardware. I love everything tech! When I am not coding or tinkering with electronics, I enjoy editing videos and exploring new technologies.<br /><br />I'm always happy to talk about computers and programming. Welcome to my portfolio!",
+    "bio": "Hi!! I am <b>Samarth</b>, a developer passionate about building websites, software, and creative digital projects. I love everything tech! When I am not coding or tinkering with electronics, I enjoy editing videos and exploring new technologies.<br /><br />I'm always happy to talk about computers and programming. Welcome to my portfolio!         ",
     "highlights": [
       {
         "id": "som",
@@ -639,5 +639,5 @@
       "description": "An open-source npm package for unit conversion."
     }
   ],
-  "_updatedAt": 1793206994859
+  "_updatedAt": 1793207354248
 }
