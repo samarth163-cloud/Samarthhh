@@ -370,26 +370,6 @@
   },
   "projects": [
     {
-      "id": "team-soft-sb1",
-      "title": "TEAM SOFT SB1",
-      "description": "",
-      "image": "https://opengraph.githubassets.com/1/samarth163-cloud/TEAM-SOFT-SB1",
-      "sourceUrl": "https://github.com/samarth163-cloud/TEAM-SOFT-SB1",
-      "visitUrl": "",
-      "visitLabel": "Visit",
-      "featured": true,
-      "tech": [
-        {
-          "name": "JavaScript",
-          "icon": "fab fa-js"
-        },
-        {
-          "name": "Node.js",
-          "icon": "fab fa-node"
-        }
-      ]
-    },
-    {
       "id": "samarth-s-portfolio",
       "tech": [
         {
@@ -420,6 +400,26 @@
       "sourceUrl": "https://github.com/samarth163-cloud/Samarthhh",
       "visitLabel": "viwe",
       "description": "A modern, responsive developer portfolio built to showcase my projects, technical skills, and development journey. Features a custom Neo-Brutalist design, dark and light themes, interactive resume, project showcase, and an admin dashboard for managing portfolio content. Includes GitHub integration and Vercel deployment support."
+    },
+    {
+      "id": "team-soft-sb1",
+      "title": "TEAM SOFT SB1",
+      "description": "",
+      "image": "https://opengraph.githubassets.com/1/samarth163-cloud/TEAM-SOFT-SB1",
+      "sourceUrl": "https://github.com/samarth163-cloud/TEAM-SOFT-SB1",
+      "visitUrl": "",
+      "visitLabel": "Visit",
+      "featured": true,
+      "tech": [
+        {
+          "name": "JavaScript",
+          "icon": "fab fa-js"
+        },
+        {
+          "name": "Node.js",
+          "icon": "fab fa-node"
+        }
+      ]
     },
     {
       "id": "adobe-wakatime",
@@ -606,5 +606,5 @@
       ]
     }
   ],
-  "_updatedAt": 1793205492879
+  "_updatedAt": 1793205495017
 }
