@@ -49,6 +49,7 @@
 
 /* Dark Mode Tokens */
 html[data-theme="dark"],
+html.dark,
 body.dark {
   --bg-color: #151619;
   --bg-grid: #24272f;
@@ -60,7 +61,7 @@ body.dark {
   --bold-color: #ffffff;
   --card-bg-color: #1f222a;
   --card-hover-bg: #262933;
-  --border-color: #000000;
+  --border-color: #3e4452;
   --shadow-color: #ffffff;
   --hard-shadow-xs: 2px 2px 0px #ffffff;
   --hard-shadow-sm: 3px 3px 0px #ffffff;

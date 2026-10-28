@@ -46,15 +46,11 @@
     <link rel="prefetch" as="image" href="assets/profile/3.jpg" />
 
     <script>
-      document.addEventListener("DOMContentLoaded", () => {
-        // Default to Neo-Brutalist Light (Retro Paper) if not set
-        if (!localStorage.getItem("theme")) {
-          localStorage.setItem("theme", "light");
-        }
-
-        const currentTheme = localStorage.getItem("theme");
-        document.body.classList.add(currentTheme);
-      });
+      (function() {
+        const theme = localStorage.getItem("theme") || "light";
+        document.documentElement.setAttribute("data-theme", theme);
+        document.documentElement.className = theme;
+      })();
     </script>
 
     <title>Samarth's Portfolio</title>
@@ -73,8 +69,13 @@
     ></script>
   </head>
   <body>
+    <script>
+      (function() {
+        const theme = localStorage.getItem("theme") || "light";
+        document.body.classList.add(theme);
+      })();
+    </script>
     <div id="particles-js"></div>
-    <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
 
     <div id="header-wrapper">
       <header>
@@ -693,6 +694,7 @@
     <div class="cursor"></div>
     <div class="cursor2"></div>
 
+    <script src="assets/particles.min.js"></script>
     <script src="script.js"></script>
     <script src="data-sync.js"></script>
     <footer>

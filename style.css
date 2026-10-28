@@ -62,6 +62,8 @@
 }
 
 /* Dark Neo-Brutalist Mode */
+html.dark,
+html[data-theme="dark"],
 body.dark {
   --bg-color: #151619;
   --bg-grid: #24272f;

@@ -147,29 +147,7 @@ function renderPostHtml(post) {
     </div>
   </footer>
 
-  <script>
-    const themeBtn = document.getElementById("darkmode-toggle-id");
-    function applyTheme(theme) {
-      document.documentElement.setAttribute("data-theme", theme);
-      if (theme === "dark") {
-        document.documentElement.classList.add("dark");
-        document.body.classList.add("dark");
-      } else {
-        document.documentElement.classList.remove("dark");
-        document.body.classList.remove("dark");
-      }
-      localStorage.setItem("theme", theme);
-    }
-    const currentTheme = localStorage.getItem("theme") || "light";
-    applyTheme(currentTheme);
-
-    if (themeBtn) {
-      themeBtn.addEventListener("click", () => {
-        const next = document.documentElement.getAttribute("data-theme") === "dark" ? "light" : "dark";
-        applyTheme(next);
-      });
-    }
-  </script>
+  <script src="/blog/blog.js"></script>
 </body>
 </html>`;
 }
@@ -332,52 +310,7 @@ function renderIndexHtml(blogList) {
   </footer>
 
   <!-- Interactive Scripts -->
-  <script>
-    // Theme Switcher Sync
-    const themeBtn = document.getElementById("darkmode-toggle-id");
-    function applyTheme(theme) {
-      document.documentElement.setAttribute("data-theme", theme);
-      if (theme === "dark") {
-        document.documentElement.classList.add("dark");
-        document.body.classList.add("dark");
-      } else {
-        document.documentElement.classList.remove("dark");
-        document.body.classList.remove("dark");
-      }
-      localStorage.setItem("theme", theme);
-    }
-
-    const currentTheme = localStorage.getItem("theme") || "light";
-    applyTheme(currentTheme);
-
-    if (themeBtn) {
-      themeBtn.addEventListener("click", () => {
-        const next = document.documentElement.getAttribute("data-theme") === "dark" ? "light" : "dark";
-        applyTheme(next);
-      });
-    }
-
-    // Dynamic Filter Chips
-    const chips = document.querySelectorAll(".filter-chip");
-    const cards = document.querySelectorAll(".blog-card");
-
-    chips.forEach(chip => {
-      chip.addEventListener("click", () => {
-        chips.forEach(c => c.classList.remove("active"));
-        chip.classList.add("active");
-        const filter = chip.getAttribute("data-tag").toLowerCase();
-
-        cards.forEach(card => {
-          if (filter === "all") {
-            card.style.display = "";
-          } else {
-            const tags = (card.getAttribute("data-tags") || "").toLowerCase();
-            card.style.display = tags.includes(filter) ? "" : "none";
-          }
-        });
-      });
-    });
-  </script>
+  <script src="/blog/blog.js"></script>
 </body>
 </html>`;
 }

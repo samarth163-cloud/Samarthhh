@@ -22,41 +22,42 @@
     console.warn("BroadcastChannel not supported", e);
   }
 
-  // Load data: sync server data and Supabase cloud across all devices globally
+  // Load data: sync server data and Supabase cloud across all devices globally (parallel & fast)
   async function loadData() {
-    let serverData = null;
-    try {
-      const res = await fetch(DATA_URL + "?v=" + Date.now(), { cache: "no-store" });
-      if (res.ok) {
-        serverData = await res.json();
-      }
-    } catch (e) {
-      console.warn("Could not fetch fresh server data", e);
-    }
+    const fetchServer = async () => {
+      try {
+        const controller = new AbortController();
+        const tid = setTimeout(() => controller.abort(), 2000);
+        const res = await fetch(DATA_URL + "?v=" + Date.now(), { cache: "no-store", signal: controller.signal });
+        clearTimeout(tid);
+        if (res.ok) return await res.json();
+      } catch (e) {}
+      return null;
+    };
 
-    // Try Supabase Cloud Database for real-time changes
-    let supabaseData = null;
-    try {
-      const sbRes = await fetch(`${SUPABASE_URL}/rest/v1/portfolio_data?id=eq.main&select=*`, {
-        headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}` }
-      });
-      if (sbRes.ok) {
-        const rows = await sbRes.json();
-        if (rows && rows.length > 0 && rows[0].data) {
-          supabaseData = rows[0].data;
+    const fetchSupabase = async () => {
+      try {
+        const controller = new AbortController();
+        const tid = setTimeout(() => controller.abort(), 1800); // Max 1.8s for cloud db
+        const sbRes = await fetch(`${SUPABASE_URL}/rest/v1/portfolio_data?id=eq.main&select=*`, {
+          headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}` },
+          signal: controller.signal
+        });
+        clearTimeout(tid);
+        if (sbRes.ok) {
+          const rows = await sbRes.json();
+          if (rows && rows.length > 0 && rows[0].data) {
+            return rows[0].data;
+          }
         }
-      }
-    } catch (e) {
-      // Supabase network failure or offline
-    }
+      } catch (e) {}
+      return null;
+    };
 
-    let loaded = serverData;
-    const serverTime = serverData ? (serverData._updatedAt || 0) : 0;
-    const supabaseTime = supabaseData ? (supabaseData._updatedAt || 0) : 0;
-
-    if (supabaseTime > serverTime) {
-      loaded = supabaseData;
-    }
+    // Parallel fetch - never block sequentially
+    const [serverResult, supabaseResult] = await Promise.allSettled([fetchServer(), fetchSupabase()]);
+    const serverData = serverResult.status === "fulfilled" ? serverResult.value : null;
+    const supabaseData = supabaseResult.status === "fulfilled" ? supabaseResult.value : null;
 
     try {
       const localStr = localStorage.getItem(STORAGE_KEY) || localStorage.getItem(LEGACY_KEY);
@@ -461,21 +462,8 @@
           const statsP = statsSec.querySelector(".stats-heading p, #stats-note");
           if (statsP && r.stats.note) statsP.textContent = r.stats.note;
 
-          if (Array.isArray(r.stats.cards) && r.stats.cards.length > 0) {
-            const grid = document.getElementById("coding-stats");
-            if (grid && r.stats.mode === "custom") {
-              grid.innerHTML = r.stats.cards
-                .map(
-                  (c) => `
-                <article class="stat-card">
-                  <p class="stat-label">${escapeHtml(c.label || "")}</p>
-                  <strong class="stat-value">${escapeHtml(c.value || "--")}</strong>
-                  <span class="stat-detail">${escapeHtml(c.detail || "")}</span>
-                </article>
-              `
-                )
-                .join("");
-            }
+          if (typeof window.__renderResumeCodingStats === "function") {
+            window.__renderResumeCodingStats(r.stats);
           }
         }
       }
@@ -642,6 +630,7 @@
     // 1. Instant cache render (0ms response)
     const cached = getCachedData();
     if (cached) {
+      window.__portfolioData = cached;
       if (document.querySelector("#about-me") || document.querySelector("#portfolio")) {
         renderIndexPage(cached);
       }
@@ -650,14 +639,19 @@
       }
     }
 
-    // 2. Fetch fresh server data in background and update only if newer
+    // 2. Fetch fresh server data in background and update only if strictly newer
     const fresh = await loadData();
-    if (fresh && (!cached || fresh._updatedAt !== cached._updatedAt)) {
-      if (document.querySelector("#about-me") || document.querySelector("#portfolio")) {
-        renderIndexPage(fresh);
-      }
-      if (document.querySelector(".resume-sheet")) {
-        renderResumePage(fresh);
+    if (fresh) {
+      const cachedTime = cached ? (cached._updatedAt || 0) : 0;
+      const freshTime = fresh._updatedAt || 0;
+      if (!cached || freshTime > cachedTime) {
+        window.__portfolioData = fresh;
+        if (document.querySelector("#about-me") || document.querySelector("#portfolio")) {
+          renderIndexPage(fresh);
+        }
+        if (document.querySelector(".resume-sheet")) {
+          renderResumePage(fresh);
+        }
       }
     }
   }
