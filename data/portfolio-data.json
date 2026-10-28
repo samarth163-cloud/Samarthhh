@@ -265,8 +265,8 @@
       },
       {
         "id": "edu-1793131062168",
-        "meta": "2024 - 2026",
-        "description": "<b>Straight A's</b> and honors.",
+        "meta": "",
+        "description": "",
         "institution": "High School / University"
       },
       {
@@ -661,5 +661,5 @@
       "description": "An open-source npm package for unit conversion."
     }
   ],
-  "_updatedAt": 1793210529390
+  "_updatedAt": 1793210564967
 }
