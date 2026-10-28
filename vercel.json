@@ -11,6 +11,21 @@
           "value": "no-cache, no-store, must-revalidate"
         }
       ]
+    },
+    {
+      "source": "/data-sync.js",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-cache, no-store, must-revalidate"
+        }
+      ]
+    }
+  ],
+  "rewrites": [
+    {
+      "source": "/blog/:slug([^/.]+)/?",
+      "destination": "/blog/view.html?slug=:slug"
     }
   ]
 }

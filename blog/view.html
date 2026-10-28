@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Samarth Blog</title>
+  <meta name="description" content="Article by Samarth" />
+  <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+  <link rel="shortcut icon" href="/favicon.ico" />
+  <link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon/favicon-32x32.png" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/assets/favicon/apple-touch-icon.png" />
+
+  <!-- Fonts & Icons -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Anton&family=Space+Grotesk:wght@400;500;600;700;800&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <link rel="stylesheet" href="/blog/blog.css" />
+
+  <!-- Theme init -->
+  <script>
+    (function() {
+      const savedTheme = localStorage.getItem("theme") || "light";
+      document.documentElement.setAttribute("data-theme", savedTheme);
+      if (savedTheme === "dark") {
+        document.documentElement.classList.add("dark");
+      }
+    })();
+  </script>
+</head>
+<body>
+
+  <!-- Site Header -->
+  <header class="site-header">
+    <div class="header-inner">
+      <div class="site-name">
+        <a href="/">Samarth <span class="site-badge">BLOG</span></a>
+      </div>
+      
+      <nav class="menu" id="site-menu" aria-label="Main Navigation">
+        <ul>
+          <li><a href="/">Home</a></li>
+          <li><a href="/#about-me">About</a></li>
+          <li><a href="/blog" class="active">Blog</a></li>
+          <li><a href="/#portfolio">Projects</a></li>
+        </ul>
+      </nav>
+
+      <div class="header-actions">
+        <button id="darkmode-toggle-id" class="darkmode-toggle" type="button" aria-label="Toggle dark mode" title="Toggle Theme">
+          <i class="fas fa-sun light-icon"></i>
+          <i class="fas fa-moon dark-icon"></i>
+        </button>
+        <button id="menu-toggle-id" class="menu-toggle" type="button" aria-label="Toggle navigation menu" aria-expanded="false" aria-controls="site-menu">
+          <i class="fas fa-bars" aria-hidden="true"></i>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Article Main -->
+  <main class="article-main">
+    <div class="back-to-blog">
+      <a href="/blog/" class="back-link"><i class="fas fa-arrow-left"></i> Back to all articles</a>
+    </div>
+
+    <article id="article-container">
+      <div class="article-cover" id="article-cover-box" style="display: none;">
+        <img id="article-cover-img" src="" alt="" loading="eager" onerror="this.src='/favicon.ico'" />
+      </div>
+
+      <header class="article-header">
+        <div class="article-meta-row">
+          <span class="meta-item" id="article-date"><i class="far fa-calendar-alt"></i> Loading date...</span>
+          <span class="meta-dot">•</span><span class="readingTime" id="article-reading-time"><i class="far fa-clock"></i> Reading time</span>
+          <span class="meta-dot">•</span><div class="post-tags" id="article-tags"></div>
+        </div>
+        <h1 id="article-title">Loading Article...</h1>
+      </header>
+
+      <div class="prose article-content" id="article-content">
+        <div style="text-align: center; padding: 60px 20px; color: var(--text-muted, #71717a);">
+          <i class="fas fa-spinner fa-spin fa-2x" style="color: #24b47e; margin-bottom: 12px;"></i>
+          <p>Fetching article content from Supabase Cloud...</p>
+        </div>
+      </div>
+    </article>
+
+    <div id="article-not-found" style="display: none; text-align: center; padding: 80px 20px;">
+      <h2 style="font-family: 'Space Grotesk', sans-serif; font-size: 2rem; margin-bottom: 10px;">Article Not Found</h2>
+      <p style="color: var(--text-muted, #71717a); margin-bottom: 24px;">The article you requested could not be found or has been moved.</p>
+      <a href="/blog/" class="cta-button" style="display: inline-block; padding: 10px 20px; background: #000; color: #fff; text-decoration: none; font-weight: 700; border-radius: 4px;">
+        <i class="fas fa-arrow-left"></i> Return to Blog Listing
+      </a>
+    </div>
+  </main>
+
+  <!-- Site Footer -->
+  <footer class="site-footer">
+    <div class="footer-content">
+      <p class="copyright">&copy; 2026 <b><a href="/">Samarth</a></b>. Open source portfolio.</p>
+      <div class="social-links">
+        <a href="https://github.com/samarth163-cloud" target="_blank" rel="noopener noreferrer" aria-label="GitHub"><i class="fab fa-github"></i></a>
+        <a href="https://www.linkedin.com" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+        <a href="https://www.youtube.com/@DevStuff5" target="_blank" rel="noopener noreferrer" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
+        <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+        <a href="mailto:donsamarth163@gmail.com" aria-label="Email"><i class="far fa-envelope"></i></a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="/data-sync.js"></script>
+  <script src="/blog/blog.js"></script>
+  <script>
+    // Dynamic viewer fallback handler
+    (function() {
+      function renderCurrentArticle(data) {
+        if (!data || !Array.isArray(data.blog)) return;
+        const params = new URLSearchParams(window.location.search);
+        let slug = params.get("slug");
+        if (!slug) {
+          const m = window.location.pathname.match(/\/blog\/([^/]+)/);
+          if (m && m[1] && m[1] !== "view" && m[1] !== "index.html") {
+            slug = m[1];
+          }
+        }
+        if (!slug) return;
+
+        const post = data.blog.find(b => b.slug === slug || (b.url && b.url.includes(slug)));
+        const notFoundEl = document.getElementById("article-not-found");
+        const containerEl = document.getElementById("article-container");
+
+        if (!post) {
+          if (containerEl) containerEl.style.display = "none";
+          if (notFoundEl) notFoundEl.style.display = "block";
+          return;
+        }
+
+        if (notFoundEl) notFoundEl.style.display = "none";
+        if (containerEl) containerEl.style.display = "block";
+
+        document.title = (post.title || "Article") + " // Samarth Blog";
+
+        const titleEl = document.getElementById("article-title");
+        if (titleEl) titleEl.textContent = (post.icon ? post.icon + " " : "") + (post.title || "Untitled");
+
+        const dateEl = document.getElementById("article-date");
+        if (dateEl) dateEl.innerHTML = '<i class="far fa-calendar-alt"></i> ' + (post.date || "");
+
+        const readTimeEl = document.getElementById("article-reading-time");
+        if (readTimeEl) readTimeEl.innerHTML = '<i class="far fa-clock"></i> ' + (post.readingTime || "5 min read");
+
+        const tagsEl = document.getElementById("article-tags");
+        if (tagsEl) {
+          const tags = Array.isArray(post.tags) ? post.tags : (post.tags ? String(post.tags).split(",") : []);
+          tagsEl.innerHTML = tags.map(t => '<span class="tag">#' + t.trim() + '</span>').join(" ");
+        }
+
+        const coverBox = document.getElementById("article-cover-box");
+        const coverImg = document.getElementById("article-cover-img");
+        const coverSrc = post.coverImage || post.image;
+        if (coverSrc && coverBox && coverImg) {
+          coverBox.style.display = "block";
+          coverImg.src = coverSrc;
+          coverImg.alt = post.title || "";
+        } else if (coverBox) {
+          coverBox.style.display = "none";
+        }
+
+        const contentEl = document.getElementById("article-content");
+        if (contentEl) {
+          contentEl.innerHTML = post.contentHtml || "<p>No content written yet.</p>";
+        }
+      }
+
+      // Check on load and whenever refreshed
+      window.addEventListener("DOMContentLoaded", () => {
+        if (window.__portfolioData) renderCurrentArticle(window.__portfolioData);
+      });
+      const origRefresh = window.__refreshPortfolioData;
+      if (typeof origRefresh === "function") {
+        window.__refreshPortfolioData = async () => {
+          await origRefresh();
+          if (window.__portfolioData) renderCurrentArticle(window.__portfolioData);
+        };
+      }
+    })();
+  </script>
+</body>
+</html>

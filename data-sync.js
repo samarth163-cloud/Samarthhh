@@ -1,7 +1,8 @@
 /**
- * Live Data Sync Engine for Samarth's Portfolio & Resume
- * Seamlessly hydrates DOM with customized data from localStorage / portfolio-data.json
- * Supports instant cross-tab live updates via BroadcastChannel & Storage events.
+ * Live Cloud & Local Data Sync Engine for Samarth's Portfolio, Resume & Blog
+ * Authoritative cloud source of truth: Supabase PostgreSQL (portfolio_data, id='main')
+ * Non-authoritative 0ms instant display cache: localStorage (with cross-tab BroadcastChannel & storage events)
+ * Safe fallback: /data/portfolio-data.json
  */
 
 (function () {
@@ -10,8 +11,8 @@
   const DATA_URL = "/data/portfolio-data.json";
   const CHANNEL_NAME = "samarth_portfolio_sync";
 
-  const SUPABASE_URL = "https://npzqpcagdtnfuqhyngro.supabase.co";
-  const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5wenFwY2FnZHRuZnVxaHluZ3JvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTMxMjEzOTEsImV4cCI6MjEwODY5NzM5MX0.N20yyXXnX-ddUDo43ynQOe6f0r6ZoeK4w1MUpPzs37Y";
+  const DEFAULT_SUPABASE_URL = "https://npzqpcagdtnfuqhyngro.supabase.co";
+  const DEFAULT_SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5wenFwY2FnZHRuZnVxaHluZ3JvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTMxMjEzOTEsImV4cCI6MjEwODY5NzM5MX0.N20yyXXnX-ddUDo43ynQOe6f0r6ZoeK4w1MUpPzs37Y";
 
   let broadcastChannel = null;
   try {
@@ -22,76 +23,77 @@
     console.warn("BroadcastChannel not supported", e);
   }
 
-  // Load data: sync server data and Supabase cloud across all devices globally (parallel & fast)
-  async function loadData() {
-    const fetchServer = async () => {
-      try {
-        const controller = new AbortController();
-        const tid = setTimeout(() => controller.abort(), 2000);
-        const res = await fetch(DATA_URL + "?v=" + Date.now(), { cache: "no-store", signal: controller.signal });
-        clearTimeout(tid);
-        if (res.ok) return await res.json();
-      } catch (e) {}
-      return null;
-    };
-
-    const fetchSupabase = async () => {
-      try {
-        const controller = new AbortController();
-        const tid = setTimeout(() => controller.abort(), 1800); // Max 1.8s for cloud db
-        const sbRes = await fetch(`${SUPABASE_URL}/rest/v1/portfolio_data?id=eq.main&select=*`, {
-          headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}` },
-          signal: controller.signal
-        });
-        clearTimeout(tid);
-        if (sbRes.ok) {
-          const rows = await sbRes.json();
-          if (rows && rows.length > 0 && rows[0].data) {
-            return rows[0].data;
-          }
-        }
-      } catch (e) {}
-      return null;
-    };
-
-    // Parallel fetch - never block sequentially
-    const [serverResult, supabaseResult] = await Promise.allSettled([fetchServer(), fetchSupabase()]);
-    const serverData = serverResult.status === "fulfilled" ? serverResult.value : null;
-    const supabaseData = supabaseResult.status === "fulfilled" ? supabaseResult.value : null;
-
+  function getSupabaseConfig() {
+    let url = DEFAULT_SUPABASE_URL;
+    let key = DEFAULT_SUPABASE_KEY;
     try {
-      const localStr = localStorage.getItem(STORAGE_KEY) || localStorage.getItem(LEGACY_KEY);
-      if (localStr) {
-        const local = JSON.parse(localStr);
-        const localTime = local._updatedAt || 0;
-        const bestTime = loaded ? (loaded._updatedAt || 0) : 0;
-        if (bestTime >= localTime) {
-          try { localStorage.setItem(STORAGE_KEY, JSON.stringify(loaded)); } catch(e){}
-          return loaded;
-        }
-        return local;
-      }
-    } catch (e) {
-      console.warn("Could not read from localStorage", e);
-    }
-
-    if (loaded) {
-      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(loaded)); } catch(e){}
-      return loaded;
-    }
-
-    return null;
+      const storedUrl = localStorage.getItem("samarth_supabase_url");
+      const storedKey = localStorage.getItem("samarth_supabase_key");
+      if (storedUrl && storedUrl.trim()) url = storedUrl.trim();
+      if (storedKey && storedKey.trim()) key = storedKey.trim();
+    } catch (e) {}
+    return { url, key };
   }
 
-  // Escape HTML helper
+  // Escape HTML helper for plain text
   function escapeHtml(str) {
-    if (!str) return "";
-    return str
+    if (str === null || str === undefined) return "";
+    return String(str)
       .replace(/&/g, "&amp;")
       .replace(/</g, "&lt;")
       .replace(/>/g, "&gt;")
       .replace(/"/g, "&quot;")
       .replace(/'/g, "&#039;");
+  }
+
+  // Safe HTML sanitizer: allows formatting tags while stripping script/iframe/events
+  function sanitizeHtml(html) {
+    if (!html) return "";
+    try {
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(html, "text/html");
+      const allowedTags = new Set([
+        "B", "STRONG", "I", "EM", "U", "S", "STRIKE", "A", "P", "BR", "HR",
+        "H1", "H2", "H3", "H4", "H5", "H6", "UL", "OL", "LI", "BLOCKQUOTE",
+        "CODE", "PRE", "SPAN", "DIV", "IMG", "FIGURE", "FIGCAPTION", "TABLE",
+        "THEAD", "TBODY", "TR", "TH", "TD", "MARK", "SUB", "SUP"
+      ]);
+      const allowedAttrs = new Set([
+        "href", "src", "alt", "title", "class", "id", "target", "rel",
+        "style", "loading", "width", "height", "data-tag", "data-tags"
+      ]);
+
+      function clean(node) {
+        const children = Array.from(node.childNodes);
+        for (const child of children) {
+          if (child.nodeType === Node.ELEMENT_NODE) {
+            const tag = child.tagName.toUpperCase();
+            if (!allowedTags.has(tag)) {
+              child.remove();
+              continue;
+            }
+            for (const attr of Array.from(child.attributes)) {
+              const name = attr.name.toLowerCase();
+              if (!allowedAttrs.has(name) || name.startsWith("on")) {
+                child.removeAttribute(attr.name);
+              } else if ((name === "href" || name === "src") && /^(javascript|data:text\/html|vbscript):/i.test(attr.value.trim())) {
+                child.removeAttribute(attr.name);
+              }
+            }
+            if (tag === "A" && child.getAttribute("target") === "_blank") {
+              child.setAttribute("rel", "noopener noreferrer");
+            }
+            clean(child);
+          }
+        }
+      }
+
+      clean(doc.body);
+      return doc.body.innerHTML;
+    } catch (e) {
+      console.warn("Sanitization fallback to plain escape", e);
+      return escapeHtml(html);
+    }
   }
 
   // Helper to format image URLs and bust browser cache on updates
@@ -107,11 +109,98 @@
     return cleanUrl;
   }
 
+  // 1. Fetch from Supabase Cloud (Authoritative shared source of truth)
+  async function fetchSupabaseData() {
+    const { url, key } = getSupabaseConfig();
+    if (!url || !key) return null;
+
+    try {
+      const controller = new AbortController();
+      const tid = setTimeout(() => controller.abort(), 7000); // 7s polite timeout
+      const endpoint = `${url.replace(/\/+$/, "")}/rest/v1/portfolio_data?id=eq.main&select=*`;
+      const res = await fetch(endpoint, {
+        headers: {
+          apikey: key,
+          Authorization: `Bearer ${key}`,
+        },
+        signal: controller.signal,
+      });
+      clearTimeout(tid);
+
+      if (res.ok) {
+        const rows = await res.json();
+        if (Array.isArray(rows) && rows.length > 0 && rows[0]?.data) {
+          const cloudData = rows[0].data;
+          if (!cloudData._updatedAt && rows[0].updated_at) {
+            cloudData._updatedAt = new Date(rows[0].updated_at).getTime();
+          }
+          return cloudData;
+        }
+      }
+    } catch (err) {
+      console.warn("Supabase fetch unavailable, using cached fallback:", err.message);
+    }
+    return null;
+  }
+
+  // 2. Fallback: static JSON file on server
+  async function fetchServerFallback() {
+    try {
+      const controller = new AbortController();
+      const tid = setTimeout(() => controller.abort(), 3500);
+      const res = await fetch(DATA_URL + "?v=" + Date.now(), {
+        cache: "no-store",
+        signal: controller.signal,
+      });
+      clearTimeout(tid);
+      if (res.ok) return await res.json();
+    } catch (e) {}
+    return null;
+  }
+
+  // 3. Local Cache (Non-authoritative 0ms display cache)
+  function getCachedData() {
+    try {
+      const localStr = localStorage.getItem(STORAGE_KEY) || localStorage.getItem(LEGACY_KEY);
+      if (localStr) return JSON.parse(localStr);
+    } catch (e) {}
+    return null;
+  }
+
+  // Authoritative data loading flow
+  async function loadData() {
+    // 1. Check Supabase cloud first: shared single source of truth
+    const cloudData = await fetchSupabaseData();
+    if (cloudData) {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(cloudData));
+      } catch (e) {}
+      return cloudData;
+    }
+
+    // 2. Supabase unreachable (offline/error) -> fallback to localStorage cache
+    const cached = getCachedData();
+    if (cached) {
+      return cached;
+    }
+
+    // 3. No local cache -> fallback to static JSON
+    const serverData = await fetchServerFallback();
+    if (serverData) {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(serverData));
+      } catch (e) {}
+      return serverData;
+    }
+
+    return null;
+  }
+
   // Update browser tab title and favicon dynamically
   function updateBrowserTabMeta(data, isResume = false) {
     if (!data || !data.general) return;
 
-    // 1. Browser Tab Title (Top Name)
+    // 1. Browser Tab Title
     if (isResume) {
       const resumeTitle = data.general.siteTitle
         ? `${data.general.siteTitle} - Resume`
@@ -130,12 +219,10 @@
       }
     }
 
-    // 2. Favicon (Browser Tab Icon)
-    // "name vahi bus imge change": Static standard favicon links in HTML are natively resolved.
-    // If a live data: URI or custom path is active, update the primary icon smoothly without breaking apple-touch-icon.
+    // 2. Favicon
     if (data.general.favicon && (data.general.favicon.startsWith("data:") || !data.general.favicon.includes("favicon-32x32.png"))) {
       const favUrl = formatImageUrl(data.general.favicon, data._updatedAt);
-      let standardIcon = document.querySelector("link[rel='icon']:not([sizes]), link[rel='icon'][sizes='32x32']");
+      const standardIcon = document.querySelector("link[rel='icon']:not([sizes]), link[rel='icon'][sizes='32x32']");
       if (standardIcon) {
         standardIcon.href = favUrl;
       }
@@ -163,7 +250,7 @@
 
       window.__portfolioAvatars = avList;
 
-      // Preload all avatar sequence images for 0ms instant real-time switching
+      // Preload avatar sequence images
       avList.forEach((src) => {
         const clean = src.startsWith("data:") || src.startsWith("http") ? src : (src.startsWith("/") ? src : `/${src}`);
         const img = new Image();
@@ -215,7 +302,7 @@
         // Main Bio
         const firstP = aboutBox.querySelector("p:first-child");
         if (firstP && data.about.bio) {
-          firstP.innerHTML = data.about.bio;
+          firstP.innerHTML = sanitizeHtml(data.about.bio);
         }
 
         // Highlights ("Some things I have done")
@@ -230,7 +317,7 @@
             }
             if (nextUl) {
               nextUl.innerHTML = data.about.highlights
-                .map((item) => `<li>${item.text || item.html || ""}</li>`)
+                .map((item) => `<li>${sanitizeHtml(item.text || item.html || "")}</li>`)
                 .join("");
             }
           }
@@ -257,6 +344,12 @@
           }
         }
       }
+
+      // Hackatime badge visibility
+      const codingTimeBadge = document.getElementById("total-coding-time");
+      if (codingTimeBadge && typeof data.about.showCodingStats === "boolean") {
+        codingTimeBadge.style.display = data.about.showCodingStats ? "" : "none";
+      }
     }
 
     // 3. Projects Showcase
@@ -269,7 +362,7 @@
               ? p.tech
                   .map(
                     (t) =>
-                      `<span title="${escapeHtml(t.name)}"><i class="${escapeHtml(
+                      `<span title="${escapeHtml(t.name || "")}"><i class="${escapeHtml(
                         t.icon || "fas fa-code"
                       )}"></i></span>`
                   )
@@ -294,10 +387,10 @@
 
             return `
             <div class="card" data-project-id="${escapeHtml(p.id || "")}">
-              <img src="${escapeHtml(imageSrc)}" alt="${escapeHtml(p.title)}" loading="lazy" />
+              <img src="${escapeHtml(imageSrc)}" alt="${escapeHtml(p.title || "")}" loading="lazy" />
               <div class="card-content">
-                <b>${escapeHtml(p.title)}</b>
-                <p>${p.description}</p>
+                <b>${escapeHtml(p.title || "")}</b>
+                <p>${sanitizeHtml(p.description || "")}</p>
               </div>
               <div class="card-tech">
                 ${techBadges}
@@ -312,7 +405,7 @@
       }
     }
 
-    // 4. Blog Posts Showcase (if updated)
+    // 4. Blog Posts Showcase on Homepage
     if (Array.isArray(data.blog) && data.blog.length > 0) {
       const blogCardsContainer = document.querySelector("#blog .blog-cards");
       if (blogCardsContainer) {
@@ -321,14 +414,14 @@
             const tags = Array.isArray(b.tags)
               ? b.tags.map((t) => `<span>${escapeHtml(t)}</span>`).join("")
               : "";
-            const blogImg = formatImageUrl(b.image || "", data._updatedAt);
+            const blogImg = formatImageUrl(b.image || b.coverImage || "", data._updatedAt);
             return `
             <article class="blog-card" data-blog-id="${escapeHtml(b.id || "")}">
-              <a href="${escapeHtml(b.url || "#")}" class="blog-card-link" target="_blank" rel="noopener noreferrer" aria-label="Read ${escapeHtml(b.title)}">
-                <img src="${escapeHtml(blogImg)}" alt="${escapeHtml(b.title)}" />
+              <a href="${escapeHtml(b.url || ('/blog/' + (b.slug || '') + '/'))}" class="blog-card-link" aria-label="Read ${escapeHtml(b.title || "")}">
+                <img src="${escapeHtml(blogImg)}" alt="${escapeHtml(b.title || "")}" loading="lazy" onerror="this.src='/favicon.ico'" />
                 <div class="blog-card-content">
                   <p class="blog-date">${escapeHtml(b.date || "")}</p>
-                  <h3>${escapeHtml(b.title)}</h3>
+                  <h3>${escapeHtml(b.title || "")}</h3>
                   <p>${escapeHtml(b.description || "")}</p>
                   <div class="blog-tags" aria-label="Post tags">${tags}</div>
                   <span class="read-post-link">Read post <i class="fa-solid fa-arrow-right"></i></span>
@@ -368,7 +461,10 @@
 
     // Master Visibility Check
     const isVisible = r.visible !== false;
-    const isAdmin = sessionStorage.getItem("samarth_admin_auth") === "true";
+    let isAdmin = false;
+    try {
+      isAdmin = sessionStorage.getItem("samarth_admin_auth") === "true" || !!localStorage.getItem("samarth_admin_session");
+    } catch (e) {}
 
     const resumeSheet = document.querySelector(".resume-sheet");
     const privateNotice = document.getElementById("resume-private-notice");
@@ -376,7 +472,6 @@
 
     if (!isVisible) {
       if (isAdmin) {
-        // Admin preview mode
         if (resumeSheet) resumeSheet.style.display = "";
         if (privateNotice) privateNotice.style.display = "none";
         if (!adminBanner) {
@@ -395,16 +490,14 @@
           adminBanner.style.display = "flex";
         }
       } else {
-        // Public visitor -> Hide resume sheet, show private neo-brutalist screen
         if (resumeSheet) resumeSheet.style.display = "none";
         if (adminBanner) adminBanner.style.display = "none";
         if (privateNotice) {
           privateNotice.style.display = "block";
         }
-        return; // Don't hydrate content for public when hidden
+        return;
       }
     } else {
-      // Normal display
       if (resumeSheet) resumeSheet.style.display = "";
       if (privateNotice) privateNotice.style.display = "none";
       if (adminBanner) adminBanner.style.display = "none";
@@ -439,12 +532,6 @@
             .join("");
         }
       }
-    }
-
-    // Work status badge removed
-    const statusContainer = document.getElementById("resume-status-badge-container");
-    if (statusContainer) {
-      statusContainer.remove();
     }
 
     // Coding Stats Section
@@ -483,12 +570,12 @@
         if (h2) h2.textContent = secTitles.intro || "Introduction";
         if (isIntroVisible && r.introduction) {
           const p = sec.querySelector("p");
-          if (p) p.innerHTML = r.introduction;
+          if (p) p.innerHTML = sanitizeHtml(r.introduction);
         }
         return;
       }
 
-      // Stats already handled above
+      // Stats
       if (secId === "resume-sec-stats" || title.includes("stats")) {
         return;
       }
@@ -516,7 +603,7 @@
                 <span>${escapeHtml(exp.period || "")}</span>
               </div>
               <ul>
-                ${(exp.bullets || []).map((b) => `<li>${b}</li>`).join("")}
+                ${(exp.bullets || []).map((b) => `<li>${sanitizeHtml(b)}</li>`).join("")}
               </ul>
             </article>`
             )
@@ -545,10 +632,10 @@
               (p) => `
             <article class="entry">
               <div class="entry-heading">
-                <h3>${escapeHtml(p.title)}</h3>
+                <h3>${escapeHtml(p.title || "")}</h3>
                 <span>${escapeHtml(p.meta || p.subtitle || "")}</span>
               </div>
-              <p>${p.description || ""}</p>
+              <p>${sanitizeHtml(p.description || "")}</p>
             </article>`
             )
             .join("");
@@ -579,7 +666,7 @@
                 <h3>${escapeHtml(ed.institution || "")}</h3>
                 <span>${escapeHtml(ed.meta || ed.subtitle || "")}</span>
               </div>
-              <p>${ed.description || ""}</p>
+              <p>${sanitizeHtml(ed.description || "")}</p>
             </article>`
             )
             .join("");
@@ -598,7 +685,7 @@
         sec.style.display = "";
         sec.innerHTML =
           `<h2>${escapeHtml(secTitles.recognition || "Recognition")}</h2><ul>` +
-          r.recognition.map((rec) => `<li>${rec}</li>`).join("") +
+          r.recognition.map((rec) => `<li>${sanitizeHtml(rec)}</li>`).join("") +
           `</ul>`;
         return;
       }
@@ -617,46 +704,150 @@
     });
   }
 
-  function getCachedData() {
-    try {
-      const localStr = localStorage.getItem(STORAGE_KEY) || localStorage.getItem(LEGACY_KEY);
-      if (localStr) return JSON.parse(localStr);
-    } catch (e) {}
-    return null;
+  // Hydrate Blog Listing Page (/blog/)
+  function renderBlogListPage(data) {
+    if (!data || !Array.isArray(data.blog)) return;
+
+    updateBrowserTabMeta(data, false);
+
+    const postsContainer = document.getElementById("posts-container");
+    if (!postsContainer) return;
+
+    postsContainer.innerHTML = data.blog
+      .map((b) => {
+        const tags = Array.isArray(b.tags) ? b.tags : (b.tags ? String(b.tags).split(",").map(t => t.trim()) : []);
+        const tagsHtml = tags.map((t) => `<span class="tag">#${escapeHtml(t)}</span>`).join(" ");
+        const tagDataAttr = tags.join(",");
+        const blogImg = formatImageUrl(b.image || b.coverImage || "/assets/blog/how-i-won-my-first-game-jam.png", data._updatedAt);
+        const postUrl = b.url || (`/blog/${encodeURIComponent(b.slug || "")}/`);
+        const iconPrefix = b.icon ? `${escapeHtml(b.icon)} ` : "";
+
+        return `
+        <article class="blog-card" data-tags="${escapeHtml(tagDataAttr)}">
+          <a href="${escapeHtml(postUrl)}" class="card-link" aria-label="Read ${escapeHtml(b.title || "")}">
+            <div class="card-layout">
+              <div class="image-container">
+                <img src="${escapeHtml(blogImg)}" alt="${escapeHtml(b.title || "")}" class="post-image" loading="lazy" width="584" height="332" onerror="this.src='/favicon.ico'" />
+              </div>
+              <div class="card-content">
+                <div>
+                  <div class="card-header-meta">
+                    <span class="post-date"><i class="far fa-calendar-alt"></i> ${escapeHtml(b.date || "")}</span>
+                    <span class="reading-time"><i class="far fa-clock"></i> ${escapeHtml(b.readingTime || "5 min read")}</span>
+                  </div>
+                  <h2 class="post-title">${iconPrefix}${escapeHtml(b.title || "")}</h2>
+                  <p class="post-excerpt">${escapeHtml(b.description || "")}</p>
+                </div>
+                <div class="card-footer-meta">
+                  <div class="post-tags">
+                    ${tagsHtml}
+                  </div>
+                  <span class="read-more-link">Read Article <i class="fas fa-arrow-right"></i></span>
+                </div>
+              </div>
+            </div>
+          </a>
+        </article>`;
+      })
+      .join("");
   }
 
-  // Master Render (Instant 0ms from cache, then smooth background server sync)
+  // Hydrate Individual Blog Article Page (/blog/<slug>/)
+  function renderBlogArticlePage(data) {
+    if (!data || !Array.isArray(data.blog)) return;
+    const articleMain = document.querySelector(".article-main");
+    if (!articleMain) return;
+
+    // Determine current post from URL pathname or query param
+    const pathname = window.location.pathname.replace(/\/+$/, "");
+    const slugMatch = pathname.match(/blog\/([^/]+)$/);
+    const searchParams = new URLSearchParams(window.location.search);
+    const targetSlug = searchParams.get("slug") || (slugMatch ? slugMatch[1] : null);
+
+    if (!targetSlug) return;
+
+    const post = data.blog.find((b) => b.slug === targetSlug || (b.url && b.url.includes(targetSlug)));
+    if (!post) return;
+
+    // Update document title & metadata
+    if (post.title) {
+      document.title = `${post.title} // Samarth Blog`;
+    }
+
+    // Update Header / Meta in DOM
+    const titleEl = document.querySelector(".article-header h1") || document.querySelector("h1.article-title");
+    if (titleEl && post.title) {
+      titleEl.textContent = `${post.icon ? post.icon + " " : ""}${post.title}`;
+    }
+
+    const dateEl = document.querySelector(".article-date") || document.querySelector(".article-meta .post-date");
+    if (dateEl && post.date) {
+      dateEl.innerHTML = `<i class="far fa-calendar-alt"></i> ${escapeHtml(post.date)}`;
+    }
+
+    const readTimeEl = document.querySelector(".reading-time") || document.querySelector(".article-meta .read-time");
+    if (readTimeEl && post.readingTime) {
+      readTimeEl.innerHTML = `<i class="far fa-clock"></i> ${escapeHtml(post.readingTime)}`;
+    }
+
+    const tagsContainer = document.querySelector(".article-tags") || document.querySelector(".post-tags");
+    if (tagsContainer && Array.isArray(post.tags)) {
+      tagsContainer.innerHTML = post.tags.map(t => `<span class="tag">#${escapeHtml(t)}</span>`).join(" ");
+    }
+
+    // Update Cover Image
+    const coverImg = document.querySelector(".article-cover img") || document.querySelector(".post-hero-image img");
+    const activeCover = post.coverImage || post.image;
+    if (coverImg && activeCover) {
+      coverImg.src = formatImageUrl(activeCover, data._updatedAt);
+    }
+
+    // Update Content
+    const contentEl = document.querySelector(".article-content") || document.querySelector("#article-content");
+    if (contentEl && post.contentHtml) {
+      contentEl.innerHTML = sanitizeHtml(post.contentHtml);
+    }
+  }
+
+  // Master dispatcher to hydrate all relevant pages
+  function hydrateAllPages(data) {
+    if (!data) return;
+
+    if (document.querySelector("#about-me") || document.querySelector("#portfolio")) {
+      renderIndexPage(data);
+    }
+
+    if (document.querySelector(".resume-sheet") || document.getElementById("resume-private-notice")) {
+      renderResumePage(data);
+    }
+
+    if (document.getElementById("posts-container")) {
+      renderBlogListPage(data);
+    }
+
+    if (document.querySelector(".article-main")) {
+      renderBlogArticlePage(data);
+    }
+  }
+
+  // Master Render Flow: Instant 0ms cache first, then authoritative cloud fetch
   async function syncAndRender() {
     // 1. Instant cache render (0ms response)
     const cached = getCachedData();
     if (cached) {
       window.__portfolioData = cached;
-      if (document.querySelector("#about-me") || document.querySelector("#portfolio")) {
-        renderIndexPage(cached);
-      }
-      if (document.querySelector(".resume-sheet")) {
-        renderResumePage(cached);
-      }
+      hydrateAllPages(cached);
     }
 
-    // 2. Fetch fresh server data in background and update only if strictly newer
+    // 2. Fetch authoritative fresh cloud data
     const fresh = await loadData();
     if (fresh) {
-      const cachedTime = cached ? (cached._updatedAt || 0) : 0;
-      const freshTime = fresh._updatedAt || 0;
-      if (!cached || freshTime > cachedTime) {
-        window.__portfolioData = fresh;
-        if (document.querySelector("#about-me") || document.querySelector("#portfolio")) {
-          renderIndexPage(fresh);
-        }
-        if (document.querySelector(".resume-sheet")) {
-          renderResumePage(fresh);
-        }
-      }
+      window.__portfolioData = fresh;
+      hydrateAllPages(fresh);
     }
   }
 
-  // Initialize
+  // Initialize on DOM load
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", () => {
       syncAndRender();
@@ -665,7 +856,7 @@
     syncAndRender();
   }
 
-  // Cross-tab live updates
+  // Cross-tab live updates via BroadcastChannel
   if (broadcastChannel) {
     broadcastChannel.onmessage = (event) => {
       if (event.data && event.data.type === "PORTFOLIO_UPDATED") {
@@ -674,12 +865,13 @@
     };
   }
 
+  // Cross-tab live updates via window storage event
   window.addEventListener("storage", (e) => {
     if (e.key === STORAGE_KEY) {
       syncAndRender();
     }
   });
 
-  // Expose global reload for console / scripts
+  // Global helper for console & scripts
   window.__refreshPortfolioData = syncAndRender;
 })();

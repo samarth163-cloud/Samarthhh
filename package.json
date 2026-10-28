@@ -4,7 +4,9 @@
   "description": "Portfolio website of Samarth Haveliwala",
   "scripts": {
     "dev": "node admin/server.js",
-    "admin": "node admin/server.js"
+    "admin": "node admin/server.js",
+    "test": "node tests/test-suite.js && node tests/test-server.js",
+    "migrate:assets": "node scripts/migrate-assets-to-supabase.js"
   },
   "keywords": [
     "portfolio",

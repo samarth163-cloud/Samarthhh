@@ -18,7 +18,11 @@
   <script>
     // Initialize Theme & Auth Gate (Zero FOUC)
     const savedTheme = localStorage.getItem("theme") || "light";
-    const isAuthenticated = sessionStorage.getItem("samarth_admin_auth") === "true";
+    let isAuthenticated = false;
+    try {
+      const session = JSON.parse(localStorage.getItem("samarth_supabase_auth_session") || "null");
+      isAuthenticated = !!(session && session.access_token) || (sessionStorage.getItem("samarth_admin_auth") === "true");
+    } catch (e) {}
     document.documentElement.classList.add(savedTheme);
     document.documentElement.classList.toggle("is-authenticated", isAuthenticated);
 
@@ -58,14 +62,15 @@
 
         <div class="form-group" style="text-align: left;">
           <label class="form-label" for="login-username">
-            <span><i class="fas fa-user"></i> Username</span>
+            <span><i class="fas fa-envelope"></i> Supabase Admin Email</span>
           </label>
           <input
-            type="text"
+            type="email"
             id="login-username"
             class="form-input"
             required
-            autocomplete="username"
+            autocomplete="email"
+            placeholder="admin@example.com"
             spellcheck="false"
           />
         </div>

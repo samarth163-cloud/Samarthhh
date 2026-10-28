@@ -1,0 +1,659 @@
+{
+  "blog": [
+    {
+      "id": "post-1793123918833",
+      "url": "/blog/new-article-8833/",
+      "date": "October 27, 2026",
+      "icon": "📝",
+      "slug": "new-article-8833",
+      "tags": [
+        "tech",
+        "development"
+      ],
+      "image": "https://npzqpcagdtnfuqhyngro.supabase.co/storage/v1/object/public/portfolio-assets/ChatGPT_Image_Oct_15__2026__01-1793206063348.png",
+      "title": "Untitled Article",
+      "featured": false,
+      "coverImage": "https://npzqpcagdtnfuqhyngro.supabase.co/storage/v1/object/public/portfolio-assets/ChatGPT_Image_Oct_15__2026__01-1793206063348.png",
+      "contentHtml": "<figure class=\"notion-image-figure\" style=\"margin: 20px 0px; text-align: center; display: block;\"><img src=\"https://npzqpcagdtnfuqhyngro.supabase.co/storage/v1/object/public/portfolio-assets/screenshot-1793113327017-1793130118762.png\" alt=\"screenshot-1793113327017.png\" loading=\"lazy\" style=\"max-width: 100%; height: auto; border-radius: 8px; border: 3px solid rgb(0, 0, 0); box-shadow: rgb(0, 0, 0) 4px 4px 0px; display: inline-block;\"><figcaption style=\"font-size: 12px; color: var(--text-muted, #71717a); margin-top: 8px; font-style: italic;\">screenshot-1793113327017.png</figcaption></figure><table class=\"notion-table\">\n          <thead>\n            <tr>\n              <th>Feature</th>\n              <th>Description</th>\n              <th>Status</th>\n            </tr>\n          </thead>\n          <tbody>\n            <tr>\n              <td>Hardware Prototyping</td>\n              <td>Raspberry Pi Zero 2W custom casing</td>\n              <td>Completed</td>\n            </tr>\n            <tr>\n              <td><br></td>\n              <td>Unity retro arcade arcade game</td>\n              <td>1st Place</td>\n            </tr>\n          </tbody>\n        </table><p><br></p>",
+      "description": "A short summary of thSamarth's Portfoliois article...",
+      "readingTime": "3 min read"
+    },
+    {
+      "id": "pishot-camera-blog",
+      "url": "/blog/i-made-a-custom-raspberry-pi-camera/",
+      "date": "February 20, 2026",
+      "icon": "📷",
+      "slug": "i-made-a-custom-raspberry-pi-camera",
+      "tags": [
+        "hardware",
+        "raspberry pi",
+        "camera"
+      ],
+      "image": "assets/blog/i-made-a-custom-raspberry-pi-camera.png",
+      "title": "I Made a Custom Raspberry Pi Camera - Journal: PiShot",
+      "featured": true,
+      "coverImage": "/blog/_astro/camera-pishot-half-built.DCzzKOru.png",
+      "contentHtml": "<p>This is my complete journey of making a custom Raspberry Pi camera: <strong>PiShot</strong>.</p>\n<p>I made it with a Raspberry Pi Zero 2 W, a Pi camera module, and a custom 3D-printed case.</p>\n<p>This project is <strong>open-source</strong>, and you can check it out <strong><a href=\"https://github.com/samarth163-cloud/PiShot\">here</a></strong>!</p>\n<p>I also made a showcase <strong><a href=\"https://www.youtube.com/watch?v=gf-RIgXnWJM\">video</a></strong> for it!</p>\n<h3 id=\"total-time-spent-435-hours\"><strong>Total time spent: ~43.5 hours!</strong></h3>\n<hr/>\n<h1 id=\"design--firmware\">Design + Firmware</h1>\n<p><strong>Time spent on design: ~19 hours</strong></p>\n<h2 id=\"july-25th-research--wiring-diagram\">July 25th: Research + Wiring Diagram</h2>\n<p>The plan is to make a Camera with a custom 3D case (with a tripod, grip, and viewfinder), using the Raspberry Pi Zero 2W, and the Pi camera module 3, and the ST7789 LCD, that stores the photos on an SD card, and you can view the last photo (and explore all the shoots) on the display!! It will be in the Cyber-shot form factor!!</p>\n<p>Started by looking up all the different Pi Camera modules and comparing their results! Settled on the Camera module 3, as it has auto focus! I will be using the Pi Zero 2W as the MCU, as it is the lowest-performance MCU that supports the camera.\nThen I made a list of all the components I would need! I decided to go with a 1500mAh 3.7V LiPo battery with an MT3608 boost converter, and a TP4056 module (with protection) to charge it! (At first, I was considering a power bank or an 18650 cell, but those are too bulky!)\nFor the display, I will be using the ST7789 TFT-LCD. And a metal momentary push button (similar to <a href=\"https://www.adafruit.com/product/558\">this</a>, but without the LED ring!) for the shutter button! And I will also place an SPDT slide switch to turn it on and off!</p>\n<p>I decided that I won’t be using a PCB, so it’s easier to place all the components in the case. So I will make a wiring diagram instead! Thus, I opened up <a href=\"https://app.cirkitdesigner.com/\">Cirkit Designer</a>, and got to work!! <a href=\"https://app.cirkitdesigner.com/project/cb34b867-8320-4c2c-972f-24cbd0726ab1\">This</a> is what I came up with!</p>\n<img width=\"1200\" height=\"800\" alt=\"circuit_image (1)\" src=\"/blog/_astro/wiring-diagram.B68tWsSI.png\"/>\n<p><strong>Total time spent: 3.5 hours</strong></p>\n<h2 id=\"july-26th-started-3d-case-design\">July 26th: Started 3D Case Design</h2>\n<p>I began by finding and downloading 3D models of all the components I would be using. This process took a significant amount of time, as I had to search extensively to locate every part! After that, I started designing the case in Shapr3D on my iPad. I first created a rectangular base for the body, including a removable back. Next, I added a square hole in the centre for the camera module, and a hole at the top for the shutter button. The challenging part was designing a grip that could slide into the case and be removed easily. Developing the sliding mechanism took quite a while, but I think it turned out pretty cool!</p>\n<div style=\"display: flex; gap: 1rem; margin: 2rem 0; align-items: stretch; justify-content: left; flex-wrap: wrap;\"><img width=\"284\" height=\"428\" alt=\"image\" src=\"/blog/_astro/case-base.DkF-F2og.png\" style=\"height: 320px; width: auto; max-width: 100%; border-radius: 4px;\"/><img width=\"606\" height=\"428\" alt=\"image\" src=\"/blog/_astro/case-grip.Bjc-qaEY.png\" style=\"height: 320px; width: auto; max-width: 100%; border-radius: 4px;\"/></div>\n<p>I began by placing each component into the interior of the case, ensuring that they were properly secured. I created holes on the sides and bottom for the SD card and the USB port of the Raspberry Pi. I also made an opening in the back cover for the LCD screen and added supports for all the components. However, I did not create a hole for the USB-C port, as I was still unsure about where to place it.</p>\n<div style=\"display: flex; flex-direction: column; gap: 1rem; margin: 2rem 0;\"><div style=\"display: flex; gap: 1rem; align-items: stretch; justify-content: left; flex-wrap: wrap;\"><img width=\"520\" height=\"385\" alt=\"image\" src=\"/blog/_astro/case-interior-front.1CtPVLev.png\" style=\"height: 256px; width: auto; max-width: 100%; border-radius: 4px;\"/><img width=\"474\" height=\"385\" alt=\"image\" src=\"/blog/_astro/case-interior-back.C0TL2l69.png\" style=\"height: 256px; width: auto; max-width: 100%; border-radius: 4px;\"/></div><div style=\"display: flex; gap: 1rem; align-items: stretch; justify-content: left; flex-wrap: wrap;\"><img width=\"520\" height=\"425\" alt=\"image\" src=\"/blog/_astro/case-interior-bottom.DT0Csc8Q.png\" style=\"height: 280px; width: auto; max-width: 100%; border-radius: 4px;\"/><img width=\"478\" height=\"425\" alt=\"image\" src=\"/blog/_astro/case-interior-top.BoPTjcLH.png\" style=\"height: 280px; width: auto; max-width: 100%; border-radius: 4px;\"/></div></div>\n<p><strong>Total time spent: 7 hours</strong></p>\n<h2 id=\"july-27th-buttons--usb-c-port--tp4056-supports\">July 27th: Buttons + USB C Port + TP4056 Supports</h2>\n<p>Looked through the datasheet for <a href=\"https://tech.alpsalpine.com/e/products/detail/SKRGAED010/\">these</a> circle micro pushbuttons and noted their size, then made a cool to-size slot for them in the case!</p>\n<div style=\"display: flex; gap: 1rem; margin: 2rem 0; align-items: stretch; justify-content: left; flex-wrap: wrap;\"><img width=\"464\" height=\"454\" alt=\"image\" src=\"/blog/_astro/button-slot.D0ZGxyRr.png\" style=\"height: 165px; width: auto; max-width: 100%; border-radius: 4px;\"/><img width=\"470\" height=\"364\" alt=\"image\" src=\"/blog/_astro/button-side.7E3a6ePB.png\" style=\"height: 165px; width: auto; max-width: 100%; border-radius: 4px;\"/><img width=\"478\" height=\"293\" alt=\"image\" src=\"/blog/_astro/button-detail.CGkRLHzP.png\" style=\"height: 165px; width: auto; max-width: 100%; border-radius: 4px;\"/></div>\n<p>Then, I also made a slot for the USB-C port, and some supports for the TP4056!</p>\n<div style=\"display: flex; gap: 1rem; margin: 2rem 0; align-items: stretch; justify-content: left; flex-wrap: wrap;\"><img width=\"513\" height=\"300\" alt=\"image\" src=\"/blog/_astro/usb-c-port.bCmVvzRq.png\" style=\"height: 210px; width: auto; max-width: 100%; border-radius: 4px;\"/><img width=\"564\" height=\"399\" alt=\"image\" src=\"/blog/_astro/tp4056-supports.BVHKi9Y5.png\" style=\"height: 210px; width: auto; max-width: 100%; border-radius: 4px;\"/></div>\n<p><strong>Total time spent: 2 hours</strong></p>\n<h2 id=\"july-28th-tripod--viewfinder\">July 28th: Tripod + Viewfinder</h2>\n<p>Inspired by the removable Sony viewfinder, I also decided to make one too! It will also have a sliding mechanism like the grip! I started by making an extrusion and adding the sliding mechanism, then I made a separate rectangle body, with a rectangle hole in the middle (this will be the viewfinder). I then fillet/chamfered it to look more trapezium-ish, like a real viewfinder. And finally, I also added some nice rounded supports to rest the eye on! These were the final results!!</p>\n<div style=\"display: flex; gap: 1rem; margin: 2rem 0; align-items: stretch; justify-content: left; flex-wrap: wrap;\"><img width=\"264\" height=\"202\" alt=\"image\" src=\"/blog/_astro/viewfinder-front.DufWb3hr.png\" style=\"height: 260px; width: auto; max-width: 100%; border-radius: 4px;\"/><img width=\"304\" height=\"248\" alt=\"image\" src=\"/blog/_astro/viewfinder-side.B2HEmQWn.png\" style=\"height: 260px; width: auto; max-width: 100%; border-radius: 4px;\"/></div>\n<p>Then I thought about adding support for standard tripods! And, of course, I think the sliding mechanism is super cool, so I built another bit of it on the bottom of the case, and then made a cube with a screw hole in it! Thankfully, I discovered Shapr3D’s subtract tool, or I don’t think I could have ever made the screw curve paths!! And finally rounded off the edges to make it look more polished!</p>\n<img width=\"306\" height=\"255\" alt=\"image\" src=\"/blog/_astro/tripod-mount.DPrDdf8H.png\"/>\n<p>Then I remembered I had forgotten to add space for the SPDT On/Off switch, so I added that!</p>\n<img width=\"145\" height=\"97\" alt=\"image\" src=\"/blog/_astro/power-switch.DTA1EaKM.png\"/>\n<p><strong>Total time spent: 3 hours</strong></p>\n<h2 id=\"july-29th-finished-design\">July 29th: Finished Design</h2>\n<p>The only thing left now was some final polishing- wait, I forgot to make space for a rechargeable battery!! So I imported a model of an 18650 cell, and tried to make space for it! But I couldn’t :(. So finally I split my case (front, back, grip, everything) into two parts, increased its height by 5mm, and then joined it once again! So now my case was 5mm taller, and I could fit the battery inside too! And then I had to move around all the slots like front buttons, screen, camera hole, etc, around to centre them again and make them look nice!</p>\n<div style=\"display: flex; flex-direction: column; gap: 1rem; margin: 2rem 0;\"><div style=\"display: flex; gap: 1rem; align-items: stretch; justify-content: left; flex-wrap: wrap;\"><img width=\"430\" height=\"379\" alt=\"image\" src=\"/blog/_astro/battery-space.DUsZwZIt.png\" style=\"height: 310px; width: auto; max-width: 100%; border-radius: 4px;\"/><img width=\"382\" height=\"379\" alt=\"image\" src=\"/blog/_astro/resized-case.B59xNuc3.png\" style=\"height: 310px; width: auto; max-width: 100%; border-radius: 4px;\"/></div><div style=\"display: flex; gap: 1rem; align-items: stretch; justify-content: flex-start; flex-wrap: wrap;\"><img width=\"468\" height=\"442\" alt=\"image\" src=\"/blog/_astro/repositioned-front.C8Mc26Ig.png\" style=\"height: 313px; width: auto; max-width: 100%; border-radius: 4px;\"/><img width=\"514\" height=\"442\" alt=\"image\" src=\"/blog/_astro/repositioned-back.BlfAy7Lk.png\" style=\"height: 313px; width: auto; max-width: 100%; border-radius: 4px;\"/></div></div>\n<p>And then I also added some text to the front of the camera, for <em>personalisation</em>!</p>\n<img width=\"398\" height=\"277\" alt=\"image\" src=\"/blog/_astro/front-personalization.tLwTEhwO.png\"/>\n<p>Final 3D design!!</p>\n<div style=\"display: flex; gap: 1rem; margin: 2rem 0; align-items: stretch; justify-content: left; flex-wrap: wrap;\"><img width=\"474\" height=\"407\" alt=\"image\" src=\"/blog/_astro/final-design-front.DpB6tOCD.png\" style=\"height: 310px; width: auto; max-width: 100%; border-radius: 4px;\"/><img width=\"420\" height=\"407\" alt=\"image\" src=\"/blog/_astro/final-design-back.PivAdFch.png\" style=\"height: 310px; width: auto; max-width: 100%; border-radius: 4px;\"/></div>\n<p><strong>Total time spent: 2.5 hours</strong></p>\n<h2 id=\"july-30th-made-firmware\">July 30th: Made Firmware</h2>\n<p>Got to work on coding the firmware for the Pi! I have never before used a Pi Zero 2w, but it was super easy to code for it because, well, it’s a full Linux computer! So no flashing or stuff, I just have to make a Python file and add it to run on boot!</p>\n<p>Right now, I randomly assigned the GPIO pins in the code because I don’t know what pin I might end up using for what. The script <del>should</del> will: display a splash screen, wait for shutter button press, capture image from camera, and save it to SD card with a timestamped filename!</p>\n<p><strong>Total time spent: 1 hour</strong></p>\n<h1 id=\"irl-building\">IRL Building!!</h1>\n<p><strong>Time spent on soldering/building: ~24.5 hours</strong></p>\n<h2 id=\"august-20th-finished-building-prototype\">August 20th: Finished Building Prototype</h2>\n<p>All of the parts arrived today except for the Pi Zero W camera ribbon cable and the 3D case. So I decided to start and make a breadboard prototype to make sure everything works, and also just to make everything with the camera functionality, so I only need to connect the camera when the cable arrives!</p>\n<p>First, I flashed an SD card with Pi OS, with SSH enabled, and put that into the Pi Zero 2W! Then I SSHed into it! And it was really fun! I might even have got lost playing with all the different settings and testing out the different RPi features like RPi connect c:! The interface was interesting! Then I used nano for the first time to code, and it was pretty easy to use after learning the shortcuts (though selection is pretty hard).</p>\n<img width=\"1978\" height=\"1088\" alt=\"WindowsTerminal_ovPsQCGSl1\" src=\"/blog/_astro/prototype-terminal.BYbs_4ZI.png\"/>\n<p>After that, I looked up the pin layout for the Pi Zero 2 W, attached my shutter and pushbuttons, and my OLED. The buttons worked fine, but it took a lot of time to make the LED work! And after a lot of going back and forth, debugging the LED, I found out that it was not a 128x64 SSD1306, but a 132x64 SH1106. So I downloaded its libraries, updated my code, and it started working!</p>\n<p>Then I brought out my soldering iron and got to work soldering the power components! I think everything was correctly set up, but I didn’t connect it to the Pi just yet, because I don’t know what output voltage the MT3608 is set to, as I don’t have a multimeter, and don’t want to fry my Pi Zero 2 W.</p>\n<p>Now I just have to wait for the Pi Zero 2 W camera ribbon cable to arrive!!</p>\n<p><strong>Total time spent: 4.5 hours</strong></p>\n<hr/>\n<p><em>The parts took a lot of time to arrive, so I didn’t get to work on the project for a while. But now that they have arrived, I can finally continue working on it! So <strong>6 months later…</strong></em></p>\n<hr/>\n<h2 id=\"february-7th-case-revisions\">February 7th: Case Revisions</h2>\n<p>Worked on the case again! Improved the sliding mechanism, and took tolerance into account this time so it wouldn’t be so tight. Also added little holes on each side of the case for a lanyard/keychain!</p>\n<img alt=\"Keychain holes on the case\" src=\"/blog/_astro/case-keychain-holes.bgq2G1MM.png\" style=\"width: 100%; max-width: 500px; height: auto;\"/>\n<p>And updated all the text planes, going for 0.2mm minimum extrusions and\nintrusions this time!</p>\n<div style=\"display: flex; gap: 1rem; margin: 2rem 0; align-items: stretch; justify-content: left; flex-wrap: wrap;\"><img alt=\"Case text plane detail\" src=\"/blog/_astro/case-text-plane-detail.BXMPnJb5.png\" style=\"height: 290px; width: auto; max-width: 100%; border-radius: 4px;\"/><img alt=\"Case text plane detail 2\" src=\"/blog/_astro/case-text-plane-detail-2.B3pm8L7T.png\" style=\"height: 290px; width: auto; max-width: 100%; border-radius: 4px;\"/></div>\n<p><strong>Total time spent: 2 hours</strong></p>\n<h2 id=\"february-9th-first-breadboard-prototype\">February 9th: First Breadboard Prototype</h2>\n<p>Got out all the components I would need and made a basic breadboard prototype! Ran the Python script on the Pi, and it worked!</p>\n<img alt=\"Breadboard prototype\" src=\"/blog/_astro/breadboard-prototype.KEILC1t_.jpg\" style=\"width: 100%; max-width: 500px; height: auto;\"/>\n<p>I didn’t include the LiPo and the charging module for this — it’s directly\npowered through USB for now. Will wire that up next! Here are some pictures I\ntook with the camera:</p>\n<div style=\"display: flex; gap: 1rem; margin: 2rem 0; align-items: stretch; justify-content: left; flex-wrap: wrap;\"><img alt=\"Test photo from the prototype\" src=\"/blog/_astro/prototype-test-photo.DalMUXk6.jpg\" style=\"height: 250px; width: auto; max-width: 100%; border-radius: 4px;\"/><img alt=\"Test photo from the prototype 2\" src=\"/blog/_astro/prototype-test-photo-2.GO2m-FDQ.png\" style=\"height: 250px; width: auto; max-width: 100%; border-radius: 4px;\"/></div>\n<p>Now I am going to solder it all together, and wire the power components next!</p>\n<p><strong>Total time spent: 4 hours</strong></p>\n<h2 id=\"february-9th-later-charging-module-wont-cooperate\">February 9th (later): Charging Module Won’t Cooperate</h2>\n<p>Soldered the LiPo to the TP4056, and that to the boost converter (MT3608), but it doesn’t work. Tested both modules with a multimeter, but I can’t read any voltage. The LiPo is charged, so I think the TP4056 might be defective. Also tried powering the charging module with a USB cable, but it doesn’t light up. Even tried replacing it with another one (I bought 2 TP4056s from the same place), but that one also doesn’t work.</p>\n<img alt=\"Non-working TP4056 setup\" src=\"/blog/_astro/non-working-tp4056.hmYLstdN.png\" style=\"width: 100%; max-width: 500px; height: auto;\"/>\n<p>Ordered new ones and will wait for them to arrive. That’s it for today, will\nassemble the camera without the power bit tomorrow, or work on the case instead!</p>\n<p><strong>Total time spent: 2.5 hours</strong></p>\n<h2 id=\"february-12th-rebuilding-the-power-circuit\">February 12th: Rebuilding the Power Circuit</h2>\n<p>Finally got the new TP4056 and MT3608 modules delivered today! Removed all the solder and wires from the previous components, and wired the new TP4056!</p>\n<img alt=\"New TP4056 wired up\" src=\"/blog/_astro/new-tp4056-wired.Bf7WhP9a.png\" style=\"width: 100%; max-width: 500px; height: auto;\"/>\n<p>And it worked!</p>\n<img alt=\"Working TP4056\" src=\"/blog/_astro/working-tp4056.CDGlXwAn.png\" style=\"width: 30%; max-width: 500px; height: auto;\"/>\n<p>However, when I moved the components around to test the MT3608 boost converter,\nall of the wires came apart. So I started from scratch again, this time using\nsome longer wires (cut up from some jumper wires I had).</p>\n<img alt=\"Rewired with longer jumper wires\" src=\"/blog/_astro/rewired-longer-jumpers.CrZD9ljN.png\" style=\"width: 100%; max-width: 500px; height: auto;\"/>\n<p>This time, the solder held! So I brought out my multimeter to set the boost\nconverter to the right voltage (5.1V for the Pi). But it refused to go above 4V,\nno matter how much I rotated the potentiometer.</p>\n<img alt=\"Multimeter reading below 4V\" src=\"/blog/_astro/multimeter-below-4v.DNYCMQbb.png\" style=\"width: 100%; max-width: 500px; height: auto;\"/>\n<p>So I decided to replace the MT3608 with a new one, testing it before soldering\nthis time, and it showed a greater voltage. Completed wiring it all together,\nand successfully set it to 5.1V!!</p>\n<img alt=\"Boost converter set to 5.1V\" src=\"/blog/_astro/boost-converter-5-1v.CRNi9FzQ.png\" style=\"width: 100%; max-width: 500px; height: auto;\"/>\n<p>Also added a switch between the TP4056 and MT3608, which will act as the main\npower switch for the camera!! Next, I’m going to wire this module to the Pi Zero\n2W, and hopefully it will work!! Most of my time today was spent soldering, then\nunsoldering, then resoldering — I’m starting to hate soldering 😭!</p>\n<p><strong>Total time spent: 4 hours</strong></p>\n<h2 id=\"february-16th-revising-the-case-after-the-first-print\">February 16th: Revising the Case After the First Print</h2>\n<p>Printed the 3D models I had made!</p>\n<div style=\"display: flex; gap: 1rem; margin: 2rem 0; align-items: stretch; justify-content: left; flex-wrap: wrap;\"><img alt=\"First printed case parts\" src=\"/blog/_astro/first-printed-case-parts.ATEztUou.png\" style=\"height: 188px; width: auto; max-width: 100%; border-radius: 4px;\"/><img alt=\"First printed case parts 2\" src=\"/blog/_astro/first-printed-case-parts-2.GBtS3V3W.png\" style=\"height: 188px; width: auto; max-width: 100%; border-radius: 4px;\"/></div>\n<p>The sliding mechanisms for the viewfinder and grip worked, but were a bit tight,\nso I decided to sand them. Tried fitting all the components inside, but sadly\nthe LiPo is a bit big, and the Pi Zero 2W and camera module don’t fit perfectly\nin their slots. So I took some measurements (with a ruler — I don’t have a\ncalliper) and edited the 3D models!</p>\n<p>First, I increased the depth, to make some\nspace for wires and stuff.</p>\n<img alt=\"Increased case depth\" src=\"/blog/_astro/increased-case-depth.C485h9nL.png\" style=\"width: 100%; max-width: 500px; height: auto;\"/>\n<p>Then I reduced the size of the sliding mechanism to make it work without\nsanding, since I was printing another revision anyway.</p>\n<img alt=\"Revised sliding mechanism\" src=\"/blog/_astro/revised-sliding-mechanism.DHYZHGTa.png\" style=\"width: 100%; max-width: 500px; height: auto;\"/>\n<p>I also increased the size of the keychain holes, because they were too small.</p>\n<img alt=\"Larger keychain holes\" src=\"/blog/_astro/larger-keychain-holes.DijKSM6D.png\" style=\"width: 100%; max-width: 500px; height: auto;\"/>\n<p>Made sure only the main body was affected by these changes, and not any of the\nattachable stuff, so I won’t have to reprint that. Now time to wait for the new\nprint!!</p>\n<p><strong>Total time spent: 2.5 hours</strong></p>\n<h2 id=\"february-20th-everything-fits-in-the-new-case\">February 20th: Everything Fits in the New Case</h2>\n<p>Printed the new case!! Also, the bits I had soldered seemed to be coming off, so I taped them down with electrical tape too.</p>\n<img alt=\"Soldered joints reinforced with electrical tape\" src=\"/blog/_astro/electrical-tape-reinforcement.S1UWt-Rg.png\" style=\"width: 100%; max-width: 500px; height: auto;\"/>\n<p>Then I started placing everything in the new case! (And used some tape to hold\nstuff down.)</p>\n<img alt=\"Placing components in the new case\" src=\"/blog/_astro/placing-components.BZPVGCHa.png\" style=\"width: 100%; max-width: 500px; height: auto;\"/>\n<p>And everything fit perfectly! The shutter button even screwed into place.</p>\n<div style=\"display: flex; gap: 1rem; margin: 2rem 0; align-items: stretch; justify-content: left; flex-wrap: wrap;\"><img alt=\"Components fitted in the case\" src=\"/blog/_astro/components-fitted.BAHw8uEb.png\" style=\"height: 280px; width: auto; max-width: 100%; border-radius: 4px;\"/><img alt=\"Shutter button screwed in place\" src=\"/blog/_astro/shutter-button-fitted.B-qWYmrv.png\" style=\"height: 280px; width: auto; max-width: 100%; border-radius: 4px;\"/><img alt=\"Assembled case view\" src=\"/blog/_astro/assembled-case-view.OEYt6dxj.png\" style=\"height: 280px; width: auto; max-width: 100%; border-radius: 4px;\"/></div>\n<p>Now I’m flashing an SD card with Pi OS for the Pi Zero 2W, since I lost the\nprevious card, and then I’ll test out the camera!!</p>\n<img alt=\"Flashing a new SD card\" src=\"/blog/_astro/flashing-sd-card.DmfEecsI.png\" style=\"width: 100%; max-width: 500px; height: auto;\"/>\n<p><strong>Total time spent: 2.5 hours</strong></p>\n<h2 id=\"february-20th-later-its-alive\">February 20th (later): It’s Alive!</h2>\n<p>Flashed the SD card with Pi OS!</p>\n<img alt=\"Raspberry Pi Imager flashing the SD card\" src=\"/blog/_astro/raspberry-pi-imager.Dy3BJ41Q.png\" style=\"width: 100%; max-width: 500px; height: auto;\"/>\n<p>Then I added the script, and after a bit of debugging, swapping and installing\ndifferent libraries, the script worked!</p>\n<img alt=\"Terminal showing the working script\" src=\"/blog/_astro/working-script-terminal.CtnUH1_q.png\" style=\"width: 100%; max-width: 500px; height: auto;\"/>\n<p>However, the shutter button was a bit buggy, so I also wired a small button too!</p>\n<img alt=\"Extra wired shutter button\" src=\"/blog/_astro/extra-shutter-button.Cu8a4rZX.png\" style=\"width: 100%; max-width: 500px; height: auto;\"/>\n<p>And now I have my completed camera!!</p>\n<img alt=\"Completed PiShot camera\" src=\"/blog/_astro/completed-pishot-camera.CvN5fvAO.png\" style=\"width: 100%; max-width: 500px; height: auto;\"/>\n<p>And it works!!! Here are some of the pictures I captured using it!!</p>\n<div style=\"display: flex; gap: 1rem; margin: 2rem 0; align-items: stretch; justify-content: left; flex-wrap: wrap;\"><img alt=\"Photo taken with PiShot\" src=\"/blog/_astro/pishot-photo-1.3Mw6nFZT.png\" style=\"height: 210px; width: auto; max-width: 100%; border-radius: 4px;\"/><img alt=\"Photo taken with PiShot 2\" src=\"/blog/_astro/pishot-photo-2.CGPzJlhY.png\" style=\"height: 210px; width: auto; max-width: 100%; border-radius: 4px;\"/></div>\n<p><strong>Total time spent: 2.5 hours</strong></p>\n<hr/>\n<p>And that’s it!</p>\n<p>My completed custom Raspberry Pi camera, PiShot!</p>\n<p>It was a fun journey, and I learned a lot about 3D design, soldering, and coding for the Raspberry Pi.</p>\n<p>And btw, this project is open-source, so you can check out the source code or 3D files <strong><a href=\"https://github.com/samarth163-cloud/PiShot\">here</a></strong>!</p>\n<p>I also made a short showcase <strong><a href=\"https://www.youtube.com/watch?v=gf-RIgXnWJM\">video</a></strong> for the camera!</p>\n<p>I hope you enjoyed reading about my process as much as I enjoyed making it! <em>(was kind of a long read, sorry!!)</em></p>",
+      "description": "RPi Zero 2W, camera module, & custom 3D-printed case.",
+      "readingTime": "12 min read"
+    },
+    {
+      "id": "first-game-jam-blog",
+      "url": "/blog/how-i-won-my-first-game-jam/",
+      "date": "November 29, 2025",
+      "icon": "🎮",
+      "slug": "how-i-won-my-first-game-jam",
+      "tags": [
+        "gamedev",
+        "unity",
+        "gamejam"
+      ],
+      "image": "assets/blog/how-i-won-my-first-game-jam.png",
+      "title": "How I Won My First Game Jam",
+      "featured": true,
+      "coverImage": "/blog/_astro/arcade-jam-poster.DT7rkVUv.png",
+      "contentHtml": "<p>I <strong>won</strong>. With a <strong><em>bad</em> game</strong>.</p>\n<p>Check out the <strong><a href=\"https://github.com/samarth163-cloud/Glitch-Out\">source code</a></strong> for the game, or try it out <strong><a href=\"/My-Games/Glitch-Out/WebGL/\">here</a></strong>. (<strong>Warning</strong>: It’s bad…)</p>\n<hr/>\n<details markdown=\"1\" style=\"margin-bottom: 1rem;\"><summary markdown=\"1\"><span style=\"font-size: 2rem; font-weight: bold; margin-bottom: 1rem; line-height: 1.3;\">Prelude</span></summary><p>I had <strong>got into</strong> programming in 2021 (yes, for making games, pretty cliche), and <strong>loved</strong> it since, and made some <strong>very</strong> basic projects. Most of these projects focused on <strong>gamedev</strong>, but none of them were <em>proper</em>, and most were not even fully finished. I had participated in some <strong>game jams</strong> before, but had only <strong>got to submitting</strong> to one or two, and <strong>not</strong> winning any.</p><p><em>But that was about to <strong>change</strong>!</em></p></details>\n<h2 id=\"the-new-beginning\">The new beginning</h2>\n<p>It’s the July of 2024, and I discovered <a href=\"https://hackclub.com/arcade/\">Arcade</a> through the <strong>GitHub Education Newsletter</strong>, and decided to participate in it.</p>\n<div style=\"display: flex; gap: 1rem; margin: 2rem 0;\"><img src=\"/blog/_astro/arcade-discovery.FgzXpvpH_Z1jJD0X.webp\" alt=\"Arcade-1\" style=\"width: 50%; height: auto;\" loading=\"lazy\" decoding=\"async\" fetchpriority=\"auto\" width=\"1291\" height=\"1052\"><img src=\"/blog/_astro/arcade-dashboard.Cl1EPOH__Z1dh4Hr.webp\" alt=\"Arcade-2\" style=\"width: 50%; height: auto;\" loading=\"lazy\" decoding=\"async\" fetchpriority=\"auto\" width=\"1373\" height=\"1366\"></div>\n<p>Then at the start of August, the <strong>Arcade Jam</strong> was announced.</p>\n<img src=\"/blog/_astro/glitch-out-title-screen.BZoJQzTz_1qcV56.webp\" alt=\"Glitch Out title screen\" loading=\"lazy\" decoding=\"async\" fetchpriority=\"auto\" width=\"1658\" height=\"677\">\n<p>And I <strong>decided</strong> to take part.</p>\n<p>During the <strong>next</strong> 24 hours, everyone <strong>submitted</strong> an idea for the theme, and then voting <strong>opened</strong> up to decide the theme.</p>\n<h2 id=\"the-theme\">The theme</h2>\n<p>Finally, after a wait of <strong>3 days</strong>, the theme was <strong>announced</strong>.</p>\n<img src=\"/blog/_astro/glitch-out-gameplay.cs1ZzIta_1KXEPg.webp\" alt=\"Glitch Out gameplay\" loading=\"lazy\" decoding=\"async\" fetchpriority=\"auto\" width=\"632\" height=\"99\">\n<h3 id=\"loopholes\"><strong>Loopholes</strong>!</h3>\n<p>I was super <strong>excited</strong> because this was a <strong>great</strong> theme, and immediately started <strong>brainstorming</strong>.</p>\n<p>And after a lot of notes and sketches, <strong>this is what I came up with</strong>:</p>\n<blockquote>\n<p>You are trapped in a <strong>simulation</strong> with a world full of <strong><em>bugs</em></strong> and <strong><em>glitches</em></strong>. To escape, you must <strong>exploit</strong> these flaws to reach a hidden <strong>underground</strong> area. Your journey involves <strong>navigating</strong> through challenges, <strong>discovering</strong> secrets, and <strong>manipulating</strong> the environment to your <strong>advantage</strong>.</p>\n</blockquote>\n<p>Or <strong>basically</strong>:</p>\n<p>You are a <strong>box</strong>, trapped in a maze full of <strong>obstacles</strong>, but the obstacles are really easy to cross, because they are <strong>filled</strong> with bugs (think walls with no colliders… etc).</p>\n<p>And then I <del>immediately start working on it</del> <strong><em>procrastinated</em></strong>. <em>For the next <strong>full</strong> week</em>.</p>\n<h2 id=\"awakening\">Awakening</h2>\n<p>With only a <strong>week</strong> left till the end of the jam, I finally convinced myself to start working on my game.</p>\n<p>First I made a <strong>cube</strong>. And then I made and attached a <strong>PlayerController</strong> script to it. Aaand I had my player.</p>\n<p>Then I watched some tutorials (<em><a href=\"https://www.youtube.com/channel/UCYbK_tjZ2OrIZFBvU6CCMiA\">Brackeys</a></em>), and learned <strong>ProBuilder</strong>.</p>\n<p>After mastering <strong>ProBuilder</strong> (<em>watching one tutorial</em>), I got to work with the level designing. That was pretty easy. I just made whatever came to my mind.</p>\n<p>Using <strong>ProBuilder</strong>, and skipping complex 3D modeling and embracing simple geometric shapes, I was able to build multiple levels in a couple of days.</p>\n<p>Oh and of course I also added a <strong>pool</strong>. A pool that you can <strong><em>walk</em></strong> on, because why not (definitely <strong>not</strong> because I didn’t how to make proper water.).</p>\n<img src=\"/blog/_astro/unity-probuilder.CC2WB8E9_2cBd4e.webp\" alt=\"Unity scene made with ProBuilder\" loading=\"lazy\" decoding=\"async\" fetchpriority=\"auto\" width=\"1654\" height=\"1029\">\n<p>Then I <strong>polished</strong> all of the levels I had designed, and joined them all! This is where I had to get creative. So I added some <strong>hallways</strong>, <strong>fake walls</strong>, <strong>some interactive boxes</strong>, <strong>more fake walls</strong>, and there, I had my <strong>simulation world</strong>!</p>\n<p>Of course, I am not going to give away <strong><em>all the secrets</em></strong> of the <strong>game</strong>, because that would <em>spoil</em> it…</p>\n<p>Now came the time to code the <strong>logic</strong>. I already had my player controller. So I scrapped together some scripts for <strong>interactions</strong>, <strong>collision logic</strong> etc.</p>\n<p>And then I also added a <strong>menu screen</strong> with a bit of text (with <em>really</em> bad styling) and a <strong>play button</strong>, and a <strong>game over screen</strong>.</p>\n<p>The <strong><em>key</em> mechanic</strong> of the game was finding the <strong>weakness</strong> in the levels boundary. Be it in the form of <strong><em>hidden</em> interactable blocks</strong>, <strong>fake walls</strong>, <strong>walkable pools</strong>.</p>\n<p>And I think that was it.</p>\n<p>Yeah, I did not add any <strong>sfx</strong> or <strong>music</strong>. I hadn’t added <em>any</em> <strong>audio</strong> to any of my projects before. I realised after this game jam from the feedback I received that I should add <strong>audio/sfx/music</strong> to stuff.</p>\n<h2 id=\"submitting\">Submitting</h2>\n<p>Ok so all of the stuff I did in the last section happened in the span of the full week. So like now I had to submit my game.</p>\n<p>I exported a WebGL build from Unity, troubleshot why it didn’t work on my github pages site, found the solution (which was enable <strong>Decompression Fallback</strong> in the <strong>build settings</strong>), and got the <strong>game</strong> working on the <strong>web</strong>! <strong><em>Yayy</em></strong>!</p>\n<p>And I improved the game’s <strong>GitHub</strong> repository, made the <strong>README</strong> just a <em>teeny tiny bit</em> <strong>better</strong> (so now it contained the <strong>game’s title, description, controls, and URL</strong>, compared to just the <strong>game’s title</strong> before).</p>\n<p>Oh and I also thought up of a <strong>cool</strong> name for the game!</p>\n<h3 id=\"glitch-out\"><strong>Glitch Out</strong>!</h3>\n<p>And finally I filled out the <strong>submission form</strong>!</p>\n<h2 id=\"voting\">Voting</h2>\n<p>Voting opened up. Every game was going to be <strong>peer-voted</strong>! In the format of <strong>random 1v1 matchups</strong>. And all of the other games were pretty good. As I got through the other games, I kept on finding ways in which I could have <strong>improved</strong> and <strong>polished</strong> my game more. Like <strong>audio</strong>.</p>\n<p>And then came the <strong>3 days</strong> wait before the <strong>results</strong> were going to be <strong>announced</strong>.</p>\n<h2 id=\"results\">Results</h2>\n<p><em>And then <strong>this</strong> happened!!!</em></p>\n<img src=\"/blog/_astro/jam-results.D1WH2WdJ_1GvHrn.webp\" alt=\"Arcade Jam results\" loading=\"lazy\" decoding=\"async\" fetchpriority=\"auto\" width=\"633\" height=\"244\">\n<p>I <strong>couldn’t</strong> believe it at first… Like my game was ok <strong>theme-wise</strong>, but other than that, it was <em>terrible</em>.</p>\n<p>But I had got <strong>second place</strong>!! And thus was among the <strong>top 5 winners</strong>! And I was also going to get a <strong>prize</strong> (which since the <strong>jam</strong> was part of a <strong>bigger</strong> event, <a href=\"https://hackclub.com/arcade/\">Arcade</a>, was a <strong>token multiplier</strong>, but for me, let’s say it was the equivalent of a <a href=\"https://www.keychron.com/products/keychron-k6-pro-qmk-via-wireless-custom-mechanical-keyboard?srsltid=AfmBOoqEsnkUK6zIwAg2vZ9SM94yL2Tenn9VOsPkcPM3KqKbe_srd4zg\">Keychron K6 Pro</a>), but of course I <strong>hadn’t</strong> participated for the <strong>prize</strong>, I had participated for the <strong>experience</strong>.</p>\n<p>But winning a <strong>prize</strong> was a great bonus!</p>\n<h2 id=\"epilogue\">Epilogue</h2>\n<p>Overall, this <strong>game jam</strong> was a great experience for me! And my <strong>first</strong> win in a game jam, which felt like an <strong>epic</strong> moment! I learnt a lot of things (like the <strong>importance</strong> of audio…), and had a lot of <strong>fun</strong>! And for the <strong>first</strong> time, I beat <strong>procrastination</strong>, and actually had <strong>fun making the game</strong>. I was <strong><em>motivated</em></strong> for it.</p>\n<p>Oh and btw, the game I submitted for the jam is <strong><em><a href=\"https://github.com/samarth163-cloud/Glitch-Out\">open-source</a></em></strong>, and you can also try it out <strong><a href=\"/My-Games/Glitch-Out/WebGL/\">here</a></strong>. (<strong>Warning</strong>: It’s bad…)</p>\n<img src=\"/blog/_astro/prize-keyboard.Bj7FhN1p_Z1zLB3c.webp\" alt=\"Keychron keyboard prize equivalent\" loading=\"lazy\" decoding=\"async\" fetchpriority=\"auto\" width=\"3126\" height=\"1778\">",
+      "description": "And won with a bad game!",
+      "readingTime": "5 min read"
+    }
+  ],
+  "about": {
+    "bio": "Hi!! I am <b>Samarth</b>, a developer passionate about building websites, software, and creative digital projects. I love everything tech! When I am not coding or tinkering with electronics, I enjoy editing videos and exploring new technologies.<br /><br />I'm always happy to talk about computers and programming. Welcome to my portfolio!         ",
+    "highlights": [
+      {
+        "id": "som",
+        "text": "Reviewed and provided feedback on over 1300 technical projects submitted by teens worldwide for <a href=\"https://summer.hackclub.com/\" target=\"_blank\" rel=\"noopener noreferrer\">Summer of Making</a>, an event by <b>Hack Club</b> and <b>GitHub</b>."
+      },
+      {
+        "id": "som-jam",
+        "text": "Hosted the <a href=\"https://hackclub.slack.com/archives/C090B3T9R9R/p1751137882759709\" target=\"_blank\" rel=\"noopener noreferrer\">SOM game jam</a> for a community of 18k+ high schoolers around the globe!"
+      },
+      {
+        "id": "borked",
+        "text": "Organised <a href=\"https://hackclub.slack.com/archives/C01D7AHKMPF/p1768063492916589\" target=\"_blank\" rel=\"noopener noreferrer\">Borked</a> (<a href=\"https://borked.hackclub.com\" target=\"_blank\" rel=\"noopener noreferrer\">site</a>), a <s>game</s> Web Jam for 6.7k teens! High Schoolers had to build a website with the worst UI possible!"
+      },
+      {
+        "id": "hl-1793207747120",
+        "text": "Contributed to <a href=\"https://github.com/samarth163-cloud/TEAM-SOFT-SB1\" target=\"_blank\" rel=\"noopener noreferrer\">    S TOM'S Project SBV1</a>, a team-based Windows desktop application built with <b>C#</b> and <b>.NET 8</b>, exploring UI development, software architecture, and collaborative programming."
+      },
+      {
+        "id": "hl-1793208012421",
+        "text": "Contributed to <a href=\"https://github.com/samarth163-cloud/TEAM-SOFT-SB1\" target=\"_blank\" rel=\"noopener noreferrer\"> S TOM'S Project SBV1 </a> as a <b>Project Manager</b>, coordinating team tasks, organizing development workflows, and supporting collaboration on a C# and .NET 8 Windows desktop application."
+      },
+      {
+        "id": "hl-1793208112447",
+        "text": "Worked on <b>creative digital projects</b>, combining coding, design, and video editing to bring ideas to life."
+      }
+    ],
+    "hackatimeUser": "Samarth",
+    "showCodingStats": true,
+    "skillsCategories": [
+      {
+        "skills": "JavaScript, TypeScript, C#, C++, Python, HTML, CSS, Lua",
+        "category": "Programming/Scripting Languages"
+      },
+      {
+        "skills": "ASP.NET Core, Node.js",
+        "category": "Web Development Frameworks"
+      },
+      {
+        "skills": "HTML, CSS, JavaScript, React, Bootstrap, jQuery",
+        "category": "Frontend"
+      },
+      {
+        "skills": "Node.js, Express.js, REST APIs",
+        "category": "Backend"
+      },
+      {
+        "skills": "CircuitPython, Raspberry Pi, MicroPython, Arduino",
+        "category": "Hardware"
+      },
+      {
+        "skills": "MongoDB, MySQL, SQLite, Supabase",
+        "category": "Database"
+      },
+      {
+        "skills": "Pygame",
+        "category": "Game Development"
+      },
+      {
+        "skills": "Trello",
+        "category": "Project Management"
+      },
+      {
+        "skills": "Git, GitHub",
+        "category": "Source Code Management"
+      },
+      {
+        "skills": "Slack, Zoom",
+        "category": "Communication"
+      },
+      {
+        "skills": "Adobe Premiere Pro, Adobe After Effects ,DaVinci Resolve",
+        "category": "Video Editing"
+      }
+    ]
+  },
+  "resume": {
+    "stats": {
+      "mode": "custom",
+      "note": "activaty",
+      "cards": [
+        {
+          "label": "Total coding time",
+          "value": "656h",
+          "detail": "tracked on Hackatime"
+        },
+        {
+          "label": "Most used language",
+          "value": "JavaScript",
+          "detail": "79h"
+        },
+        {
+          "label": "Most used editor",
+          "value": "Unity",
+          "detail": "172h"
+        },
+        {
+          "label": "Most worked-on project",
+          "value": "Cozy Farm",
+          "detail": "35h"
+        }
+      ],
+      "title": "stats",
+      "visible": true,
+      "username": "Samarth"
+    },
+    "header": {
+      "name": "Samarth Haveliwala",
+      "eyebrow": "resume.txt",
+      "contacts": [
+        {
+          "url": "mailto:donsamarth163@gmail.com",
+          "icon": "fas fa-envelope",
+          "label": "Email"
+        },
+        {
+          "url": "https://github.com/samarth163-cloud",
+          "icon": "fab fa-github",
+          "label": "GitHub"
+        },
+        {
+          "url": "https://www.linkedin.com/in/samarth-haveliwala-99bb22446/",
+          "icon": "fab fa-linkedin",
+          "label": "LinkedIn"
+        },
+        {
+          "url": "https://www.youtube.com/",
+          "icon": "fab fa-youtube",
+          "label": "YouTube"
+        },
+        {
+          "url": "https://instagram.com/hayxsam",
+          "icon": "fab fa-instagram",
+          "label": "Instagram"
+        }
+      ],
+      "headline": "Developer building open-source software, games and hardware.",
+      "location": "Surat, Gujarat, India"
+    },
+    "skills": "JavaScript · TypeScript · Python · C# · C++ · React · Astro · Node.js · HTML/CSS · Unity · Raspberry Pi · Arduino · KiCad · MongoDB · Git/GitHub",
+    "status": {
+      "dot": "purple",
+      "text": "Freelance Developer & Consultant",
+      "type": "freelance",
+      "subtext": "Available for select technical client work",
+      "visible": true
+    },
+    "visible": true,
+    "projects": [
+      {
+        "id": "res-rune",
+        "meta": "2023 · Rune SDK",
+        "title": "Multiplayer Games on Rune",
+        "visible": true,
+        "description": "Shipped six multiplayer games on Rune, reaching <b>1 million+ combined plays</b>, <b>247,000+ players</b>, and <b>17,000+ hours played</b>."
+      },
+      {
+        "id": "res-arena",
+        "meta": "2025 · React, Node.js",
+        "title": "Arena",
+        "description": "Built an open-source submission, voting, and gallery platform for hackathons and game jams, used by 500+ people through Hack Club events."
+      },
+      {
+        "id": "res-pishot",
+        "meta": "2026 · Raspberry Pi, Python",
+        "title": "PiShot",
+        "description": "Designed and built an open-source DIY camera with hand-wired electronics, a 3D-printed case, and custom firmware."
+      },
+      {
+        "id": "res-hackamon",
+        "meta": "2025 · Python, Raspberry Pi, Pygame, CircuitPython",
+        "title": "Hackamon",
+        "description": "Built an open-source virtual-pet operating system for Raspberry Pi Pico devices, including the software, pixel art, and custom hardware support.<br />Featured in the <b>Hack Club 2025 magazine</b>, with other cool open-source projects made by teens in 2025."
+      },
+      {
+        "id": "res-stickers",
+        "meta": "2025 · React, Node.js",
+        "title": "Hack Club Stickers Manager",
+        "description": "Built an open-source sticker-collection manager using the Hack Club sticker API, used by 150+ community members."
+      },
+      {
+        "id": "rp-1793131066664",
+        "meta": "2026 · Tech Stack",
+        "title": "New Project",
+        "description": "Built and open-sourced a high-performance system."
+      }
+    ],
+    "sections": {
+      "intro": true,
+      "stats": true,
+      "skills": true,
+      "status": true,
+      "projects": true,
+      "education": true,
+      "experience": true,
+      "recognition": true
+    },
+    "education": [
+      {
+        "id": "res-edu-benchmark",
+        "meta": "O Levels · 2021 - 2024",
+        "visible": false,
+        "description": "<b>Straight 9 A's</b>: <b>7 A*</b> and <b>2 A</b>.",
+        "institution": "Benchmark School System"
+      },
+      {
+        "id": "edu-1793131062535",
+        "meta": "2024 - Present",
+        "description": "Veer Narmad South Gujarat University (VNSGU), Surat",
+        "institution": "Bachelor of Computer Applications (BCA)"
+      },
+      {
+        "id": "edu-1793210306786",
+        "meta": " 2023 - 2024 · 69.99%",
+        "visible": true,
+        "description": "Shree R. D. Ghahel Jeevan Bharti, surat",
+        "institution": "Higher Secondary Certificate - 12th"
+      },
+      {
+        "id": "edu-1793210307194",
+        "meta": "2020 - 2021 · 77.60%",
+        "visible": true,
+        "description": "Shree R. D. Ghahel Jeevan Bharti, surat",
+        "institution": "Secondary School Certificate - 10th"
+      }
+    ],
+    "statsNote": "Live coding activity from Hackatime.",
+    "experience": [
+      {
+        "id": "hackclub-sad",
+        "title": "Hack Club - Special Activities Division",
+        "period": "2024 - Present · Remote - Volunteer",
+        "bullets": [
+          "Helped organize <a href=\"https://summer.hackclub.com\" target=\"_blank\" rel=\"noopener noreferrer\">Summer of Making</a>, a coding and hardware hackathon by <b>Hack Club</b> and <b>GitHub</b>, with 25,000+ teen participants worldwide making real technical projects.",
+          "Built an open-source submission and peer-voting platform, and hosted the <a href=\"https://hackclub.slack.com/archives/C090B3T9R9R/p1751137882759709\" target=\"_blank\" rel=\"noopener noreferrer\">Summer of Making game jam</a>, serving 18,000+ teens. Also organized <a href=\"https://hackclub.slack.com/archives/C01D7AHKMPF/p1768063492916589\" target=\"_blank\" rel=\"noopener noreferrer\">Borked</a>, a web-development challenge for 6,700+ teens."
+        ]
+      },
+      {
+        "id": "testerwork-qa",
+        "title": "Tester Work - QA Tester & Content Writer",
+        "period": "2021 - 2024 · Remote",
+        "bullets": [
+          "Tested apps for companies including <b>Facebook (Meta)</b>, <b>Matterport</b>, and <b>Deezer</b>.",
+          "Wrote 4 software-testing articles for the company blog, reaching 50,000+ views."
+        ]
+      },
+      {
+        "id": "reflectoring-writer",
+        "title": "Reflectoring.io — Technical Content Writer",
+        "period": "2023 · Remote",
+        "bullets": [
+          "Authored an article on TypeScript that reached 100,000+ views."
+        ]
+      },
+      {
+        "id": "markmun-media",
+        "title": "Benchmark School System — Secretary, Media & Marketing",
+        "period": "2022 - 2023 · Islamabad, Pakistan",
+        "bullets": [
+          "Managed the MarkMUN 2023 Instagram account and grew its view rate past 1,000.",
+          "Led the Media team, and managed video editing and footage processing for MarkMUN '23 and produced the school end-of-year recap video."
+        ],
+        "visible": true
+      }
+    ],
+    "recognition": [
+      "Won multiple international hackathons, including <b>1st place</b> in the High Seas Game Development Hackathon and <b>2nd place</b> in Arcade Game Jam.",
+      "Had two projects featured in the <b>Hack Club 2025 magazine</b>, reaching 13,000+ readers, and many indie game developers and prominent tech influencers; distributed at <a href=\"https://www.opensauce.com\" target=\"_blank\" rel=\"noopener noreferrer\">Open Sauce</a>, and at <b>GitHub HQ</b> during <a href=\"https://flagship.hackclub.com\" target=\"_blank\" rel=\"noopener noreferrer\">Campfire Flagship</a>.",
+      "Invited to fully sponsored week-long <b>hackathons</b> in Shanghai (2025) and Singapore (2026).",
+      "Earned <b>gold</b> medals in <b>IKLC</b>, <b>ICATS Science Contest</b>, and <b>IBIC</b>; qualified for the Hippo English Olympiad regional round held in Turkey.",
+      "Won <b>1st place</b> in international hackathon.",
+      "Won <b>1st place</b> in international hackathon.",
+      "Won <b>1st place</b> in international hackathon."
+    ],
+    "introduction": "I build open-source software, games, and hardware- from custom cameras and devboards to web platforms. My work spans full-stack development, game development, and hardware prototyping, with projects used by thousands of people across the Hack Club and Rune communities.",
+    "sectionTitles": {
+      "intro": "Introduction",
+      "stats": "Stats",
+      "skills": "Skills",
+      "projects": "Some of my (cool?) projects",
+      "education": "Education",
+      "experience": "Experience",
+      "recognition": "Recognition"
+    }
+  },
+  "general": {
+    "name": "Samarth Haveliwala",
+    "role": "Developer & Open Source Creator",
+    "avatars": [
+      "assets/profile/1.jpg",
+      "assets/profile/3.jpg",
+      "https://npzqpcagdtnfuqhyngro.supabase.co/storage/v1/object/public/portfolio-assets/Picsart_23-07-17_00-39-27-338-1793206373046.png"
+    ],
+    "ctaText": "Explore projects",
+    "socials": [
+      {
+        "url": "https://instagram.com/hayxsam",
+        "icon": "fab fa-instagram",
+        "name": "Instagram"
+      },
+      {
+        "url": "https://www.youtube.com/",
+        "icon": "fab fa-youtube",
+        "name": "YouTube"
+      },
+      {
+        "url": "https://www.linkedin.com/in/samarth-haveliwala-99bb22446/",
+        "icon": "fab fa-linkedin",
+        "name": "LinkedIn"
+      },
+      {
+        "url": "https://github.com/samarth163-cloud",
+        "icon": "fab fa-github",
+        "name": "GitHub"
+      },
+      {
+        "url": "mailto:donsamarth163@gmail.com",
+        "icon": "far fa-envelope",
+        "name": "Email"
+      }
+    ],
+    "shortName": "Samarth",
+    "siteTitle": "Samarth's Portfolio",
+    "ctaSubtext": "[All my work is open source]",
+    "profilePic": "assets/profile/1.jpg",
+    "description": "I build websites, software, and digital experiences with code and creativity."
+  },
+  "projects": [
+    {
+      "id": "samarth-s-portfolio",
+      "tech": [
+        {
+          "icon": "fas fa-bolt",
+          "name": "superbse"
+        },
+        {
+          "icon": "fa-brands fa-html5",
+          "name": "html"
+        },
+        {
+          "icon": "fa-brands fa-css3",
+          "name": "css"
+        },
+        {
+          "icon": "fa-brands fa-java",
+          "name": "javascript"
+        },
+        {
+          "icon": "fa-brands fa-node-js",
+          "name": "node js"
+        }
+      ],
+      "image": "https://npzqpcagdtnfuqhyngro.supabase.co/storage/v1/object/public/portfolio-assets/Samarth's%20Portfolio.png",
+      "title": "Samarth's Portfolio",
+      "featured": true,
+      "visitUrl": "https://samarthhhh.vercel.app/",
+      "sourceUrl": "https://github.com/samarth163-cloud/Samarthhh",
+      "visitLabel": "viwe",
+      "description": "A modern, responsive developer portfolio built to showcase my projects, technical skills, and development journey. Features a custom Neo-Brutalist design, dark and light themes, interactive resume, project showcase, and an admin dashboard for managing portfolio content. Includes GitHub integration and Vercel deployment support."
+    },
+    {
+      "id": "soft-sb1",
+      "tech": [
+        {
+          "icon": "fab fa-js",
+          "name": "JavaScript"
+        },
+        {
+          "icon": "fab fa-node",
+          "name": "Node.js"
+        }
+      ],
+      "image": "https://npzqpcagdtnfuqhyngro.supabase.co/storage/v1/object/public/portfolio-assets/ChatGPT_Image_Oct_15__2026__01-1793196048319.png",
+      "title": "SOFT SB1",
+      "featured": true,
+      "visitUrl": "",
+      "sourceUrl": "https://github.com/samarth163-cloud/TEAM-SOFT-SB1",
+      "visitLabel": "Visit",
+      "description": "Windows desktop application built with C# and .NET 8 Windows Forms. The project focuses on login authentication, splash screens, dashboard UI, session management, and modular software architecture, with GitHub-based collaboration and testing workflows."
+    },
+    {
+      "id": "pip-video-extension",
+      "tech": [
+        {
+          "icon": "fab fa-js",
+          "name": "JavaScript"
+        }
+      ],
+      "image": "https://opengraph.githubassets.com/1/samarth163-cloud/pip_video_extension",
+      "title": "Pip Video Extension",
+      "featured": true,
+      "visitUrl": "",
+      "sourceUrl": "https://github.com/samarth163-cloud/pip_video_extension",
+      "visitLabel": "Visit",
+      "description": "A lightweight Chrome Extension that enables seamless automatic and manual Picture-in-Picture (PiP) transitions for HTML5 videos on platforms like YouTube, Vimeo, and custom video players."
+    },
+    {
+      "id": "food-website",
+      "tech": [
+        {
+          "icon": "fas fa-code",
+          "name": "ASP.NET"
+        }
+      ],
+      "image": "https://opengraph.githubassets.com/1/samarth163-cloud/food-website-by-sam",
+      "title": "Food Website",
+      "featured": true,
+      "visitUrl": "",
+      "sourceUrl": "https://github.com/samarth163-cloud/food-website-by-sam",
+      "visitLabel": "Visit",
+      "description": ""
+    },
+    {
+      "id": "creator-assets-text-animations-luts",
+      "tech": [
+        {
+          "icon": "fab fa-html5",
+          "name": "HTML"
+        }
+      ],
+      "image": "https://image.thum.io/get/width/1200/crop/800/https://web-olive-eta-49.vercel.app",
+      "title": "Creator Assets — Text Animations & LUTs",
+      "featured": true,
+      "visitUrl": "https://web-olive-eta-49.vercel.app",
+      "sourceUrl": "https://github.com/samarth163-cloud/WEB",
+      "visitLabel": "visit",
+      "description": "A creative video editing website showcasing text animations, cinematic LUTs, and visual effects for content creators. Built with HTML, CSS, and JavaScript, it features product previews, a modern dark design, and a simple way to explore editing assets."
+    },
+    {
+      "id": "adobe-wakatime",
+      "tech": [
+        {
+          "icon": "fab fa-js",
+          "name": "JavaScript"
+        },
+        {
+          "icon": "fab fa-node",
+          "name": "Node.js"
+        },
+        {
+          "icon": "fas fa-plug",
+          "name": "Adobe Extensibility"
+        }
+      ],
+      "image": "assets/projects/adobe-wakatime.png",
+      "title": "Adobe Wakatime",
+      "featured": true,
+      "visitUrl": "https://github.com/samarth163-cloud/adobe-wakatime?tab=readme-overview#installation",
+      "sourceUrl": "https://github.com/samarth163-cloud/adobe-wakatime",
+      "visitLabel": "Visit",
+      "description": "Unofficial Wakatime integration for Adobe Products (Photoshop, Illustrator, After Effects, etc)"
+    },
+    {
+      "id": "arena",
+      "tech": [
+        {
+          "icon": "fab fa-react",
+          "name": "React"
+        },
+        {
+          "icon": "fab fa-node",
+          "name": "Node.js"
+        },
+        {
+          "icon": "fas fa-database",
+          "name": "Database"
+        }
+      ],
+      "image": "assets/projects/arena.png",
+      "title": "Arena",
+      "featured": true,
+      "visitUrl": "https://arena.hackclub.com/",
+      "sourceUrl": "https://github.com/samarth163-cloud/Arena",
+      "visitLabel": "Visit",
+      "description": "An open-source project submission, voting, and gallery platform for events like hackathons and game jams! Used by 500+ people through Hack Club events, in partnership with GitHub."
+    },
+    {
+      "id": "nanodeck",
+      "tech": [
+        {
+          "icon": "fas fa-microchip",
+          "name": "Microcontroller"
+        },
+        {
+          "icon": "fab fa-python",
+          "name": "Python / KMK"
+        },
+        {
+          "icon": "fas fa-bolt",
+          "name": "Hardware"
+        }
+      ],
+      "image": "assets/projects/nanodeck.jpg",
+      "title": "NanoDeck",
+      "featured": true,
+      "visitUrl": "https://github.com/samarth163-cloud/hackpad/tree/main/hackpads/Nano_Deck",
+      "sourceUrl": "https://github.com/samarth163-cloud/hackpad/tree/main/hackpads/Nano_Deck",
+      "visitLabel": "Visit",
+      "description": "A fully custom open-source macropad! Built from scratch with a custom PCB and firmware, hot-swap sockets, backlights, and a 3D-printed case."
+    },
+    {
+      "id": "hackamon",
+      "tech": [
+        {
+          "icon": "fab fa-python",
+          "name": "Python"
+        },
+        {
+          "icon": "fab fa-raspberry-pi",
+          "name": "Raspberry Pi"
+        },
+        {
+          "icon": "fas fa-gamepad",
+          "name": "Game Development"
+        }
+      ],
+      "image": "assets/projects/hackamon.png",
+      "title": "Hackamon",
+      "featured": true,
+      "visitUrl": "https://cloud-ny2cxzjoa-hack-club-bot.vercel.app/0hackamon_demo.mp4",
+      "sourceUrl": "https://github.com/samarth163-cloud/Hackamon",
+      "visitLabel": "Demo",
+      "description": "An open-source Tamagotchi OS built completely from scratch! Designed to work on a Raspberry Pi Pico. All the artwork is also done by me!"
+    },
+    {
+      "id": "deeplinker",
+      "tech": [
+        {
+          "icon": "fas fa-database",
+          "name": "Database"
+        },
+        {
+          "icon": "fab fa-react",
+          "name": "React"
+        },
+        {
+          "icon": "fas fa-server",
+          "name": "Self-host"
+        }
+      ],
+      "image": "assets/projects/deeplinker.png",
+      "title": "deeplinker",
+      "featured": true,
+      "visitUrl": "https://youtube.com/l/youtube",
+      "sourceUrl": "https://github.com/samarth163-cloud/deeplinker",
+      "visitLabel": "deeplink",
+      "description": "A self-hosted deep-link generator for your Socials/Instagram bio, with a private analytics dashboard."
+    },
+    {
+      "id": "hc-stickers-manager",
+      "tech": [
+        {
+          "icon": "fab fa-react",
+          "name": "React"
+        },
+        {
+          "icon": "fab fa-node",
+          "name": "Node.js"
+        },
+        {
+          "icon": "fas fa-database",
+          "name": "Database"
+        }
+      ],
+      "image": "assets/projects/hack-club-stickers-manager.png",
+      "title": "Hack Club Stickers Manager",
+      "featured": true,
+      "visitUrl": "https://stickers.hackclub.com/",
+      "sourceUrl": "https://github.com/samarth163-cloud/HC-Stickers-Manager",
+      "visitLabel": "Visit",
+      "description": "Manage your Hack Club stickers collection, and share it with others. Used by 150+ Hack Club members! My <a href=\"https://stickers.hackclub.com\" target=\"_blank\" rel=\"noopener noreferrer\">collection</a>!"
+    },
+    {
+      "id": "unitease",
+      "tech": [
+        {
+          "icon": "fab fa-js",
+          "name": "JavaScript"
+        },
+        {
+          "icon": "fab fa-node",
+          "name": "Node.js"
+        },
+        {
+          "icon": "fab fa-npm",
+          "name": "npm"
+        }
+      ],
+      "image": "assets/projects/unitease.png",
+      "title": "UnitEase",
+      "featured": true,
+      "visitUrl": "https://www.npmjs.com/package/unitease",
+      "sourceUrl": "https://github.com/samarth163-cloud/UnitEase",
+      "visitLabel": "Visit",
+      "description": "An open-source npm package for unit conversion."
+    }
+  ],
+  "_updatedAt": 1793212849444
+}

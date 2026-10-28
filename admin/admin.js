@@ -19,18 +19,129 @@
   }
 
   // =========================================================================
-  // SUPABASE REALTIME CLOUD CONFIGURATION & SYNC ENGINE
+  // SUPABASE REALTIME CLOUD CONFIGURATION, AUTH & SYNC ENGINE
   // =========================================================================
   const DEFAULT_SUPABASE_URL = "https://npzqpcagdtnfuqhyngro.supabase.co";
   const DEFAULT_SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5wenFwY2FnZHRuZnVxaHluZ3JvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTMxMjEzOTEsImV4cCI6MjEwODY5NzM5MX0.N20yyXXnX-ddUDo43ynQOe6f0r6ZoeK4w1MUpPzs37Y";
   const SUPABASE_STORAGE_URL_KEY = "samarth_supabase_url";
   const SUPABASE_STORAGE_KEY = "samarth_supabase_key";
+  const AUTH_SESSION_KEY = "samarth_supabase_auth_session";
 
   function getSupabaseConfig() {
     return {
       url: (localStorage.getItem(SUPABASE_STORAGE_URL_KEY) || DEFAULT_SUPABASE_URL).trim(),
       key: (localStorage.getItem(SUPABASE_STORAGE_KEY) || DEFAULT_SUPABASE_KEY).trim(),
     };
+  }
+
+  function getActiveAuthSession() {
+    try {
+      const raw = localStorage.getItem(AUTH_SESSION_KEY);
+      if (!raw) return null;
+      const session = JSON.parse(raw);
+      if (!session || !session.access_token) return null;
+      return session;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  function setAuthSession(session) {
+    try {
+      if (session) {
+        localStorage.setItem(AUTH_SESSION_KEY, JSON.stringify(session));
+      } else {
+        localStorage.removeItem(AUTH_SESSION_KEY);
+      }
+    } catch (e) {}
+  }
+
+  async function getOrRefreshAuthSession() {
+    let session = getActiveAuthSession();
+    if (!session) return null;
+
+    const now = Math.floor(Date.now() / 1000);
+    if (session.expires_at && session.expires_at - now < 90 && session.refresh_token) {
+      const config = getSupabaseConfig();
+      try {
+        const res = await fetch(`${config.url.replace(/\/+$/, "")}/auth/v1/token?grant_type=refresh_token`, {
+          method: "POST",
+          headers: {
+            "apikey": config.key,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ refresh_token: session.refresh_token }),
+        });
+        if (res.ok) {
+          const refreshed = await res.json();
+          session = {
+            ...session,
+            access_token: refreshed.access_token,
+            refresh_token: refreshed.refresh_token,
+            expires_at: Math.floor(Date.now() / 1000) + (refreshed.expires_in || 3600),
+          };
+          setAuthSession(session);
+        }
+      } catch (e) {
+        console.warn("Session refresh attempt failed", e);
+      }
+    }
+    return session;
+  }
+
+  async function signInAdminWithSupabase(email, password) {
+    const config = getSupabaseConfig();
+    if (!config.url || !config.key) {
+      return { success: false, error: "Supabase configuration missing." };
+    }
+
+    try {
+      const endpoint = `${config.url.replace(/\/+$/, "")}/auth/v1/token?grant_type=password`;
+      const res = await fetch(endpoint, {
+        method: "POST",
+        headers: {
+          "apikey": config.key,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email: email.trim(), password: password.trim() }),
+      });
+
+      const data = await res.json().catch(() => ({}));
+
+      if (res.ok && data.access_token) {
+        const session = {
+          access_token: data.access_token,
+          refresh_token: data.refresh_token,
+          expires_in: data.expires_in,
+          expires_at: Math.floor(Date.now() / 1000) + (data.expires_in || 3600),
+          user: data.user,
+        };
+        setAuthSession(session);
+        return { success: true, session, user: data.user };
+      } else {
+        const msg = data.msg || data.error_description || data.message || `Login failed (HTTP ${res.status})`;
+        return { success: false, error: msg };
+      }
+    } catch (err) {
+      return { success: false, error: `Network error: ${err.message}` };
+    }
+  }
+
+  async function signOutAdmin() {
+    const session = getActiveAuthSession();
+    const config = getSupabaseConfig();
+    if (session && session.access_token) {
+      try {
+        await fetch(`${config.url.replace(/\/+$/, "")}/auth/v1/logout`, {
+          method: "POST",
+          headers: {
+            "apikey": config.key,
+            "Authorization": `Bearer ${session.access_token}`,
+          },
+        });
+      } catch (e) {}
+    }
+    setAuthSession(null);
   }
 
   function updateSupabaseStatusBadge(isConnected, message) {
@@ -67,7 +178,13 @@
 
   async function syncToSupabase(silent = false) {
     const config = getSupabaseConfig();
-    if (!config.url || !config.key) return false;
+    if (!config.url || !config.key) {
+      if (!silent) showToast("Supabase credentials not configured", "error");
+      return false;
+    }
+
+    const session = await getOrRefreshAuthSession();
+    const token = (session && session.access_token) ? session.access_token : config.key;
 
     try {
       const endpoint = `${config.url.replace(/\/+$/, "")}/rest/v1/portfolio_data`;
@@ -76,7 +193,7 @@
         headers: {
           "Content-Type": "application/json",
           "apikey": config.key,
-          "Authorization": `Bearer ${config.key}`,
+          "Authorization": `Bearer ${token}`,
           "Prefer": "resolution=merge-duplicates,return=representation"
         },
         body: JSON.stringify({
@@ -94,7 +211,13 @@
         const errText = await res.text();
         console.warn("Supabase sync failed:", res.status, errText);
         updateSupabaseStatusBadge(false, "Supabase Error");
-        if (!silent) showToast("Supabase sync warning: " + res.statusText, "error");
+        if (!silent) {
+          if (res.status === 401 || res.status === 403) {
+            showToast("Supabase write rejected: Invalid or expired admin credentials. Please log in again.", "error");
+          } else {
+            showToast("Supabase sync warning: " + res.statusText, "error");
+          }
+        }
         return false;
       }
     } catch (err) {
@@ -206,6 +329,7 @@
       document.documentElement.classList.add("is-authenticated");
     } else {
       sessionStorage.removeItem(AUTH_KEY);
+      setAuthSession(null);
       document.documentElement.classList.remove("is-authenticated");
     }
   }
@@ -221,30 +345,62 @@
     });
   }
 
-  // Handle Login Submission
+  // Handle Login Submission via Supabase Auth
   if (loginForm) {
-    loginForm.addEventListener("submit", (e) => {
+    loginForm.addEventListener("submit", async (e) => {
       e.preventDefault();
-      const userVal = (usernameInput?.value || "").trim();
+      const emailVal = (usernameInput?.value || "").trim();
       const passVal = (passwordInput?.value || "").trim();
+      const btnSubmit = document.getElementById("btn-login-submit");
+      const origHtml = btnSubmit ? btnSubmit.innerHTML : "";
 
-      // Check credentials strictly: sam / 123 (No hints in UI)
-      if (userVal === "sam" && passVal === "123") {
-        if (loginError) loginError.style.display = "none";
-        setAuthenticated(true);
-        showToast("Authentication successful. Welcome, Sam!", "success");
-        if (typeof renderAllTabs === "function") renderAllTabs();
-        if (typeof updateCounters === "function") updateCounters();
-      } else {
+      if (!emailVal || !passVal) {
         if (loginError) {
           loginError.style.display = "flex";
-          loginError.classList.remove("login-shake");
-          void loginError.offsetWidth; // re-trigger CSS shake animation
-          loginError.classList.add("login-shake");
+          const errText = document.getElementById("login-error-text");
+          if (errText) errText.textContent = "Please enter both Supabase Admin Email and Password.";
         }
-        if (passwordInput) {
-          passwordInput.value = "";
-          passwordInput.focus();
+        return;
+      }
+
+      try {
+        if (btnSubmit) {
+          btnSubmit.disabled = true;
+          btnSubmit.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Authenticating...`;
+        }
+
+        const loginRes = await signInAdminWithSupabase(emailVal, passVal);
+        if (loginRes.success) {
+          if (loginError) loginError.style.display = "none";
+          setAuthenticated(true);
+          showToast(`Welcome back, ${loginRes.user?.email || "Admin"}!`, "success");
+          await loadInitialData();
+          if (typeof renderAllTabs === "function") renderAllTabs();
+          if (typeof updateCounters === "function") updateCounters();
+        } else {
+          if (loginError) {
+            loginError.style.display = "flex";
+            const errText = document.getElementById("login-error-text");
+            if (errText) errText.textContent = `Access Denied: ${loginRes.error}`;
+            loginError.classList.remove("login-shake");
+            void loginError.offsetWidth;
+            loginError.classList.add("login-shake");
+          }
+          if (passwordInput) {
+            passwordInput.value = "";
+            passwordInput.focus();
+          }
+        }
+      } catch (err) {
+        if (loginError) {
+          loginError.style.display = "flex";
+          const errText = document.getElementById("login-error-text");
+          if (errText) errText.textContent = "Authentication error: " + err.message;
+        }
+      } finally {
+        if (btnSubmit) {
+          btnSubmit.disabled = false;
+          btnSubmit.innerHTML = origHtml;
         }
       }
     });
@@ -252,8 +408,9 @@
 
   // Handle Logout
   if (btnLogout) {
-    btnLogout.addEventListener("click", () => {
+    btnLogout.addEventListener("click", async () => {
       if (confirm("Are you sure you want to log out from Admin?")) {
+        await signOutAdmin();
         setAuthenticated(false);
         if (passwordInput) passwordInput.value = "";
         if (usernameInput) {
@@ -265,6 +422,16 @@
       }
     });
   }
+
+  // Auto-verify existing auth session on startup
+  (async function verifyStartupAuth() {
+    const session = await getOrRefreshAuthSession();
+    if (session && session.access_token) {
+      setAuthenticated(true);
+    } else {
+      setAuthenticated(false);
+    }
+  })();
 
   // Auto-focus username on load if unauthenticated
   if (sessionStorage.getItem(AUTH_KEY) !== "true") {
@@ -753,34 +920,28 @@
 
   // Upload custom image direct from Device (phone/PC) with 0ms local preview & cloud sync
   if (projImageFile) {
-    projImageFile.addEventListener("change", (e) => {
+    projImageFile.addEventListener("change", async (e) => {
       const file = e.target.files && e.target.files[0];
       if (!file) return;
 
-      // 1. Instant 0ms Base64 preview for 100% offline & cross-device compatibility
-      const reader = new FileReader();
-      reader.onload = async (ev) => {
-        const dataUrl = ev.target.result;
-        projImage.value = dataUrl;
-        updateModalPreview(dataUrl);
+      const previewUrl = URL.createObjectURL(file);
+      updateModalPreview(previewUrl);
 
-        // 2. Also try uploading to Supabase Storage if configured for CDN URL
-        try {
-          showToast(`Uploading "${file.name}" to cloud storage...`, "info");
-          const res = await uploadSupabaseStorageFile(file);
-          if (res && res.url) {
-            projImage.value = res.url;
-            updateModalPreview(res.url);
-            showToast("✓ Image uploaded to Cloud Storage & synced everywhere!", "success");
-          } else {
-            showToast("✓ Image loaded from device & ready!", "success");
-          }
-        } catch (err) {
-          console.warn("Storage upload bypassed, direct image data kept:", err);
-          showToast("✓ Image loaded from device & ready!", "success");
+      try {
+        showToast(`Uploading "${file.name}" to Supabase Cloud...`, "info");
+        const res = await uploadSupabaseStorageFile(file);
+        if (res && res.url) {
+          projImage.value = res.url;
+          updateModalPreview(res.url);
+          showToast("✓ Image uploaded to Cloud Storage & synced everywhere!", "success");
         }
-      };
-      reader.readAsDataURL(file);
+      } catch (err) {
+        console.error("Storage upload failed:", err);
+        showToast("Cloud image upload failed: " + err.message, "error");
+        updateModalPreview(projImage.value || "");
+      } finally {
+        URL.revokeObjectURL(previewUrl);
+      }
     });
   }
 
@@ -4282,9 +4443,25 @@
   // MASTER SAVE & PERSISTENCE
   // =========================================================================
 
+  let isSavingMaster = false;
+
   async function performMasterSave() {
+    if (isSavingMaster) {
+      showToast("Save already in progress, please wait...", "info");
+      return false;
+    }
+
+    const btnSave = document.getElementById("btn-save-master");
+    const origHtml = btnSave ? btnSave.innerHTML : "";
+
     try {
-      // Explicitly scrape all active resume inputs into state.resume
+      isSavingMaster = true;
+      if (btnSave) {
+        btnSave.disabled = true;
+        btnSave.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Saving to Supabase Cloud...`;
+      }
+
+      // Scrape resume inputs
       if (state.resume) {
         if (!state.resume.header) state.resume.header = {};
         if (!state.resume.sectionTitles) state.resume.sectionTitles = {};
@@ -4310,56 +4487,98 @@
         });
       }
 
-      state._updatedAt = Date.now();
-      const serialized = JSON.stringify(state, null, 2);
-      localStorage.setItem(STORAGE_KEY, serialized);
+      // Check admin session
+      const authSession = await getOrRefreshAuthSession();
+      if (!authSession || !authSession.access_token) {
+        showToast("Authentication required: Please log in with Supabase Admin credentials to save.", "error");
+        setAuthenticated(false);
+        return false;
+      }
 
-      // Notify other tabs via BroadcastChannel
+      state._updatedAt = Date.now();
+      const config = getSupabaseConfig();
+      const endpoint = `${config.url.replace(/\/+$/, "")}/rest/v1/portfolio_data`;
+
+      // 1. Authoritative write to Supabase Cloud Database (AWAITED)
+      const res = await fetch(endpoint, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "apikey": config.key,
+          "Authorization": `Bearer ${authSession.access_token}`,
+          "Prefer": "resolution=merge-duplicates,return=representation"
+        },
+        body: JSON.stringify({
+          id: "main",
+          data: state,
+          updated_at: new Date().toISOString()
+        })
+      });
+
+      if (!res.ok) {
+        let errMessage = res.statusText;
+        try {
+          const errBody = await res.json();
+          errMessage = errBody.message || errBody.error_description || errBody.details || res.statusText;
+        } catch (e) {
+          errMessage = await res.text().catch(() => res.statusText);
+        }
+
+        updateSupabaseStatusBadge(false, "Supabase Error");
+        if (res.status === 401 || res.status === 403) {
+          showToast(`Cloud save rejected (${res.status}): ${errMessage}. Please re-authenticate.`, "error");
+        } else {
+          showToast(`Cloud save failed (${res.status}): ${errMessage}`, "error");
+        }
+        return false;
+      }
+
+      // 2. Confirmed cloud persistence -> Update local cache
+      const serialized = JSON.stringify(state, null, 2);
+      try {
+        localStorage.setItem(STORAGE_KEY, serialized);
+      } catch (e) {}
+
+      updateSupabaseStatusBadge(true, "Supabase Synced");
+
+      // Notify other tabs
       if (broadcastChannel) {
         broadcastChannel.postMessage({ type: "PORTFOLIO_UPDATED", timestamp: Date.now() });
       }
 
-      // Try local server API if running
+      // Optional local dev server update
       let serverSaved = false;
       try {
-        const res = await fetch("/api/save", {
+        const localRes = await fetch("/api/save", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: serialized,
         });
-        if (res.ok) {
-          serverSaved = true;
-        }
-      } catch (e) {
-        // Static server running
+        if (localRes.ok) serverSaved = true;
+      } catch (e) {}
+
+      if (serverSaved) {
+        showToast("Changes saved to Supabase Cloud & local disk! ☁️", "success");
+      } else {
+        showToast("Changes saved to Supabase Cloud! Live across all devices. ☁️", "success");
       }
 
-      // Pulse save button
-      const btnSave = document.getElementById("btn-save-master");
       if (btnSave) {
         btnSave.classList.add("btn-yellow");
         setTimeout(() => btnSave.classList.remove("btn-yellow"), 600);
       }
-
-      // Save instantly to Supabase Cloud Database in background
-      syncToSupabase(true).catch(e => console.warn("Supabase background save failed", e));
-
-      const hasToken = !!localStorage.getItem("gh_deploy_token");
-      if (serverSaved) {
-        showToast("Changes saved to Supabase Cloud, disk & live portfolio! ☁️", "success");
-      } else if (hasToken) {
-        showToast("Saved to Supabase Cloud & deploying globally...", "info");
-      } else {
-        showToast("Changes saved to Supabase Cloud & browser! ☁️", "success");
-      }
-
-      // Auto-trigger global deploy if token is present
-      if (hasToken) {
-        triggerGlobalDeploy(true);
-      }
+      return true;
     } catch (err) {
-      console.error("Save error", err);
-      showToast("Error saving data: " + err.message, "error");
+      console.error("Master save error:", err);
+      updateSupabaseStatusBadge(false, "Network Error");
+      showToast("Error saving to cloud: " + err.message, "error");
+      return false;
+    } finally {
+      isSavingMaster = false;
+      if (btnSave) {
+        btnSave.disabled = false;
+        btnSave.innerHTML = origHtml;
+      }
     }
   }
 
@@ -4892,17 +5111,24 @@
     return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + " " + sizes[i];
   }
 
-  function getPublicStorageUrl(filename) {
+  function getPublicStorageUrl(path) {
+    if (!path) return "";
+    if (path.startsWith("http://") || path.startsWith("https://")) return path;
     const config = getSupabaseConfig();
-    return `${config.url.replace(/\/+$/, "")}/storage/v1/object/public/${SUPABASE_STORAGE_BUCKET}/${encodeURIComponent(filename)}`;
+    const cleanPath = path.replace(/^\/+/, "");
+    const encodedSegments = cleanPath.split("/").map(encodeURIComponent).join("/");
+    return `${config.url.replace(/\/+$/, "")}/storage/v1/object/public/${SUPABASE_STORAGE_BUCKET}/${encodedSegments}`;
   }
 
   function getSafeStorageFilename(file) {
     const original = file.name || "image.png";
-    const ext = original.split(".").pop().toLowerCase() || "png";
-    const cleanBase = original.substring(0, original.lastIndexOf(".") > -1 ? original.lastIndexOf(".") : original.length)
+    const dotIdx = original.lastIndexOf(".");
+    const ext = dotIdx > -1 ? original.substring(dotIdx + 1).toLowerCase() : "png";
+    const rawBase = dotIdx > -1 ? original.substring(0, dotIdx) : original;
+    const cleanBase = rawBase
       .replace(/[^a-zA-Z0-9_-]/g, "_")
-      .substring(0, 30);
+      .substring(0, 30)
+      .replace(/^_+|_+$/g, "") || "asset";
     return `${cleanBase}-${Date.now()}.${ext}`;
   }
 
@@ -4913,15 +5139,30 @@
       throw new Error("Supabase credentials not configured!");
     }
 
-    const targetName = customFilename || getSafeStorageFilename(file);
-    const endpoint = `${config.url.replace(/\/+$/, "")}/storage/v1/object/${SUPABASE_STORAGE_BUCKET}/${encodeURIComponent(targetName)}`;
+    // Validate size (15MB limit)
+    if (file.size && file.size > 15 * 1024 * 1024) {
+      throw new Error("File exceeds 15MB size limit.");
+    }
 
-    // Read as binary array buffer
+    // Validate MIME
+    const allowedMimes = ["image/jpeg", "image/png", "image/webp", "image/gif", "image/svg+xml", "image/x-icon", "image/vnd.microsoft.icon"];
+    if (file.type && !allowedMimes.includes(file.type.toLowerCase())) {
+      throw new Error(`Unsupported image type (${file.type}). Allowed: PNG, JPEG, WebP, GIF, SVG, ICO`);
+    }
+
+    const session = await getOrRefreshAuthSession();
+    const token = (session && session.access_token) ? session.access_token : config.key;
+
+    const targetName = customFilename || getSafeStorageFilename(file);
+    const cleanTarget = targetName.replace(/^\/+/, "");
+    const encodedSegments = cleanTarget.split("/").map(encodeURIComponent).join("/");
+    const endpoint = `${config.url.replace(/\/+$/, "")}/storage/v1/object/${SUPABASE_STORAGE_BUCKET}/${encodedSegments}`;
+
     const arrayBuffer = await file.arrayBuffer();
 
     const headers = {
       "apikey": config.key,
-      "Authorization": `Bearer ${config.key}`,
+      "Authorization": `Bearer ${token}`,
       "Content-Type": file.type || "application/octet-stream"
     };
 
@@ -4940,10 +5181,10 @@
       throw new Error(err.message || `Upload failed with HTTP ${res.status}`);
     }
 
-    const publicUrl = getPublicStorageUrl(targetName);
+    const publicUrl = getPublicStorageUrl(cleanTarget);
     return {
       success: true,
-      name: targetName,
+      name: cleanTarget,
       url: publicUrl
     };
   }
