@@ -370,6 +370,22 @@
   },
   "projects": [
     {
+      "id": "pip-video-extension",
+      "title": "Pip Video Extension",
+      "description": "A lightweight Chrome Extension that enables seamless automatic and manual Picture-in-Picture (PiP) transitions for HTML5 videos on platforms like YouTube, Vimeo, and custom video players.",
+      "image": "https://opengraph.githubassets.com/1/samarth163-cloud/pip_video_extension",
+      "sourceUrl": "https://github.com/samarth163-cloud/pip_video_extension",
+      "visitUrl": "",
+      "visitLabel": "Visit",
+      "featured": true,
+      "tech": [
+        {
+          "name": "JavaScript",
+          "icon": "fab fa-js"
+        }
+      ]
+    },
+    {
       "id": "samarth-s-portfolio",
       "tech": [
         {
@@ -606,5 +622,5 @@
       ]
     }
   ],
-  "_updatedAt": 1793205593503
+  "_updatedAt": 1793205748677
 }
