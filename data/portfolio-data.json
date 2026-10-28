@@ -404,7 +404,7 @@
     {
       "id": "soft-sb1",
       "title": "SOFT SB1",
-      "description": "",
+      "description": "Windows desktop application built with C# and .NET 8 Windows Forms. The project focuses on login authentication, splash screens, dashboard UI, session management, and modular software architecture, with GitHub-based collaboration and testing workflows.",
       "image": "https://opengraph.githubassets.com/1/samarth163-cloud/TEAM-SOFT-SB1",
       "sourceUrl": "https://github.com/samarth163-cloud/TEAM-SOFT-SB1",
       "visitUrl": "",
@@ -606,5 +606,5 @@
       ]
     }
   ],
-  "_updatedAt": 1793205512387
+  "_updatedAt": 1793205587689
 }
