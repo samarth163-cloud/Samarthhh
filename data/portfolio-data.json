@@ -370,6 +370,26 @@
   },
   "projects": [
     {
+      "id": "team-soft-sb1",
+      "title": "TEAM SOFT SB1",
+      "description": "",
+      "image": "https://opengraph.githubassets.com/1/samarth163-cloud/TEAM-SOFT-SB1",
+      "sourceUrl": "https://github.com/samarth163-cloud/TEAM-SOFT-SB1",
+      "visitUrl": "",
+      "visitLabel": "Visit",
+      "featured": true,
+      "tech": [
+        {
+          "name": "JavaScript",
+          "icon": "fab fa-js"
+        },
+        {
+          "name": "Node.js",
+          "icon": "fab fa-node"
+        }
+      ]
+    },
+    {
       "id": "samarth-s-portfolio",
       "tech": [
         {
@@ -586,5 +606,5 @@
       ]
     }
   ],
-  "_updatedAt": 1793205349116
+  "_updatedAt": 1793205492879
 }
