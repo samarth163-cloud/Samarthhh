@@ -550,6 +550,22 @@
       "description": "An open-source Tamagotchi OS built completely from scratch! Designed to work on a Raspberry Pi Pico. All the artwork is also done by me!"
     },
     {
+      "id": "creator-assets-text-animations-luts",
+      "title": "Creator Assets — Text Animations & LUTs",
+      "description": "A creative video editing website showcasing text animations, cinematic LUTs, and visual effects for content creators. Built with HTML, CSS, and JavaScript, it features product previews, a modern dark design, and a simple way to explore editing assets.",
+      "image": "https://image.thum.io/get/width/1200/crop/800/https://web-olive-eta-49.vercel.app",
+      "sourceUrl": "https://github.com/samarth163-cloud/WEB",
+      "visitUrl": "https://web-olive-eta-49.vercel.app",
+      "visitLabel": "visit",
+      "featured": true,
+      "tech": [
+        {
+          "icon": "fab fa-html5",
+          "name": "HTML"
+        }
+      ]
+    },
+    {
       "id": "deeplinker",
       "tech": [
         {
@@ -572,22 +588,6 @@
       "sourceUrl": "https://github.com/samarth163-cloud/deeplinker",
       "visitLabel": "deeplink",
       "description": "A self-hosted deep-link generator for your Socials/Instagram bio, with a private analytics dashboard."
-    },
-    {
-      "id": "creator-assets-text-animations-luts",
-      "title": "Creator Assets — Text Animations & LUTs",
-      "description": "A creative video editing website showcasing text animations, cinematic LUTs, and visual effects for content creators. Built with HTML, CSS, and JavaScript, it features product previews, a modern dark design, and a simple way to explore editing assets.",
-      "image": "https://image.thum.io/get/width/1200/crop/800/https://web-olive-eta-49.vercel.app",
-      "sourceUrl": "https://github.com/samarth163-cloud/WEB",
-      "visitUrl": "https://web-olive-eta-49.vercel.app",
-      "visitLabel": "visit",
-      "featured": true,
-      "tech": [
-        {
-          "icon": "fab fa-html5",
-          "name": "HTML"
-        }
-      ]
     },
     {
       "id": "hc-stickers-manager",
@@ -638,5 +638,5 @@
       "description": "An open-source npm package for unit conversion."
     }
   ],
-  "_updatedAt": 1793205846643
+  "_updatedAt": 1793205847957
 }
