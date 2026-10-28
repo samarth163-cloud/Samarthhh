@@ -347,27 +347,17 @@
         "name": "YouTube"
       },
       {
-        "url": "https://www.linkedin.com/",
+        "url": "https://www.linkedin.com/in/samarth-haveliwala-99bb22446/",
         "icon": "fab fa-linkedin",
         "name": "LinkedIn"
       },
       {
-        "url": "https://github.com/",
+        "url": "https://github.com/samarth163-cloud",
         "icon": "fab fa-github",
         "name": "GitHub"
       },
       {
-        "url": "https://itch.io/",
-        "icon": "fab fa-itch-io",
-        "name": "Itch.io"
-      },
-      {
-        "url": "/#blog",
-        "icon": "fa-solid fa-scroll",
-        "name": "Blog"
-      },
-      {
-        "url": "mailto:samarth@example.com",
+        "url": "mailto:donsamarth163@gmail.com",
         "icon": "far fa-envelope",
         "name": "Email"
       }
@@ -596,5 +586,5 @@
       "description": ""
     }
   ],
-  "_updatedAt": 1793202559223
+  "_updatedAt": 1793202617322
 }
