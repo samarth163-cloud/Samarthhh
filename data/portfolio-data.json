@@ -280,14 +280,14 @@
         "visible": true,
         "institution": "Higher Secondary Certificate - 12th",
         "meta": "2023 - 2024",
-        "description": "<b>Straight A's</b> and honors."
+        "description": "Shree R. D. Ghahel Jeevan Bharti, surat"
       },
       {
         "id": "edu-1793210307194",
         "visible": true,
         "institution": "Secondary School Certificate - 10th",
         "meta": "2020 - 2021",
-        "description": "<b>Straight A's</b> and honors."
+        "description": "Shree R. D. Ghahel Jeevan Bharti, surat"
       }
     ],
     "statsNote": "Live coding activity from Hackatime.",
@@ -661,5 +661,5 @@
       "description": "An open-source npm package for unit conversion."
     }
   ],
-  "_updatedAt": 1793210446798
+  "_updatedAt": 1793210529390
 }
