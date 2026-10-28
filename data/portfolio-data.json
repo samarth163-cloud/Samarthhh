@@ -264,12 +264,6 @@
         "institution": "Benchmark School System"
       },
       {
-        "id": "edu-1793131062168",
-        "meta": "",
-        "description": "",
-        "institution": "High School / University"
-      },
-      {
         "id": "edu-1793131062535",
         "meta": "2024 - 2026",
         "description": "Veer Narmad South Gujarat University (VNSGU), Surat",
@@ -661,5 +655,5 @@
       "description": "An open-source npm package for unit conversion."
     }
   ],
-  "_updatedAt": 1793210564967
+  "_updatedAt": 1793210587663
 }
