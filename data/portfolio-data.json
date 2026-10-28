@@ -280,7 +280,7 @@
         "id": "edu-1793210307194",
         "visible": true,
         "institution": "Secondary School Certificate - 10th",
-        "meta": "77.60% · 2020 - 2021",
+        "meta": "2020 - 2021 · 77.60%",
         "description": "Shree R. D. Ghahel Jeevan Bharti, surat"
       }
     ],
@@ -655,5 +655,5 @@
       "description": "An open-source npm package for unit conversion."
     }
   ],
-  "_updatedAt": 1793210654848
+  "_updatedAt": 1793210682316
 }
