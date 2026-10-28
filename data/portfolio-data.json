@@ -74,7 +74,7 @@
       },
       {
         "id": "hl-1793207747120",
-        "text": "  Contributed to <b>S TOM'S Project SBV1</b>, a team-based Windows desktop application built with <b>C#</b> and <b>.NET 8</b>, exploring UI development, software architecture, and collaborative programming."
+        "text": "  Contributed to <a href=\"https://hackclub.slack.com/archives/C090B3T9R9R/p1751137882759709\" target=\"_blank\" rel=\"noopener noreferrer\">          <b>S TOM'S Project SBV1</b>, a team-based Windows desktop application built with <b>C#</b> and <b>.NET 8</b>, exploring UI development, software architecture, and collaborative programming."
       }
     ],
     "hackatimeUser": "Samarth",
@@ -643,5 +643,5 @@
       "description": "An open-source npm package for unit conversion."
     }
   ],
-  "_updatedAt": 1793207752423
+  "_updatedAt": 1793207822514
 }
