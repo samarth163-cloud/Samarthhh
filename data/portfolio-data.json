@@ -333,7 +333,8 @@
     "avatars": [
       "assets/profile/1.jpg",
       "assets/profile/3.jpg",
-      "https://npzqpcagdtnfuqhyngro.supabase.co/storage/v1/object/public/portfolio-assets/IMG-20241110-WA0045__3__jpg-1793206297431.jpeg"
+      "https://npzqpcagdtnfuqhyngro.supabase.co/storage/v1/object/public/portfolio-assets/IMG-20241110-WA0045__3__jpg-1793206297431.jpeg",
+      "https://npzqpcagdtnfuqhyngro.supabase.co/storage/v1/object/public/portfolio-assets/IMG_20250502_161151_jpg-1793206304057.jpeg"
     ],
     "ctaText": "Explore projects",
     "socials": [
@@ -639,5 +640,5 @@
       "description": "An open-source npm package for unit conversion."
     }
   ],
-  "_updatedAt": 1793206299643
+  "_updatedAt": 1793206310197
 }
