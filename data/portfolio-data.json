@@ -367,7 +367,7 @@
     "siteTitle": "Samarth's Portfolio",
     "ctaSubtext": "[All my work is open source]",
     "profilePic": "assets/profile/1.jpg",
-    "description": "I build websites, software, and digital experiences, combining code, creativity, and modern technologies to bring ideas to life."
+    "description": "I build websites, software, and digital experiences with code and creativity."
   },
   "projects": [
     {
@@ -639,5 +639,5 @@
       "description": "An open-source npm package for unit conversion."
     }
   ],
-  "_updatedAt": 1793206963678
+  "_updatedAt": 1793206994859
 }
