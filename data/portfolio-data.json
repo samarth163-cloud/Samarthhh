@@ -93,11 +93,11 @@
         "category": "Programming/Scripting Languages"
       },
       {
-        "skills": "React, Astro",
+        "skills": "Bootstrap, Node.js",
         "category": "Web Development Frameworks"
       },
       {
-        "skills": "HTML, CSS, JavaScript, React, Bootstrap",
+        "skills": "HTML, CSS, JavaScript, React, Bootstrap, jQuery",
         "category": "Frontend"
       },
       {
@@ -651,5 +651,5 @@
       "description": "An open-source npm package for unit conversion."
     }
   ],
-  "_updatedAt": 1793208799389
+  "_updatedAt": 1793208907359
 }
