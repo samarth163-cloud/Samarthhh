@@ -265,7 +265,7 @@
       },
       {
         "id": "edu-1793131062535",
-        "meta": "2024 - 2026",
+        "meta": "2024 - Present",
         "description": "Veer Narmad South Gujarat University (VNSGU), Surat",
         "institution": "Bachelor of Computer Applications (BCA)"
       },
@@ -655,5 +655,5 @@
       "description": "An open-source npm package for unit conversion."
     }
   ],
-  "_updatedAt": 1793210723289
+  "_updatedAt": 1793210808772
 }
