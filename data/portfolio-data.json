@@ -101,23 +101,19 @@
         "category": "Frontend"
       },
       {
-        "skills": "Node.js, Express.js",
+        "skills": "Node.js, Express.js, REST APIs",
         "category": "Backend"
-      },
-      {
-        "skills": "KiCAD, EasyEDA",
-        "category": "PCB Design"
       },
       {
         "skills": "CircuitPython, Raspberry Pi, MicroPython, Arduino",
         "category": "Hardware"
       },
       {
-        "skills": "MongoDB, Airtable",
+        "skills": "MongoDB, MySQL, SQLite, Supabase",
         "category": "Database"
       },
       {
-        "skills": "Unity, Love 2D, Phaser.js, Pygame",
+        "skills": "Pygame",
         "category": "Game Development"
       },
       {
@@ -651,5 +647,5 @@
       "description": "An open-source npm package for unit conversion."
     }
   ],
-  "_updatedAt": 1793208969795
+  "_updatedAt": 1793209187064
 }
