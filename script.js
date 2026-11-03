@@ -206,25 +206,30 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  // Handle section highlighting on scroll (Synchronized with All Sections including Header)
+  // Handle section highlighting on scroll
   const navTargets = [
-    { id: "header-wrapper", el: document.getElementById("header-wrapper") },
     { id: "about-me", el: document.getElementById("about-me") },
     { id: "portfolio", el: document.getElementById("portfolio") || document.getElementById("showcase") },
     { id: "blog", el: document.getElementById("blog") }
   ];
   const navLinks = document.querySelectorAll(".scroll-indicator a");
 
+  function getElementDocTop(el) {
+    if (!el) return Infinity;
+    const rect = el.getBoundingClientRect();
+    return rect.top + window.scrollY;
+  }
+
   function updateScrollIndicator() {
-    const scrollPos = window.scrollY + 220;
-    let currentId = "header-wrapper";
+    const scrollPos = window.scrollY + 250;
+    let currentId = ""; // Header / Top has no active highlight
 
     navTargets.forEach((target) => {
       if (!target.el) {
         target.el = document.getElementById(target.id);
       }
       if (target.el) {
-        const top = target.el.offsetTop;
+        const top = getElementDocTop(target.el);
         if (scrollPos >= top) {
           currentId = target.id;
         }
@@ -237,7 +242,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     navLinks.forEach((link) => {
       const targetHref = link.getAttribute("href")?.substring(1);
-      const isMatch = targetHref === currentId;
+      const isMatch = Boolean(targetHref && currentId && targetHref === currentId);
       link.classList.toggle("active", isMatch);
     });
   }
