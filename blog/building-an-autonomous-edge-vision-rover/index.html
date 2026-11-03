@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Building an Autonomous Edge Vision Rover with Raspberry Pi &amp; Python // Samarth Blog</title>
+  <meta name="title" content="Building an Autonomous Edge Vision Rover with Raspberry Pi &amp; Python" />
+  <meta name="description" content="A deep-dive build log on designing a custom differential-drive autonomous rover with real-time obstacle avoidance and edge computer vision." />
+  <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+  <link rel="shortcut icon" href="/favicon.ico" />
+  <link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon/favicon-32x32.png" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/assets/favicon/apple-touch-icon.png" />
+  <link rel="canonical" href="/blog/building-an-autonomous-edge-vision-rover/" />
+  
+  <!-- Open Graph -->
+  <meta property="og:type" content="article" />
+  <meta property="og:url" content="/blog/building-an-autonomous-edge-vision-rover/" />
+  <meta property="og:title" content="Building an Autonomous Edge Vision Rover with Raspberry Pi &amp; Python" />
+  <meta property="og:description" content="A deep-dive build log on designing a custom differential-drive autonomous rover with real-time obstacle avoidance and edge computer vision." />
+  <meta property="og:image" content="https://npzqpcagdtnfuqhyngro.supabase.co/storage/v1/object/public/portfolio-assets/assets/projects/pishot.png" />
+
+  <!-- Fonts & Icons -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Anton&family=Space+Grotesk:wght@400;500;600;700;800&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <link rel="stylesheet" href="/blog/blog.css" />
+
+  <!-- Theme init -->
+  <script>
+    (function() {
+      const savedTheme = localStorage.getItem("theme") || "light";
+      document.documentElement.setAttribute("data-theme", savedTheme);
+      if (savedTheme === "dark") {
+        document.documentElement.classList.add("dark");
+      }
+    })();
+  </script>
+</head>
+<body>
+
+  <!-- Site Header -->
+  <header class="site-header">
+    <div class="header-inner">
+      <div class="site-name">
+        <a href="/">Samarth <span class="site-badge">BLOG</span></a>
+      </div>
+      
+      <nav class="menu" aria-label="Main Navigation">
+        <ul>
+          <li><a href="/">Home</a></li>
+          <li><a href="/#about-me">About</a></li>
+          <li><a href="/blog" class="active">Blog</a></li>
+          <li><a href="/#portfolio">Projects</a></li>
+        </ul>
+      </nav>
+
+      <div class="header-actions">
+        <button id="darkmode-toggle-id" class="darkmode-toggle" type="button" aria-label="Toggle dark mode" title="Toggle Theme">
+          <i class="fas fa-sun light-icon"></i>
+          <i class="fas fa-moon dark-icon"></i>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Article Main -->
+  <main class="article-main">
+    <div class="back-to-blog">
+      <a href="/blog/" class="back-link"><i class="fas fa-arrow-left"></i> Back to all articles</a>
+    </div>
+
+    <article>
+      
+      <div class="article-cover">
+        <img src="https://npzqpcagdtnfuqhyngro.supabase.co/storage/v1/object/public/portfolio-assets/assets/projects/pishot.png" alt="Building an Autonomous Edge Vision Rover with Raspberry Pi &amp; Python" loading="eager" onerror="this.src='/favicon.ico'" />
+      </div>
+
+      <header class="article-header">
+        <div class="article-meta-row">
+          <span class="meta-item"><i class="far fa-calendar-alt"></i> November 4, 2026</span>
+          <span class="meta-dot">•</span><span class="readingTime"><i class="far fa-clock"></i> 5 min read</span>
+          <span class="meta-dot">•</span><div class="post-tags"><span class="tag">#robotics</span> <span class="tag">#hardware</span> <span class="tag">#python</span> <span class="tag">#ai</span> <span class="tag">#raspberry pi</span></div>
+        </div>
+        <h1>🤖 Building an Autonomous Edge Vision Rover with Raspberry Pi &amp; Python</h1>
+      </header>
+
+      <div class="prose">
+        <div class="notion-callout">
+  <span class="notion-callout-icon">💡</span>
+  <div class="notion-callout-text">
+    <b>Build Log Summary:</b> This project explores building a low-cost, fully autonomous ground vehicle capable of obstacle mapping, edge vision tracking, and failsafe navigation using Python and a Raspberry Pi.
+  </div>
+</div>
+
+<h2>1. System Architecture & Hardware Stack</h2>
+<p>Designing an edge-computed rover requires balancing compute throughput with power draw. We paired a Raspberry Pi Zero 2W running Raspberry Pi OS Lite with an L298N dual H-bridge motor controller and two 6V micro gear motors with optical encoders.</p>
+
+<table class="notion-table">
+  <thead>
+    <tr>
+      <th>Subsystem</th>
+      <th>Component</th>
+      <th>Operating Voltage</th>
+      <th>Interface</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Compute Brain</td>
+      <td>Raspberry Pi Zero 2W</td>
+      <td>5.1V @ 2.5A</td>
+      <td>CSI Camera, GPIO, I2C</td>
+    </tr>
+    <tr>
+      <td>Motor Controller</td>
+      <td>L298N Dual H-Bridge</td>
+      <td>7.4V - 12V</td>
+      <td>PWM GPIO Signals</td>
+    </tr>
+    <tr>
+      <td>Telemetry Sensors</td>
+      <td>HC-SR04 & MPU-6050</td>
+      <td>3.3V / 5.0V</td>
+      <td>Trigger/Echo GPIO & I2C</td>
+    </tr>
+    <tr>
+      <td>Vision Unit</td>
+      <td>Pi Camera Module 3 Wide</td>
+      <td>3.3V MIPI</td>
+      <td>libcamera / OpenCV</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2>2. Vision Pipeline: Real-Time Color Masking</h2>
+<p>Using OpenCV's optimized ARM build, we downscale the CSI video stream to 320x240 at 30 FPS. This leaves plenty of headroom for the PID controller running in the background to adjust wheel velocities.</p>
+
+<pre class="notion-code-block"><code>import cv2
+import numpy as np
+
+def detect_target_vector(frame):
+    # Convert BGR frame to HSV color space
+    hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
+    lower_bound = np.array([25, 80, 80])
+    upper_bound = np.array([35, 255, 255])
+    
+    # Binary mask and contour detection
+    mask = cv2.range(hsv, lower_bound, upper_bound)
+    contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    
+    if contours:
+        largest = max(contours, key=cv2.contourArea)
+        (x, y), radius = cv2.minEnclosingCircle(largest)
+        if radius > 15:
+            center_error = (x - (frame.shape[1] / 2)) / (frame.shape[1] / 2)
+            return float(center_error)
+    return None</code></pre>
+
+<h2>3. Obstacle Avoidance & Reactive Steering</h2>
+<p>When ultrasonic sensor telemetry reports an obstacle within 20cm, the rover halts its vision tracking loop, executes an in-place turn away from the detected vector, and re-evaluates clearance before resuming navigation.</p>
+
+<div class="notion-callout">
+  <span class="notion-callout-icon">🚀</span>
+  <div class="notion-callout-text">
+    <b>Next Steps:</b> Upgrading to an onboard Coral TPU for MobileNet SSD object classification and stereo depth estimation!
+  </div>
+</div>
+      </div>
+
+      <!-- Author Bio -->
+      <section class="author-bio-card">
+        <img src="/assets/profile/1.jpg" alt="Samarth" class="author-bio-avatar" onerror="this.src='/favicon.ico'" />
+        <div class="author-bio-content">
+          <h3>Written by Samarth Haveliwala</h3>
+          <p>Developer building open-source software, games, and hardware — from custom cameras to interactive web platforms.</p>
+          <div class="author-bio-links">
+            <a href="https://github.com/samarth163-cloud" target="_blank" rel="noopener noreferrer"><i class="fab fa-github"></i> GitHub</a>
+            <a href="https://www.youtube.com/@DevStuff5" target="_blank" rel="noopener noreferrer"><i class="fab fa-youtube"></i> YouTube</a>
+            <a href="/blog/"><i class="fas fa-book-open"></i> All Articles</a>
+          </div>
+        </div>
+      </section>
+    </article>
+  </main>
+
+  <!-- Site Footer -->
+  <footer class="site-footer">
+    <div class="footer-content">
+      <p class="copyright">&copy; 2026 <b><a href="/">Samarth</a></b>. Open source portfolio.</p>
+      <div class="social-links">
+        <a href="https://github.com/samarth163-cloud" target="_blank" rel="noopener noreferrer" aria-label="GitHub"><i class="fab fa-github"></i></a>
+        <a href="https://www.linkedin.com" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+        <a href="https://www.youtube.com/@DevStuff5" target="_blank" rel="noopener noreferrer" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
+        <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+        <a href="mailto:donsamarth163@gmail.com" aria-label="Email"><i class="far fa-envelope"></i></a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="/data-sync.js"></script>
+  <script src="/blog/blog.js"></script>
+</body>
+</html>

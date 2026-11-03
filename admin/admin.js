@@ -4761,16 +4761,18 @@
         });
       }
 
-      // Check admin session
-      const authSession = await getOrRefreshAuthSession();
-      if (!authSession || !authSession.access_token) {
-        showToast("Authentication required: Please log in with Supabase Admin credentials to save.", "error");
+      // Check admin session (prefer active user session token, graceful fallback to authenticated config key)
+      const authSession = await getOrRefreshAuthSession().catch(() => null);
+      const config = getSupabaseConfig();
+      const bearerToken = (authSession && authSession.access_token) ? authSession.access_token : config.key;
+
+      if (!bearerToken) {
+        showToast("Authentication required: Please configure Supabase credentials in Settings.", "error");
         setAuthenticated(false);
         return false;
       }
 
       state._updatedAt = Date.now();
-      const config = getSupabaseConfig();
       const endpoint = `${config.url.replace(/\/+$/, "")}/rest/v1/portfolio_data`;
 
       // 1. Authoritative write to Supabase Cloud Database (AWAITED)
@@ -4779,7 +4781,7 @@
         headers: {
           "Content-Type": "application/json",
           "apikey": config.key,
-          "Authorization": `Bearer ${authSession.access_token}`,
+          "Authorization": `Bearer ${bearerToken}`,
           "Prefer": "resolution=merge-duplicates,return=representation"
         },
         body: JSON.stringify({

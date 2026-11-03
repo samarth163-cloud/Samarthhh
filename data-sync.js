@@ -56,11 +56,12 @@
         "B", "STRONG", "I", "EM", "U", "S", "STRIKE", "A", "P", "BR", "HR",
         "H1", "H2", "H3", "H4", "H5", "H6", "UL", "OL", "LI", "BLOCKQUOTE",
         "CODE", "PRE", "SPAN", "DIV", "IMG", "FIGURE", "FIGCAPTION", "TABLE",
-        "THEAD", "TBODY", "TR", "TH", "TD", "MARK", "SUB", "SUP"
+        "THEAD", "TBODY", "TR", "TH", "TD", "MARK", "SUB", "SUP", "IFRAME"
       ]);
       const allowedAttrs = new Set([
         "href", "src", "alt", "title", "class", "id", "target", "rel",
-        "style", "loading", "width", "height", "data-tag", "data-tags"
+        "style", "loading", "width", "height", "data-tag", "data-tags",
+        "frameborder", "allowfullscreen", "allow"
       ]);
 
       function clean(node) {
@@ -72,12 +73,27 @@
               child.remove();
               continue;
             }
+            // Strip contenteditable so public visitors cannot edit blocks
+            if (child.hasAttribute("contenteditable")) {
+              child.removeAttribute("contenteditable");
+            }
             for (const attr of Array.from(child.attributes)) {
               const name = attr.name.toLowerCase();
               if (!allowedAttrs.has(name) || name.startsWith("on")) {
                 child.removeAttribute(attr.name);
               } else if ((name === "href" || name === "src") && /^(javascript|data:text\/html|vbscript):/i.test(attr.value.trim())) {
                 child.removeAttribute(attr.name);
+              } else if (tag === "IFRAME" && name === "src") {
+                // Ensure iframe src is a valid https video or embed URL
+                const val = attr.value.trim();
+                if (!val.startsWith("https://www.youtube.com/") &&
+                    !val.startsWith("https://youtube.com/") &&
+                    !val.startsWith("https://www.youtube-nocookie.com/") &&
+                    !val.startsWith("https://player.vimeo.com/") &&
+                    !val.startsWith("https://codepen.io/")) {
+                  child.remove();
+                  break;
+                }
               }
             }
             if (tag === "A" && child.getAttribute("target") === "_blank") {
@@ -735,6 +751,36 @@
       return;
     }
 
+    // Dynamic Filter Chips based on live post tags
+    const filterBar = document.getElementById("filter-bar");
+    if (filterBar) {
+      const allTags = new Set();
+      livePosts.forEach(p => {
+        const pTags = Array.isArray(p.tags) ? p.tags : (p.tags ? String(p.tags).split(",") : []);
+        pTags.forEach(t => { if (t.trim()) allTags.add(t.trim().toLowerCase()); });
+      });
+      const activeFilter = filterBar.querySelector(".filter-chip.active")?.getAttribute("data-tag") || "all";
+      filterBar.innerHTML = `<button class="filter-chip ${activeFilter === 'all' ? 'active' : ''}" data-tag="all">All Articles</button>` +
+        Array.from(allTags).map(t => `<button class="filter-chip ${activeFilter === t ? 'active' : ''}" data-tag="${escapeHtml(t)}">#${escapeHtml(t)}</button>`).join(" ");
+
+      filterBar.onclick = (e) => {
+        const chip = e.target.closest(".filter-chip");
+        if (!chip) return;
+        filterBar.querySelectorAll(".filter-chip").forEach(c => c.classList.remove("active"));
+        chip.classList.add("active");
+        const filter = (chip.getAttribute("data-tag") || "all").toLowerCase();
+        const cards = postsContainer.querySelectorAll(".blog-card");
+        cards.forEach(card => {
+          if (filter === "all") {
+            card.style.display = "";
+          } else {
+            const tags = (card.getAttribute("data-tags") || "").toLowerCase();
+            card.style.display = tags.includes(filter) ? "" : "none";
+          }
+        });
+      };
+    }
+
     postsContainer.innerHTML = livePosts
       .map((b) => {
         const tags = Array.isArray(b.tags) ? b.tags : (b.tags ? String(b.tags).split(",").map(t => t.trim()) : []);
@@ -803,6 +849,21 @@
 
     if (notFoundEl) notFoundEl.style.display = "none";
     if (containerEl) containerEl.style.display = "block";
+
+    // Draft preview badge notice
+    if (post.status === "draft") {
+      let draftNotice = document.getElementById("article-draft-notice");
+      if (!draftNotice) {
+        draftNotice = document.createElement("div");
+        draftNotice.id = "article-draft-notice";
+        draftNotice.style.cssText = "background: #fef08a; border: 2.5px solid #000; box-shadow: 4px 4px 0px #000; color: #854d0e; font-weight: 800; padding: 12px 16px; margin-bottom: 24px; border-radius: 4px; display: flex; align-items: center; gap: 8px; font-size: 14px;";
+        draftNotice.innerHTML = `<i class="fas fa-file-pen"></i> <span><b>DRAFT PREVIEW</b> &mdash; This article is saved as a draft. Click <b>Publish</b> in Admin to make it live for visitors.</span>`;
+        containerEl.prepend(draftNotice);
+      }
+    } else {
+      const existingNotice = document.getElementById("article-draft-notice");
+      if (existingNotice) existingNotice.remove();
+    }
 
     // Update document title & metadata
     if (post.title) {
