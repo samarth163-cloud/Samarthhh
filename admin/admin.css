@@ -4266,3 +4266,40 @@ body.dark .sub-item-card.is-hidden {
   transform: translate(-1px, -1px);
   box-shadow: 2px 2px 0 var(--shadow-color);
 }
+
+
+/* Drag & Drop Resume Upload Zone */
+.resume-dropzone {
+  border: 2.5px dashed var(--border-color);
+  background: var(--bg-surface);
+  border-radius: 6px;
+  padding: 24px 18px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  box-shadow: var(--hard-shadow-xs);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.resume-dropzone:hover,
+.resume-dropzone.dragover {
+  border-color: #ff4747;
+  background: rgba(255, 71, 71, 0.06);
+  box-shadow: 4px 4px 0 #ff4747;
+  transform: translate(-1px, -1px);
+}
+
+.resume-dropzone-icon {
+  font-size: 34px;
+  color: #ff4747;
+  transition: transform 0.15s ease;
+}
+
+.resume-dropzone:hover .resume-dropzone-icon,
+.resume-dropzone.dragover .resume-dropzone-icon {
+  transform: scale(1.1);
+}

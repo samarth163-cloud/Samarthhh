@@ -2415,10 +2415,71 @@
       });
     }
 
-    if (btnTriggerUpload && !btnTriggerUpload._hasBound) {
-      btnTriggerUpload._hasBound = true;
-      btnTriggerUpload.addEventListener("click", () => {
+    const dropzone = document.getElementById("resume-dropzone");
+
+    async function handleResumeFileUpload(file) {
+      if (!file) return;
+
+      if (!file.name.match(/\.(pdf|doc|docx|txt)$/i)) {
+        showToast("Please select a valid resume document (PDF, DOCX, DOC, TXT).", "error");
+        return;
+      }
+
+      try {
+        if (uploadProgress) {
+          uploadProgress.style.display = "block";
+          uploadProgress.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Uploading "${escapeHtml(file.name)}"...<br><span style="font-size: 11px;">Saving to Supabase Cloud Storage & Project...</span>`;
+        }
+
+        const targetFilename = `resume/${Date.now()}-${file.name.replace(/[^a-zA-Z0-9._-]/g, "_")}`;
+        const res = await uploadSupabaseStorageFile(file, targetFilename, true);
+
+        if (!state.resume.download) state.resume.download = {};
+        state.resume.download.fileUrl = res.url;
+        state.resume.download.fileName = file.name;
+        state.resume.download.fileSize = `${(file.size / 1024).toFixed(1)} KB`;
+        state.resume.download.updatedAt = new Date().toISOString();
+
+        renderResumeDownloadSettings();
+        showToast(`✓ "${file.name}" uploaded to Cloud Storage & attached to resume!`, "success");
+      } catch (err) {
+        console.error("Resume upload error:", err);
+        showToast(`Upload failed: ${err.message}`, "error");
+      } finally {
+        if (uploadProgress) uploadProgress.style.display = "none";
+      }
+    }
+
+    if (dropzone && !dropzone._hasDropBound) {
+      dropzone._hasDropBound = true;
+      dropzone.addEventListener("click", () => {
         if (fileInput) fileInput.click();
+      });
+
+      ["dragenter", "dragover"].forEach((eventName) => {
+        dropzone.addEventListener(eventName, (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          dropzone.classList.add("dragover");
+        });
+      });
+
+      ["dragleave", "dragend"].forEach((eventName) => {
+        dropzone.addEventListener(eventName, (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          dropzone.classList.remove("dragover");
+        });
+      });
+
+      dropzone.addEventListener("drop", async (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        dropzone.classList.remove("dragover");
+
+        const files = e.dataTransfer?.files;
+        if (!files || files.length === 0) return;
+        await handleResumeFileUpload(files[0]);
       });
     }
 
@@ -2427,31 +2488,8 @@
       fileInput.addEventListener("change", async (e) => {
         const file = e.target.files && e.target.files[0];
         if (!file) return;
-
-        try {
-          if (uploadProgress) {
-            uploadProgress.style.display = "block";
-            uploadProgress.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Uploading "${escapeHtml(file.name)}"...<br><span style="font-size: 11px;">Saving to Supabase Cloud Storage & Project...</span>`;
-          }
-
-          const targetFilename = `resume/${Date.now()}-${file.name.replace(/[^a-zA-Z0-9._-]/g, "_")}`;
-          const res = await uploadSupabaseStorageFile(file, targetFilename, true);
-
-          if (!state.resume.download) state.resume.download = {};
-          state.resume.download.fileUrl = res.url;
-          state.resume.download.fileName = file.name;
-          state.resume.download.fileSize = `${(file.size / 1024).toFixed(1)} KB`;
-          state.resume.download.updatedAt = new Date().toISOString();
-
-          renderResumeDownloadSettings();
-          showToast(`✓ "${file.name}" uploaded to Cloud Storage & attached to resume!`, "success");
-        } catch (err) {
-          console.error("Resume upload error:", err);
-          showToast(`Upload failed: ${err.message}`, "error");
-        } finally {
-          if (uploadProgress) uploadProgress.style.display = "none";
-          fileInput.value = "";
-        }
+        await handleResumeFileUpload(file);
+        fileInput.value = "";
       });
     }
 

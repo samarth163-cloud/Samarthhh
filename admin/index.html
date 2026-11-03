@@ -785,21 +785,28 @@
             </div>
 
             <!-- Upload / URL Inputs -->
-            <div class="form-grid">
+            <div class="form-grid" style="align-items: stretch;">
               <div class="form-group" style="margin-bottom: 0;">
-                <label class="form-label">Upload New Resume File (PDF, DOCX)</label>
+                <label class="form-label"><i class="fas fa-cloud-arrow-up"></i> Upload Resume File (Drag &amp; Drop or Browse)</label>
                 <input type="file" id="resume-file-input" accept=".pdf,.doc,.docx,.txt" style="display: none;" />
-                <button type="button" class="btn btn-yellow" id="btn-trigger-resume-file-upload" style="width: 100%; font-weight: 800;">
-                  <i class="fas fa-cloud-arrow-up"></i> Select &amp; Upload Resume File
-                </button>
-                <span id="resume-upload-progress" style="display: none; font-family: var(--font-mono); font-size: 0.8rem; color: #24b47e; margin-top: 6px; font-weight: 700;">
-                  <i class="fas fa-spinner fa-spin"></i> Uploading file to Supabase Cloud Storage...
-                </span>
+                <div class="resume-dropzone" id="resume-dropzone" title="Drag &amp; Drop a PDF/DOCX here, or click to browse">
+                  <i class="fas fa-file-arrow-up resume-dropzone-icon"></i>
+                  <div>
+                    <strong style="font-size: 0.95rem; display: block; font-family: var(--font-body);">Drag &amp; Drop Resume PDF here</strong>
+                    <span style="font-size: 0.78rem; color: var(--text-muted); font-family: var(--font-mono);">or <span style="text-decoration: underline; color: #ff4747; font-weight: 700;">browse from your computer</span> (PDF, DOCX)</span>
+                  </div>
+                </div>
+                <div id="resume-upload-progress" style="display: none; font-family: var(--font-mono); font-size: 0.82rem; color: #24b47e; margin-top: 8px; font-weight: 700;">
+                  <i class="fas fa-spinner fa-spin"></i> <span>Uploading file to Supabase Cloud Storage...</span>
+                </div>
               </div>
 
-              <div class="form-group" style="margin-bottom: 0;">
-                <label class="form-label">Or External File URL</label>
-                <input type="url" id="resume-download-url-input" class="form-input" placeholder="https://... / Google Drive / Dropbox link" />
+              <div class="form-group" style="margin-bottom: 0; display: flex; flex-direction: column; justify-content: flex-start;">
+                <label class="form-label"><i class="fas fa-link"></i> Or External Direct Link</label>
+                <input type="url" id="resume-download-url-input" class="form-input" placeholder="https://... (Google Drive, Dropbox, etc.)" style="margin-bottom: 10px;" />
+                <div style="font-size: 0.78rem; color: var(--text-muted); font-family: var(--font-mono); line-height: 1.5; background: var(--bg-surface); padding: 10px; border: 1.5px dashed var(--border-color); border-radius: 4px;">
+                  <i class="fas fa-info-circle"></i> <b>Tip:</b> Drag &amp; drop automatically uploads your file to Supabase Cloud CDN. If your resume is hosted on Google Drive, ensure link sharing is set to "Anyone with the link".
+                </div>
               </div>
             </div>
           </div>
