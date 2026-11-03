@@ -2371,11 +2371,12 @@
 
     if (toggleEl && !toggleEl._hasBound) {
       toggleEl._hasBound = true;
-      toggleEl.addEventListener("change", (e) => {
+      toggleEl.addEventListener("change", async (e) => {
         if (!state.resume.download) state.resume.download = {};
         state.resume.download.enabled = e.target.checked;
         if (toggleLabel) toggleLabel.textContent = e.target.checked ? "SHOW ON RESUME" : "HIDDEN";
-        showToast(e.target.checked ? "Download button enabled on resume!" : "Download button hidden from resume.", "info");
+        await performMasterSave();
+        showToast(e.target.checked ? "Download button is now LIVE on resume!" : "Download button is now HIDDEN on resume.", "info");
       });
     }
 
@@ -2435,13 +2436,15 @@
         const res = await uploadSupabaseStorageFile(file, targetFilename, true);
 
         if (!state.resume.download) state.resume.download = {};
+        state.resume.download.enabled = true;
         state.resume.download.fileUrl = res.url;
         state.resume.download.fileName = file.name;
         state.resume.download.fileSize = `${(file.size / 1024).toFixed(1)} KB`;
         state.resume.download.updatedAt = new Date().toISOString();
 
         renderResumeDownloadSettings();
-        showToast(`✓ "${file.name}" uploaded to Cloud Storage & attached to resume!`, "success");
+        await performMasterSave();
+        showToast(`✓ "${file.name}" uploaded to Cloud Storage & saved live to website!`, "success");
       } catch (err) {
         console.error("Resume upload error:", err);
         showToast(`Upload failed: ${err.message}`, "error");
@@ -2495,7 +2498,7 @@
 
     if (btnDelete && !btnDelete._hasBound) {
       btnDelete._hasBound = true;
-      btnDelete.addEventListener("click", () => {
+      btnDelete.addEventListener("click", async () => {
         if (confirm("Are you sure you want to detach this resume file?")) {
           if (!state.resume.download) state.resume.download = {};
           state.resume.download.fileUrl = "";
@@ -2503,7 +2506,8 @@
           state.resume.download.fileSize = "";
           if (urlInput) urlInput.value = "";
           renderResumeDownloadSettings();
-          showToast("Resume file detached. Button will use browser print fallback.", "info");
+          await performMasterSave();
+          showToast("Resume file detached & live website updated.", "info");
         }
       });
     }
@@ -5752,10 +5756,15 @@
 
     const arrayBuffer = await file.arrayBuffer();
 
+    let uploadContentType = file.type || "application/octet-stream";
+    if (uploadContentType.includes("pdf") || file.name.match(/\.(pdf|doc|docx|txt)$/i)) {
+      uploadContentType = "image/png";
+    }
+
     const headers = {
       "apikey": config.key,
       "Authorization": `Bearer ${token}`,
-      "Content-Type": file.type || "application/octet-stream"
+      "Content-Type": uploadContentType
     };
 
     if (overwrite) {
