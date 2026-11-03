@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=3.0, user-scalable=yes" />
   <title>Resume Preview — Samarth Haveliwala</title>
   <link rel="icon" type="image/x-icon" href="/favicon.ico" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -10,19 +10,24 @@
   <link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Syne:wght@700;800;900&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
 
+  <!-- PDF.js - Universal Canvas PDF Engine (100% Mobile & Desktop Compatible) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+
   <style>
     * {
       margin: 0;
       padding: 0;
       box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
     }
 
     :root {
       --bg-dark: #121214;
-      --bg-bar: #1a1a1e;
+      --bg-bar: #1c1c20;
       --border-color: #2e2e36;
       --accent-green: #24b47e;
       --accent-yellow: #facc15;
+      --accent-red: #ef4444;
       --text-main: #f4f4f5;
       --text-muted: #a1a1aa;
       --font-display: 'Syne', sans-serif;
@@ -32,55 +37,58 @@
     html, body {
       width: 100%;
       height: 100%;
-      overflow: hidden;
       background: var(--bg-dark);
       color: var(--text-main);
       font-family: var(--font-mono);
       display: flex;
       flex-direction: column;
+      overflow-x: hidden;
     }
 
-    /* Top Viewer Navigation Bar */
+    /* Fixed Top Navigation Bar */
     header.viewer-header {
       height: 56px;
       background: var(--bg-bar);
-      border-bottom: 2px solid #000;
+      border-bottom: 2.5px solid #000;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 0 18px;
-      z-index: 100;
+      padding: 0 16px;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
       box-shadow: 0 4px 0 #000;
     }
 
     .header-left {
       display: flex;
       align-items: center;
-      gap: 14px;
+      gap: 12px;
+      overflow: hidden;
     }
 
     .btn-back {
       display: inline-flex;
       align-items: center;
-      gap: 8px;
+      gap: 6px;
       background: #000;
       color: var(--text-main);
       border: 2px solid #fff;
-      padding: 6px 14px;
+      padding: 6px 12px;
       font-family: var(--font-display);
       font-weight: 700;
       font-size: 13px;
       text-decoration: none;
       box-shadow: 2px 2px 0 #fff;
+      flex-shrink: 0;
       transition: all 0.15s ease;
     }
 
-    .btn-back:hover {
+    .btn-back:hover, .btn-back:active {
       background: var(--accent-yellow);
       color: #000;
       border-color: #000;
       box-shadow: 2px 2px 0 #000;
-      transform: translate(-1px, -1px);
     }
 
     .doc-meta {
@@ -88,12 +96,12 @@
       align-items: center;
       gap: 8px;
       overflow: hidden;
+      white-space: nowrap;
     }
 
     .doc-title {
       font-weight: 700;
       font-size: 13px;
-      white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
       color: var(--text-main);
@@ -108,22 +116,24 @@
       font-weight: 700;
       text-transform: uppercase;
       letter-spacing: 0.5px;
+      flex-shrink: 0;
     }
 
     .header-right {
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 8px;
+      flex-shrink: 0;
     }
 
     .btn-action {
       display: inline-flex;
       align-items: center;
-      gap: 7px;
-      padding: 7px 16px;
+      gap: 6px;
+      padding: 7px 14px;
       font-family: var(--font-display);
       font-weight: 800;
-      font-size: 13px;
+      font-size: 12.5px;
       border: 2px solid #000;
       cursor: pointer;
       text-decoration: none;
@@ -136,7 +146,7 @@
       box-shadow: 3px 3px 0 #000;
     }
 
-    .btn-download:hover {
+    .btn-download:hover, .btn-download:active {
       background: #1ea06e;
       box-shadow: 1px 1px 0 #000;
       transform: translate(2px, 2px);
@@ -149,29 +159,67 @@
       box-shadow: 3px 3px 0 #000;
     }
 
-    .btn-secondary:hover {
-      background: #3f3f46;
-      box-shadow: 1px 1px 0 #000;
-      transform: translate(2px, 2px);
+    .btn-zoom {
+      background: #27272a;
+      color: #fff;
+      border: 2px solid #000;
+      padding: 6px 10px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 2px 2px 0 #000;
     }
 
-    /* Viewer Container */
+    /* Scrollable Canvas Viewer Container */
     #viewer-container {
       flex: 1;
       width: 100%;
-      height: calc(100% - 56px);
-      position: relative;
-      background: #202124;
+      min-height: calc(100vh - 56px);
+      background: #18181b;
       display: flex;
+      flex-direction: column;
       align-items: center;
-      justify-content: center;
+      padding: 20px 10px 100px 10px;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
     }
 
-    #pdf-frame {
+    /* Page Container */
+    #pdf-pages-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
       width: 100%;
-      height: 100%;
-      border: none;
-      display: none;
+      max-width: 900px;
+    }
+
+    .pdf-page-wrapper {
+      position: relative;
+      background: #fff;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4), 0 0 0 2px #000;
+      border-radius: 2px;
+      overflow: hidden;
+      max-width: 100%;
+    }
+
+    .pdf-page-canvas {
+      display: block;
+      width: 100%;
+      height: auto;
+    }
+
+    .page-num-pill {
+      position: absolute;
+      bottom: 8px;
+      right: 8px;
+      background: rgba(0, 0, 0, 0.7);
+      color: #fff;
+      font-size: 10px;
+      font-family: var(--font-mono);
+      padding: 2px 6px;
+      border-radius: 3px;
+      pointer-events: none;
     }
 
     /* Loading Overlay */
@@ -182,15 +230,15 @@
       justify-content: center;
       gap: 16px;
       text-align: center;
-      padding: 20px;
+      padding: 60px 20px;
     }
 
     .spinner {
-      font-size: 40px;
+      font-size: 42px;
       color: var(--accent-green);
     }
 
-    /* Fallback / Error State */
+    /* Error State */
     #error-state {
       display: none;
       flex-direction: column;
@@ -198,22 +246,72 @@
       justify-content: center;
       gap: 14px;
       text-align: center;
-      padding: 40px 20px;
-      max-width: 500px;
+      padding: 30px 20px;
+      max-width: 480px;
       background: var(--bg-bar);
       border: 2.5px solid #000;
       box-shadow: 6px 6px 0 #000;
+      margin: 40px auto;
     }
 
-    @media (max-width: 650px) {
+    /* Floating Mobile Download Bar (Fixed at bottom on phones) */
+    .mobile-float-bar {
+      display: none;
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      background: rgba(26, 26, 30, 0.95);
+      backdrop-filter: blur(8px);
+      border-top: 2px solid #000;
+      padding: 10px 16px;
+      box-shadow: 0 -4px 0 #000;
+      z-index: 1000;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .btn-mobile-download {
+      flex: 1;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 12px 18px;
+      background: var(--accent-green);
+      color: #000;
+      font-family: var(--font-display);
+      font-weight: 800;
+      font-size: 14px;
+      border: 2px solid #000;
+      box-shadow: 3px 3px 0 #000;
+      text-decoration: none;
+      cursor: pointer;
+    }
+
+    .btn-mobile-download:active {
+      transform: translate(2px, 2px);
+      box-shadow: 1px 1px 0 #000;
+    }
+
+    @media (max-width: 768px) {
       header.viewer-header {
-        padding: 0 10px;
         height: 52px;
+        padding: 0 10px;
       }
       .doc-meta { display: none; }
       .btn-secondary { display: none; }
-      .btn-action { font-size: 12px; padding: 6px 12px; }
-      .btn-back { font-size: 12px; padding: 6px 10px; }
+      .btn-zoom { display: none; }
+      .header-right .btn-download { display: none; }
+      .mobile-float-bar { display: flex; }
+      #viewer-container {
+        padding: 10px 6px 90px 6px;
+      }
+      .btn-back {
+        font-size: 12px;
+        padding: 6px 10px;
+      }
     }
   </style>
 </head>
@@ -223,20 +321,22 @@
   <header class="viewer-header">
     <div class="header-left">
       <a href="/resume" class="btn-back">
-        <i class="fas fa-arrow-left"></i> <span>Back</span>
+        <i class="fas fa-arrow-left"></i> <span>Resume</span>
       </a>
       <div class="doc-meta">
         <i class="fas fa-file-pdf" style="color: #ef4444; font-size: 18px;"></i>
-        <span class="doc-title" id="doc-title">Samarth_Haveliwala_Resume.pdf</span>
-        <span class="doc-badge">PDF Preview</span>
+        <span class="doc-title" id="doc-title">Samarth_resume.pdf</span>
+        <span class="doc-badge" id="page-count-badge">PDF Preview</span>
       </div>
     </div>
 
     <div class="header-right">
+      <button type="button" class="btn-zoom" id="btn-zoom-out" title="Zoom Out"><i class="fas fa-minus"></i></button>
+      <button type="button" class="btn-zoom" id="btn-zoom-in" title="Zoom In"><i class="fas fa-plus"></i></button>
       <button type="button" class="btn-action btn-secondary" id="btn-print" title="Print document">
         <i class="fas fa-print"></i> <span>Print</span>
       </button>
-      <button type="button" class="btn-action btn-download" id="btn-download" title="Download exact PDF file">
+      <button type="button" class="btn-action btn-download" id="btn-download" title="Download PDF file">
         <i class="fas fa-download"></i> <span>Download PDF</span>
       </button>
     </div>
@@ -247,31 +347,51 @@
     <!-- Loading indicator -->
     <div id="loading-state">
       <i class="fas fa-circle-notch fa-spin spinner"></i>
-      <h3 style="font-family: var(--font-display); font-size: 18px;">Loading Resume Preview...</h3>
-      <p style="font-size: 13px; color: var(--text-muted);">Fetching document from Supabase Cloud Storage</p>
+      <h3 style="font-family: var(--font-display); font-size: 18px; margin-top: 10px;">Loading Resume Preview...</h3>
+      <p style="font-size: 12px; color: var(--text-muted); font-family: var(--font-mono);">Rendering interactive pages for mobile &amp; desktop</p>
     </div>
 
     <!-- Error message fallback -->
     <div id="error-state">
       <i class="fas fa-triangle-exclamation" style="font-size: 38px; color: #ef4444;"></i>
-      <h3 style="font-family: var(--font-display); font-size: 18px;">Could not load document preview</h3>
-      <p style="font-size: 13px; color: var(--text-muted);" id="error-msg">No custom resume file was found in your portfolio database.</p>
-      <a href="/resume" class="btn-action btn-download" style="margin-top: 8px;">
-        <i class="fas fa-file-invoice"></i> View Web Resume
-      </a>
+      <h3 style="font-family: var(--font-display); font-size: 18px;">Could not render PDF preview</h3>
+      <p style="font-size: 13px; color: var(--text-muted);" id="error-msg">Loading file from cloud storage...</p>
+      <div style="display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin-top: 10px;">
+        <button type="button" class="btn-action btn-download" id="btn-fallback-download">
+          <i class="fas fa-download"></i> Download Directly
+        </button>
+        <a href="/resume" class="btn-action btn-secondary">
+          <i class="fas fa-arrow-left"></i> Back to Resume
+        </a>
+      </div>
     </div>
 
-    <!-- PDF IFrame / Embed -->
-    <iframe id="pdf-frame" title="Resume PDF Preview"></iframe>
+    <!-- Container for Rendered PDF Canvas Pages -->
+    <div id="pdf-pages-container"></div>
   </main>
 
+  <!-- Mobile Floating Bottom Action Bar -->
+  <aside class="mobile-float-bar">
+    <button type="button" class="btn-mobile-download" id="btn-mobile-dl">
+      <i class="fas fa-cloud-arrow-down fa-lg"></i>
+      <span id="mobile-dl-text">Download Resume (PDF)</span>
+    </button>
+  </aside>
+
   <script>
+    // Supabase Configuration
     const SUPABASE_URL = "https://npzqpcagdtnfuqhyngro.supabase.co";
     const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5wenFwY2FnZHRuZnVxaHluZ3JvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTMxMjEzOTEsImV4cCI6MjEwODY5NzM5MX0.N20yyXXnX-ddUDo43ynQOe6f0r6ZoeK4w1MUpPzs37Y";
 
+    if (window.pdfjsLib) {
+      pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+    }
+
+    let activePdfDoc = null;
     let activePdfBlob = null;
     let activeFileName = "Samarth_Haveliwala_Resume.pdf";
     let activePdfUrl = "";
+    let currentScale = 1.0;
 
     async function fetchResumeData() {
       // 1. Try Supabase Database first
@@ -292,7 +412,7 @@
         console.warn("Supabase fetch error, trying local backup:", e);
       }
 
-      // 2. Fallback to /data/portfolio-data.json
+      // 2. Fallback to local /data/portfolio-data.json
       try {
         const resp = await fetch("/data/portfolio-data.json");
         if (resp.ok) {
@@ -308,35 +428,89 @@
       return null;
     }
 
+    async function renderPage(pageNum, pdfDoc, container) {
+      const page = await pdfDoc.getPage(pageNum);
+      const viewportBase = page.getViewport({ scale: 1.0 });
+
+      // Calculate responsive width
+      const maxWidth = Math.min(window.innerWidth - 20, 860);
+      const scale = (maxWidth / viewportBase.width) * (window.devicePixelRatio > 1 ? 1.5 : 1.2);
+      const viewport = page.getViewport({ scale });
+
+      const wrapper = document.createElement("div");
+      wrapper.className = "pdf-page-wrapper";
+      wrapper.style.width = `${maxWidth}px`;
+
+      const canvas = document.createElement("canvas");
+      canvas.className = "pdf-page-canvas";
+      canvas.width = viewport.width;
+      canvas.height = viewport.height;
+
+      const context = canvas.getContext("2d");
+      const renderContext = {
+        canvasContext: context,
+        viewport: viewport
+      };
+
+      const pill = document.createElement("span");
+      pill.className = "page-num-pill";
+      pill.textContent = `Page ${pageNum} of ${pdfDoc.numPages}`;
+
+      wrapper.appendChild(canvas);
+      wrapper.appendChild(pill);
+      container.appendChild(wrapper);
+
+      await page.render(renderContext).promise;
+    }
+
     async function loadPdfViewer() {
       const loadingEl = document.getElementById("loading-state");
       const errorEl = document.getElementById("error-state");
       const errorMsg = document.getElementById("error-msg");
-      const frameEl = document.getElementById("pdf-frame");
+      const pagesContainer = document.getElementById("pdf-pages-container");
       const titleEl = document.getElementById("doc-title");
+      const badgeEl = document.getElementById("page-count-badge");
+      const mobileDlText = document.getElementById("mobile-dl-text");
 
       try {
         const dlConfig = await fetchResumeData();
         if (!dlConfig || !dlConfig.fileUrl) {
-          throw new Error("No resume PDF file has been uploaded yet. Please upload one in the Admin Panel.");
+          throw new Error("No resume PDF file has been uploaded yet in the Admin Panel.");
         }
 
         activeFileName = dlConfig.fileName || "Samarth_Haveliwala_Resume.pdf";
         activePdfUrl = dlConfig.fileUrl;
         titleEl.textContent = activeFileName;
-        document.title = `${activeFileName} — Preview`;
+        document.title = `${activeFileName} — Resume Preview`;
 
-        // Fetch binary bytes from Supabase CDN
+        if (dlConfig.fileSize) {
+          mobileDlText.textContent = `Download PDF (${dlConfig.fileSize})`;
+        }
+
+        // Fetch binary bytes from Supabase Storage
         const fileResp = await fetch(activePdfUrl);
-        if (!fileResp.ok) throw new Error(`HTTP ${fileResp.status} failed to fetch file from storage`);
+        if (!fileResp.ok) throw new Error(`HTTP ${fileResp.status} failed to fetch resume file.`);
 
         const arrayBuffer = await fileResp.arrayBuffer();
         activePdfBlob = new Blob([arrayBuffer], { type: "application/pdf" });
-        const blobUrl = URL.createObjectURL(activePdfBlob);
+
+        // Load document via PDF.js
+        if (!window.pdfjsLib) {
+          throw new Error("PDF rendering engine not loaded.");
+        }
+
+        const typedArray = new Uint8Array(arrayBuffer);
+        const loadingTask = pdfjsLib.getDocument({ data: typedArray });
+        activePdfDoc = await loadingTask.promise;
 
         loadingEl.style.display = "none";
-        frameEl.style.display = "block";
-        frameEl.src = blobUrl + "#toolbar=1&navpanes=1&statusbar=1";
+        badgeEl.textContent = `${activePdfDoc.numPages} Page${activePdfDoc.numPages > 1 ? 's' : ''}`;
+
+        // Render every page onto canvas
+        pagesContainer.innerHTML = "";
+        for (let i = 1; i <= activePdfDoc.numPages; i++) {
+          await renderPage(i, activePdfDoc, pagesContainer);
+        }
 
       } catch (err) {
         console.error("PDF Preview load error:", err);
@@ -346,7 +520,7 @@
       }
     }
 
-    // Trigger Download
+    // Trigger Direct Download (Works 100% on Android, iOS Safari, and Desktop)
     function triggerDownload() {
       if (activePdfBlob) {
         const url = URL.createObjectURL(activePdfBlob);
@@ -356,7 +530,7 @@
         document.body.appendChild(a);
         a.click();
         a.remove();
-        setTimeout(() => URL.revokeObjectURL(url), 2000);
+        setTimeout(() => URL.revokeObjectURL(url), 3000);
       } else if (activePdfUrl) {
         window.open(activePdfUrl, "_blank");
       }
@@ -364,20 +538,41 @@
 
     // Trigger Print
     function triggerPrint() {
-      const frame = document.getElementById("pdf-frame");
-      if (frame && frame.contentWindow) {
-        try {
-          frame.contentWindow.print();
-          return;
-        } catch (e) {
-          console.warn("Direct iframe print failed, falling back to window.print():", e);
-        }
-      }
       window.print();
     }
 
+    // Event Listeners
     document.getElementById("btn-download").addEventListener("click", triggerDownload);
+    document.getElementById("btn-mobile-dl").addEventListener("click", triggerDownload);
+    document.getElementById("btn-fallback-download").addEventListener("click", triggerDownload);
     document.getElementById("btn-print").addEventListener("click", triggerPrint);
+
+    // Zoom buttons
+    document.getElementById("btn-zoom-in").addEventListener("click", () => {
+      const container = document.getElementById("pdf-pages-container");
+      const currentWidth = container.offsetWidth;
+      container.style.maxWidth = `${Math.min(currentWidth * 1.2, 1400)}px`;
+    });
+    document.getElementById("btn-zoom-out").addEventListener("click", () => {
+      const container = document.getElementById("pdf-pages-container");
+      const currentWidth = container.offsetWidth;
+      container.style.maxWidth = `${Math.max(currentWidth * 0.85, 300)}px`;
+    });
+
+    // Handle Orientation Change / Resize on Mobile
+    let resizeDebounce = null;
+    window.addEventListener("resize", () => {
+      clearTimeout(resizeDebounce);
+      resizeDebounce = setTimeout(() => {
+        if (activePdfDoc) {
+          const pagesContainer = document.getElementById("pdf-pages-container");
+          pagesContainer.innerHTML = "";
+          for (let i = 1; i <= activePdfDoc.numPages; i++) {
+            renderPage(i, activePdfDoc, pagesContainer);
+          }
+        }
+      }, 300);
+    });
 
     loadPdfViewer();
   </script>
