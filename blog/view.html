@@ -84,6 +84,36 @@
           <p>Fetching article content from Supabase Cloud...</p>
         </div>
       </div>
+
+      <!-- Social Share Bar -->
+      <div id="article-share-container" class="article-share-row" style="display: none;">
+        <span class="article-share-label"><i class="fas fa-share-nodes"></i> Share:</span>
+        <a id="share-twitter-link" href="#" target="_blank" rel="noopener noreferrer" class="btn-share" title="Share on X / Twitter">
+          <i class="fab fa-x-twitter"></i> Twitter
+        </a>
+        <a id="share-linkedin-link" href="#" target="_blank" rel="noopener noreferrer" class="btn-share" title="Share on LinkedIn">
+          <i class="fab fa-linkedin"></i> LinkedIn
+        </a>
+        <button id="btn-copy-article-link" type="button" class="btn-share" title="Copy article link">
+          <i class="far fa-copy"></i> Copy Link
+        </button>
+      </div>
+
+      <!-- Genuine Author Bio Card matching Notion Studio & Portfolio Identity -->
+      <section class="author-bio-card" id="article-author-card">
+        <img id="author-bio-avatar-img" src="https://npzqpcagdtnfuqhyngro.supabase.co/storage/v1/object/public/portfolio-assets/assets/profile/1.jpg" alt="Samarth Haveliwala" class="author-bio-avatar" onerror="this.src='/favicon.ico'" />
+        <div class="author-bio-content">
+          <h3 id="author-bio-name">Written by Samarth Haveliwala</h3>
+          <p id="author-bio-text">Developer building open-source software, games, and hardware — from custom cameras to interactive web platforms.</p>
+          <div class="author-bio-links">
+            <a id="author-bio-github" href="https://github.com/samarth163-cloud" target="_blank" rel="noopener noreferrer"><i class="fab fa-github"></i> GitHub</a>
+            <a href="/blog/"><i class="fas fa-book-open"></i> All Articles</a>
+          </div>
+        </div>
+      </section>
+
+      <!-- Previous / Next Navigation -->
+      <nav id="article-pagination-nav" class="article-pagination-nav" style="display: none;"></nav>
     </article>
 
     <div id="article-not-found" style="display: none; text-align: center; padding: 80px 20px;">
@@ -114,6 +144,13 @@
   <script>
     // Dynamic viewer fallback handler
     (function() {
+      const DEFAULT_AUTHOR = {
+        name: "Samarth Haveliwala",
+        avatar: "https://npzqpcagdtnfuqhyngro.supabase.co/storage/v1/object/public/portfolio-assets/assets/profile/1.jpg",
+        bio: "Developer building open-source software, games, and hardware — from custom cameras to interactive web platforms.",
+        github: "https://github.com/samarth163-cloud"
+      };
+
       function renderCurrentArticle(data) {
         if (!data || !Array.isArray(data.blog)) return;
         const params = new URLSearchParams(window.location.search);
@@ -161,7 +198,7 @@
         const coverSrc = post.coverImage || post.image;
         if (coverSrc && coverBox && coverImg) {
           coverBox.style.display = "block";
-          coverImg.src = coverSrc;
+          coverImg.src = coverSrc.startsWith("http") || coverSrc.startsWith("data:") || coverSrc.startsWith("/") ? coverSrc : "/" + coverSrc;
           coverImg.alt = post.title || "";
         } else if (coverBox) {
           coverBox.style.display = "none";
@@ -170,6 +207,83 @@
         const contentEl = document.getElementById("article-content");
         if (contentEl) {
           contentEl.innerHTML = post.contentHtml || "<p>No content written yet.</p>";
+        }
+
+        // Author Information
+        const author = post.author || DEFAULT_AUTHOR;
+        const authorNameEl = document.getElementById("author-bio-name");
+        if (authorNameEl) authorNameEl.textContent = "Written by " + (author.name || DEFAULT_AUTHOR.name);
+
+        const authorTextEl = document.getElementById("author-bio-text");
+        if (authorTextEl) authorTextEl.textContent = author.bio || DEFAULT_AUTHOR.bio;
+
+        const authorAvatarEl = document.getElementById("author-bio-avatar-img");
+        if (authorAvatarEl) authorAvatarEl.src = author.avatar || DEFAULT_AUTHOR.avatar;
+
+        const authorGithubEl = document.getElementById("author-bio-github");
+        if (authorGithubEl) authorGithubEl.href = author.github || DEFAULT_AUTHOR.github;
+
+        // Social Sharing Links
+        const shareContainer = document.getElementById("article-share-container");
+        if (shareContainer) {
+          shareContainer.style.display = "flex";
+          const pageUrl = window.location.href;
+          const shareTitle = encodeURIComponent((post.title || "Check out this article") + " by @donsamarth163");
+
+          const twitterBtn = document.getElementById("share-twitter-link");
+          if (twitterBtn) {
+            twitterBtn.href = `https://twitter.com/intent/tweet?text=${shareTitle}&url=${encodeURIComponent(pageUrl)}`;
+          }
+
+          const linkedinBtn = document.getElementById("share-linkedin-link");
+          if (linkedinBtn) {
+            linkedinBtn.href = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(pageUrl)}`;
+          }
+
+          const copyBtn = document.getElementById("btn-copy-article-link");
+          if (copyBtn) {
+            copyBtn.onclick = () => {
+              if (navigator.clipboard) {
+                navigator.clipboard.writeText(pageUrl).then(() => {
+                  const origHtml = copyBtn.innerHTML;
+                  copyBtn.innerHTML = '<i class="fas fa-check"></i> Copied!';
+                  setTimeout(() => { copyBtn.innerHTML = origHtml; }, 2000);
+                });
+              } else {
+                prompt("Copy article link:", pageUrl);
+              }
+            };
+          }
+        }
+
+        // Prev / Next Pagination Navigation
+        const publishedArticles = data.blog.filter(b => b.status === "published" || !b.status);
+        const curIdx = publishedArticles.findIndex(b => b.id === post.id || b.slug === post.slug);
+        const navContainer = document.getElementById("article-pagination-nav");
+
+        if (navContainer && curIdx !== -1) {
+          const prev = curIdx > 0 ? publishedArticles[curIdx - 1] : null;
+          const next = curIdx < publishedArticles.length - 1 ? publishedArticles[curIdx + 1] : null;
+
+          if (prev || next) {
+            navContainer.style.display = "grid";
+            navContainer.innerHTML = `
+              ${prev ? `
+                <a href="${prev.url || ('/blog/' + prev.slug + '/')}" class="pagination-link pagination-prev">
+                  <span class="pagination-label"><i class="fas fa-arrow-left"></i> Previous Article</span>
+                  <span class="pagination-title">${prev.icon ? prev.icon + " " : ""}${prev.title || "Previous"}</span>
+                </a>
+              ` : `<div></div>`}
+              ${next ? `
+                <a href="${next.url || ('/blog/' + next.slug + '/')}" class="pagination-link pagination-next">
+                  <span class="pagination-label">Next Article <i class="fas fa-arrow-right"></i></span>
+                  <span class="pagination-title">${next.icon ? next.icon + " " : ""}${next.title || "Next"}</span>
+                </a>
+              ` : `<div></div>`}
+            `;
+          } else {
+            navContainer.style.display = "none";
+          }
         }
       }
 
@@ -184,8 +298,7 @@
           if (window.__portfolioData) renderCurrentArticle(window.__portfolioData);
         };
       }
-    })();
-  </script>
+    })();  </script>
 </body>
 </html>
 

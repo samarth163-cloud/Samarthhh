@@ -410,11 +410,12 @@
       }
     }
 
-    // 4. Blog Posts Showcase on Homepage
+    // 4. Blog Posts Showcase on Homepage (Only Live Published Posts)
     if (Array.isArray(data.blog) && data.blog.length > 0) {
       const blogCardsContainer = document.querySelector("#blog .blog-cards");
       if (blogCardsContainer) {
-        blogCardsContainer.innerHTML = data.blog
+        const livePosts = data.blog.filter(b => b.status === "published" || !b.status);
+        blogCardsContainer.innerHTML = livePosts
           .map((b) => {
             const tags = Array.isArray(b.tags)
               ? b.tags.map((t) => `<span>${escapeHtml(t)}</span>`).join("")
@@ -718,7 +719,19 @@
     const postsContainer = document.getElementById("posts-container");
     if (!postsContainer) return;
 
-    postsContainer.innerHTML = data.blog
+    // Only display published live articles to public visitors
+    const livePosts = data.blog.filter(b => b.status === "published" || !b.status);
+
+    if (livePosts.length === 0) {
+      postsContainer.innerHTML = `
+        <div style="text-align: center; padding: 60px 20px; color: var(--text-muted);">
+          <i class="fas fa-inbox fa-3x" style="margin-bottom: 12px; opacity: 0.5;"></i>
+          <p style="font-size: 1.1rem; font-weight: 600;">No articles published yet.</p>
+        </div>`;
+      return;
+    }
+
+    postsContainer.innerHTML = livePosts
       .map((b) => {
         const tags = Array.isArray(b.tags) ? b.tags : (b.tags ? String(b.tags).split(",").map(t => t.trim()) : []);
         const tagsHtml = tags.map((t) => `<span class="tag">#${escapeHtml(t)}</span>`).join(" ");
@@ -772,7 +785,17 @@
     if (!targetSlug) return;
 
     const post = data.blog.find((b) => b.slug === targetSlug || (b.url && b.url.includes(targetSlug)));
-    if (!post) return;
+    const notFoundEl = document.getElementById("article-not-found");
+    const containerEl = document.getElementById("article-container");
+
+    if (!post) {
+      if (containerEl) containerEl.style.display = "none";
+      if (notFoundEl) notFoundEl.style.display = "block";
+      return;
+    }
+
+    if (notFoundEl) notFoundEl.style.display = "none";
+    if (containerEl) containerEl.style.display = "block";
 
     // Update document title & metadata
     if (post.title) {
@@ -780,37 +803,127 @@
     }
 
     // Update Header / Meta in DOM
-    const titleEl = document.querySelector(".article-header h1") || document.querySelector("h1.article-title");
+    const titleEl = document.querySelector(".article-header h1") || document.querySelector("h1.article-title") || document.getElementById("article-title");
     if (titleEl && post.title) {
       titleEl.textContent = `${post.icon ? post.icon + " " : ""}${post.title}`;
     }
 
-    const dateEl = document.querySelector(".article-date") || document.querySelector(".article-meta .post-date");
+    const dateEl = document.querySelector(".article-date") || document.querySelector(".article-meta .post-date") || document.getElementById("article-date");
     if (dateEl && post.date) {
       dateEl.innerHTML = `<i class="far fa-calendar-alt"></i> ${escapeHtml(post.date)}`;
     }
 
-    const readTimeEl = document.querySelector(".reading-time") || document.querySelector(".article-meta .read-time");
+    const readTimeEl = document.querySelector(".reading-time") || document.querySelector(".article-meta .read-time") || document.getElementById("article-reading-time");
     if (readTimeEl && post.readingTime) {
       readTimeEl.innerHTML = `<i class="far fa-clock"></i> ${escapeHtml(post.readingTime)}`;
     }
 
-    const tagsContainer = document.querySelector(".article-tags") || document.querySelector(".post-tags");
+    const tagsContainer = document.querySelector(".article-tags") || document.querySelector(".post-tags") || document.getElementById("article-tags");
     if (tagsContainer && Array.isArray(post.tags)) {
       tagsContainer.innerHTML = post.tags.map(t => `<span class="tag">#${escapeHtml(t)}</span>`).join(" ");
     }
 
-    // Update Cover Image
-    const coverImg = document.querySelector(".article-cover img") || document.querySelector(".post-hero-image img");
+    // Update Cover Image Box
+    const coverBox = document.getElementById("article-cover-box") || document.querySelector(".article-cover");
+    const coverImg = document.getElementById("article-cover-img") || (coverBox ? coverBox.querySelector("img") : null);
     const activeCover = post.coverImage || post.image;
     if (coverImg && activeCover) {
       coverImg.src = formatImageUrl(activeCover, data._updatedAt);
+      coverImg.alt = post.title || "";
+      if (coverBox) coverBox.style.display = "block";
+    } else if (coverBox && !activeCover) {
+      coverBox.style.display = "none";
     }
 
     // Update Content
     const contentEl = document.querySelector(".article-content") || document.querySelector("#article-content");
     if (contentEl && post.contentHtml) {
       contentEl.innerHTML = sanitizeHtml(post.contentHtml);
+    }
+
+    // Update Genuine Author System
+    const author = post.author || {
+      name: "Samarth Haveliwala",
+      avatar: "https://npzqpcagdtnfuqhyngro.supabase.co/storage/v1/object/public/portfolio-assets/assets/profile/1.jpg",
+      bio: "Developer building open-source software, games, and hardware — from custom cameras to interactive web platforms.",
+      github: "https://github.com/samarth163-cloud"
+    };
+
+    const authorNameEl = document.getElementById("author-bio-name") || document.querySelector(".author-bio-content h3");
+    if (authorNameEl) authorNameEl.textContent = `Written by ${author.name || "Samarth Haveliwala"}`;
+
+    const authorTextEl = document.getElementById("author-bio-text") || document.querySelector(".author-bio-content p");
+    if (authorTextEl) authorTextEl.textContent = author.bio || "Developer building open-source software, games, and hardware.";
+
+    const authorAvatarEl = document.getElementById("author-bio-avatar-img") || document.querySelector(".author-bio-avatar");
+    if (authorAvatarEl) {
+      authorAvatarEl.src = formatImageUrl(author.avatar || "https://npzqpcagdtnfuqhyngro.supabase.co/storage/v1/object/public/portfolio-assets/assets/profile/1.jpg", data._updatedAt);
+    }
+
+    const authorGithubEl = document.getElementById("author-bio-github");
+    if (authorGithubEl) authorGithubEl.href = author.github || "https://github.com/samarth163-cloud";
+
+    // Social Sharing Bar
+    const shareContainer = document.getElementById("article-share-container");
+    if (shareContainer) {
+      shareContainer.style.display = "flex";
+      const pageUrl = window.location.href;
+      const shareTitle = encodeURIComponent((post.title || "Check out this article") + " by @donsamarth163");
+
+      const twitterBtn = document.getElementById("share-twitter-link");
+      if (twitterBtn) {
+        twitterBtn.href = `https://twitter.com/intent/tweet?text=${shareTitle}&url=${encodeURIComponent(pageUrl)}`;
+      }
+
+      const linkedinBtn = document.getElementById("share-linkedin-link");
+      if (linkedinBtn) {
+        linkedinBtn.href = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(pageUrl)}`;
+      }
+
+      const copyBtn = document.getElementById("btn-copy-article-link");
+      if (copyBtn) {
+        copyBtn.onclick = () => {
+          if (navigator.clipboard) {
+            navigator.clipboard.writeText(pageUrl).then(() => {
+              const origHtml = copyBtn.innerHTML;
+              copyBtn.innerHTML = '<i class="fas fa-check"></i> Copied!';
+              setTimeout(() => { copyBtn.innerHTML = origHtml; }, 2000);
+            });
+          } else {
+            prompt("Copy article link:", pageUrl);
+          }
+        };
+      }
+    }
+
+    // Previous / Next Article Navigation
+    const liveArticles = data.blog.filter(b => b.status === "published" || !b.status);
+    const curIdx = liveArticles.findIndex(b => b.id === post.id || b.slug === post.slug);
+    const navContainer = document.getElementById("article-pagination-nav");
+
+    if (navContainer && curIdx !== -1) {
+      const prev = curIdx > 0 ? liveArticles[curIdx - 1] : null;
+      const next = curIdx < liveArticles.length - 1 ? liveArticles[curIdx + 1] : null;
+
+      if (prev || next) {
+        navContainer.style.display = "grid";
+        navContainer.innerHTML = `
+          ${prev ? `
+            <a href="${escapeHtml(prev.url || ('/blog/' + prev.slug + '/'))}" class="pagination-link pagination-prev">
+              <span class="pagination-label"><i class="fas fa-arrow-left"></i> Previous Article</span>
+              <span class="pagination-title">${prev.icon ? escapeHtml(prev.icon) + " " : ""}${escapeHtml(prev.title || "Previous")}</span>
+            </a>
+          ` : `<div></div>`}
+          ${next ? `
+            <a href="${escapeHtml(next.url || ('/blog/' + next.slug + '/'))}" class="pagination-link pagination-next">
+              <span class="pagination-label">Next Article <i class="fas fa-arrow-right"></i></span>
+              <span class="pagination-title">${next.icon ? escapeHtml(next.icon) + " " : ""}${escapeHtml(next.title || "Next")}</span>
+            </a>
+          ` : `<div></div>`}
+        `;
+      } else {
+        navContainer.style.display = "none";
+      }
     }
   }
 

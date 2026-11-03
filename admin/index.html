@@ -1022,17 +1022,24 @@
           <div class="notion-posts-nav">
             <div class="notion-nav-header">
               <div class="notion-nav-title">
-                <i class="fas fa-book-bookmark"></i> All Articles (<span id="notion-nav-total-count">2</span>)
+                <i class="fas fa-book-bookmark"></i> All Articles (<span id="notion-nav-total-count">0</span>)
               </div>
-              <input type="text" id="notion-posts-search" class="form-input" placeholder="Search posts..." />
+              <input type="text" id="notion-posts-search" class="form-input" placeholder="Search by title or tag..." />
+              <!-- CMS Lifecycle Filter Tabs -->
+              <div class="notion-status-filter-tabs">
+                <button type="button" class="notion-filter-tab active" data-status-filter="all">All (<span id="notion-count-all">0</span>)</button>
+                <button type="button" class="notion-filter-tab" data-status-filter="published"><i class="fas fa-circle" style="color: #24b47e; font-size: 7px;"></i> Live (<span id="notion-count-published">0</span>)</button>
+                <button type="button" class="notion-filter-tab" data-status-filter="draft"><i class="fas fa-circle" style="color: #f59e0b; font-size: 7px;"></i> Drafts (<span id="notion-count-draft">0</span>)</button>
+                <button type="button" class="notion-filter-tab" data-status-filter="archived"><i class="fas fa-circle" style="color: #64748b; font-size: 7px;"></i> Arch (<span id="notion-count-archived">0</span>)</button>
+              </div>
             </div>
 
             <div class="notion-posts-list" id="notion-posts-list-container">
-              <!-- Dynamically populated post cards with thumbnail, title, date, featured pin, and delete button -->
+              <!-- Dynamically populated post cards with thumbnail, title, status badge, date, and actions -->
             </div>
 
             <button type="button" class="btn btn-sm btn-yellow" id="btn-nav-add-post" style="width: 100%; margin-top: 10px;">
-              <i class="fas fa-plus"></i> Add New Post Draft
+              <i class="fas fa-plus"></i> New Article Draft
             </button>
           </div>
 
@@ -1042,7 +1049,8 @@
             <!-- Editor Top Control Bar -->
             <div class="notion-editor-topbar">
               <div class="topbar-left">
-                <span class="badge" style="background: var(--accent-red); color: #fff; font-size: 11px;" id="notion-active-status-badge">Editing: PiShot</span>
+                <span class="badge" style="background: var(--accent-red); color: #fff; font-size: 11px;" id="notion-active-status-badge">Editing: Article</span>
+                <span class="notion-status-badge status-draft" id="notion-active-lifecycle-pill"><i class="fas fa-circle" style="font-size: 7px;"></i> DRAFT</span>
                 <span class="notion-stats-pill" id="notion-word-counter"><i class="fas fa-pen-nib"></i> 0 words</span>
                 <span class="notion-stats-pill" id="notion-reading-pill"><i class="far fa-clock"></i> 1 min read</span>
               </div>
@@ -1059,10 +1067,13 @@
               </div>
 
               <div class="topbar-right">
-                <button type="button" class="btn btn-sm btn-yellow" id="btn-save-current-post" title="Save post to portfolio-data.json and disk">
-                  <i class="fas fa-floppy-disk"></i> Save Post
+                <button type="button" class="btn btn-sm btn-outline" id="btn-save-draft-post" title="Save article as Draft">
+                  <i class="fas fa-file-pen"></i> Save Draft
                 </button>
-                <a href="/blog/" target="_blank" class="btn btn-sm" id="btn-view-current-post-link" title="Open post on website">
+                <button type="button" class="btn btn-sm btn-green" id="btn-publish-current-post" title="Publish article live to website">
+                  <i class="fas fa-paper-plane"></i> Publish
+                </button>
+                <a href="/blog/" target="_blank" class="btn btn-sm" id="btn-view-current-post-link" title="Open live post on website">
                   <i class="fas fa-external-link-alt"></i> View
                 </a>
                 <button type="button" class="btn btn-sm btn-danger" id="btn-delete-current-post" title="Delete this post">
@@ -1075,20 +1086,31 @@
             <div class="notion-document-card" id="notion-canvas-wrapper">
               
               <!-- Notion Page Cover Box -->
-              <div class="notion-cover-wrapper" id="notion-cover-container">
-                <img id="notion-cover-image-preview" src="/assets/blog/i-made-a-custom-raspberry-pi-camera.png" alt="Cover Banner" onerror="this.src='/blog/_astro/camera-pishot-half-built.DCzzKOru.png'" />
+              <div class="notion-cover-wrapper" id="notion-cover-container" style="display: none;">
+                <img id="notion-cover-image-preview" src="" alt="Cover Banner" onerror="this.style.opacity='0'" onload="this.style.opacity='1'" />
                 <div class="notion-cover-actions">
-                  <button type="button" class="notion-cover-btn" id="btn-trigger-cover-upload">
-                    <i class="fas fa-image"></i> Change Cover
-                  </button>
-                  <button type="button" class="notion-cover-btn" id="btn-enter-cover-url">
-                    <i class="fas fa-link"></i> Cover URL
-                  </button>
-                  <button type="button" class="notion-cover-btn" id="btn-remove-cover">
-                    <i class="fas fa-trash"></i> Remove
+                  <div class="cover-dropdown-wrapper" style="position: relative; display: inline-block;">
+                    <button type="button" class="notion-cover-btn" id="btn-trigger-cover-upload" title="Change or replace cover image">
+                      <i class="fas fa-image"></i> Change Cover
+                    </button>
+                    <div class="cover-options-popover" id="cover-options-popover" style="display: none;">
+                      <button type="button" class="cover-popover-item" id="btn-cover-opt-upload"><i class="fas fa-arrow-up-from-bracket"></i> Upload from Device</button>
+                      <button type="button" class="cover-popover-item" id="btn-cover-opt-media"><i class="fas fa-cloud"></i> Select from Cloud Media</button>
+                      <button type="button" class="cover-popover-item" id="btn-cover-opt-url"><i class="fas fa-link"></i> Enter Image URL</button>
+                    </div>
+                  </div>
+                  <button type="button" class="notion-cover-btn" id="btn-remove-cover" title="Remove cover image">
+                    <i class="fas fa-trash"></i> Remove Cover
                   </button>
                 </div>
-                <input type="file" id="notion-cover-file-input" accept="image/*" style="display: none;" />
+                <input type="file" id="notion-cover-file-input" accept="image/jpeg,image/png,image/webp,image/gif,image/svg+xml" style="display: none;" />
+              </div>
+
+              <!-- When no cover is set, show a clean Add Cover trigger -->
+              <div class="notion-add-cover-bar" id="notion-add-cover-bar">
+                <button type="button" class="btn-notion-add-cover" id="btn-show-add-cover">
+                  <i class="fas fa-plus"></i> Add Cover Image
+                </button>
               </div>
 
               <!-- Main Document Header -->
@@ -1129,6 +1151,26 @@
                 
                 <!-- Notion Page Properties Drawer -->
                 <div class="notion-properties-panel">
+                  <div class="notion-prop-row">
+                    <span class="prop-label"><i class="fas fa-user-pen"></i> Author</span>
+                    <div class="prop-value" style="display: flex; align-items: center; gap: 8px;">
+                      <img src="https://npzqpcagdtnfuqhyngro.supabase.co/storage/v1/object/public/portfolio-assets/assets/profile/1.jpg" alt="Author" style="width: 22px; height: 22px; border-radius: 50%; border: 1.5px solid var(--border-color); object-fit: cover;" onerror="this.src='/favicon.ico'" />
+                      <span style="font-family: var(--font-display); font-weight: 700; font-size: 13px;">Samarth Haveliwala</span>
+                      <span class="badge" style="font-size: 9px; padding: 2px 5px; background: var(--tag-bg); color: var(--text-muted); border: 1px solid var(--border-color);">Admin</span>
+                    </div>
+                  </div>
+
+                  <div class="notion-prop-row">
+                    <span class="prop-label"><i class="fas fa-signal"></i> Lifecycle Status</span>
+                    <div class="prop-value">
+                      <select id="notion-prop-status-select" class="form-select prop-input" style="font-family: var(--font-mono); font-weight: 700;">
+                        <option value="draft">🟡 Draft (Hidden from public)</option>
+                        <option value="published">🟢 Published (Live on blog & portfolio)</option>
+                        <option value="archived">⚪ Archived (Hidden from public listing)</option>
+                      </select>
+                    </div>
+                  </div>
+
                   <div class="notion-prop-row">
                     <span class="prop-label"><i class="far fa-calendar-alt"></i> Publish Date</span>
                     <div class="prop-value">
