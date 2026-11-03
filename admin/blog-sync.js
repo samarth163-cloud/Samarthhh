@@ -147,6 +147,7 @@ function renderPostHtml(post) {
     </div>
   </footer>
 
+  <script src="/data-sync.js"></script>
   <script src="/blog/blog.js"></script>
 </body>
 </html>`;
@@ -310,6 +311,7 @@ function renderIndexHtml(blogList) {
   </footer>
 
   <!-- Interactive Scripts -->
+  <script src="/data-sync.js"></script>
   <script src="/blog/blog.js"></script>
 </body>
 </html>`;

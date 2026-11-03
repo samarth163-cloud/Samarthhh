@@ -185,6 +185,14 @@ const server = http.createServer((req, res) => {
     }
   }
 
+  // Dynamic Blog Routing Fallback (automatic dynamic article viewer)
+  if (!fs.existsSync(filePath) || (fs.existsSync(filePath) && fs.statSync(filePath).isDirectory() && !fs.existsSync(path.join(filePath, 'index.html')))) {
+    const blogMatch = pathname.match(/^\/blog\/([^/?#]+)/);
+    if (blogMatch && blogMatch[1] !== 'index.html' && blogMatch[1] !== 'view.html' && !blogMatch[1].includes('.')) {
+      filePath = path.join(ROOT_DIR, 'blog', 'view.html');
+    }
+  }
+
   if (fs.existsSync(filePath) && !fs.statSync(filePath).isDirectory()) {
     const ext = path.extname(filePath).toLowerCase();
     const contentType = MIME_TYPES[ext] || 'application/octet-stream';

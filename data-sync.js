@@ -415,15 +415,19 @@
       const blogCardsContainer = document.querySelector("#blog .blog-cards");
       if (blogCardsContainer) {
         const livePosts = data.blog.filter(b => b.status === "published" || !b.status);
+        const isLocalStatic = typeof window !== "undefined" && (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1");
         blogCardsContainer.innerHTML = livePosts
           .map((b) => {
             const tags = Array.isArray(b.tags)
               ? b.tags.map((t) => `<span>${escapeHtml(t)}</span>`).join("")
               : "";
             const blogImg = formatImageUrl(b.image || b.coverImage || "", data._updatedAt);
+            const postHref = isLocalStatic
+              ? `/blog/view.html?slug=${encodeURIComponent(b.slug || "")}`
+              : (b.url || `/blog/${encodeURIComponent(b.slug || "")}/`);
             return `
             <article class="blog-card" data-blog-id="${escapeHtml(b.id || "")}">
-              <a href="${escapeHtml(b.url || ('/blog/' + (b.slug || '') + '/'))}" class="blog-card-link" aria-label="Read ${escapeHtml(b.title || "")}">
+              <a href="${escapeHtml(postHref)}" class="blog-card-link" aria-label="Read ${escapeHtml(b.title || "")}">
                 <img src="${escapeHtml(blogImg)}" alt="${escapeHtml(b.title || "")}" loading="lazy" onerror="this.src='/favicon.ico'" />
                 <div class="blog-card-content">
                   <p class="blog-date">${escapeHtml(b.date || "")}</p>
@@ -737,7 +741,10 @@
         const tagsHtml = tags.map((t) => `<span class="tag">#${escapeHtml(t)}</span>`).join(" ");
         const tagDataAttr = tags.join(",");
         const blogImg = formatImageUrl(b.image || b.coverImage || "/assets/blog/how-i-won-my-first-game-jam.png", data._updatedAt);
-        const postUrl = b.url || (`/blog/${encodeURIComponent(b.slug || "")}/`);
+        const isLocalStatic = typeof window !== "undefined" && (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1");
+        const postUrl = isLocalStatic
+          ? `/blog/view.html?slug=${encodeURIComponent(b.slug || "")}`
+          : (b.url || `/blog/${encodeURIComponent(b.slug || "")}/`);
         const iconPrefix = b.icon ? `${escapeHtml(b.icon)} ` : "";
 
         return `

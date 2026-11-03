@@ -3227,11 +3227,12 @@
     const propFeatured = document.getElementById("notion-prop-featured");
     if (propFeatured) propFeatured.checked = !!post.featured;
 
-    // View post link
+    // View post link (auto-detects local static environment vs production clean URL)
     const viewPostLink = document.getElementById("btn-view-current-post-link");
     if (viewPostLink) {
       const slug = post.slug || (post.url ? post.url.replace(/^\/blog\//, '').replace(/\/$/, '') : '');
-      viewPostLink.href = `/blog/${slug}/`;
+      const isLocalStatic = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
+      viewPostLink.href = isLocalStatic ? `/blog/view.html?slug=${encodeURIComponent(slug)}` : `/blog/${slug}/`;
     }
 
     // Canvas Content
