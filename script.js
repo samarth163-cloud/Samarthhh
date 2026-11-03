@@ -155,21 +155,56 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // Toggle dark/light mode
+  // Unified Robust Theme Switcher Engine
+  function applyTheme(theme) {
+    const isDark = theme === "dark";
+    document.documentElement.setAttribute("data-theme", isDark ? "dark" : "light");
+    document.documentElement.classList.toggle("dark", isDark);
+    document.documentElement.classList.toggle("light", !isDark);
+
+    if (document.body) {
+      document.body.classList.toggle("dark", isDark);
+      document.body.classList.toggle("light", !isDark);
+    }
+
+    try {
+      localStorage.setItem("theme", isDark ? "dark" : "light");
+    } catch (e) {}
+
+    if (darkModeToggle) {
+      darkModeToggle.setAttribute("aria-label", isDark ? "Switch to light mode" : "Switch to dark mode");
+      darkModeToggle.setAttribute("title", isDark ? "Switch to light mode" : "Switch to dark mode");
+    }
+
+    initializeParticles();
+  }
+
+  // Ensure button title & aria-label are set on initial load
+  const initialSavedTheme = (function() {
+    try {
+      return localStorage.getItem("theme") || "light";
+    } catch (e) {
+      return "light";
+    }
+  })();
+  applyTheme(initialSavedTheme);
+
+  // Toggle dark/light mode click handler
   if (darkModeToggle) {
     darkModeToggle.addEventListener("click", () => {
-      if (document.body.classList.contains("dark")) {
-        document.body.classList.remove("dark");
-        document.body.classList.add("light");
-        localStorage.setItem("theme", "light");
-      } else {
-        document.body.classList.remove("light");
-        document.body.classList.add("dark");
-        localStorage.setItem("theme", "dark");
-      }
-      initializeParticles();
+      const isCurrentlyDark = document.body.classList.contains("dark") ||
+                              document.documentElement.getAttribute("data-theme") === "dark" ||
+                              document.documentElement.classList.contains("dark");
+      applyTheme(isCurrentlyDark ? "light" : "dark");
     });
   }
+
+  // Cross-tab real-time theme synchronization
+  window.addEventListener("storage", (e) => {
+    if (e.key === "theme" && (e.newValue === "light" || e.newValue === "dark")) {
+      applyTheme(e.newValue);
+    }
+  });
 
   // Handle section highlighting on scroll
   const sections = document.querySelectorAll("section");

@@ -128,6 +128,12 @@
     }
   }
 
+  window.addEventListener("storage", function(e) {
+    if (e.key === "theme" && (e.newValue === "light" || e.newValue === "dark")) {
+      applyTheme(e.newValue);
+    }
+  });
+
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", initBlogInteractions);
   } else {

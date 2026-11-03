@@ -4733,28 +4733,47 @@
 
   // Theme Toggle
   const btnThemeToggle = document.getElementById("btn-theme-toggle");
+  function applyAdminTheme(theme) {
+    const isDark = theme === "dark";
+    document.documentElement.setAttribute("data-theme", isDark ? "dark" : "light");
+    document.documentElement.classList.toggle("dark", isDark);
+    document.documentElement.classList.toggle("light", !isDark);
+    if (document.body) {
+      document.body.classList.toggle("dark", isDark);
+      document.body.classList.toggle("light", !isDark);
+    }
+    try {
+      localStorage.setItem("theme", isDark ? "dark" : "light");
+    } catch (e) {}
+    updateThemeIcon();
+  }
+
   if (btnThemeToggle) {
     btnThemeToggle.addEventListener("click", () => {
-      const isDark = document.body.classList.contains("dark");
-      if (isDark) {
-        document.body.classList.remove("dark");
-        document.body.classList.add("light");
-        localStorage.setItem("theme", "light");
-      } else {
-        document.body.classList.remove("light");
-        document.body.classList.add("dark");
-        localStorage.setItem("theme", "dark");
-      }
-      updateThemeIcon();
+      const isDark = document.body.classList.contains("dark") || document.documentElement.classList.contains("dark");
+      applyAdminTheme(isDark ? "light" : "dark");
     });
   }
 
   function updateThemeIcon() {
     const icon = document.getElementById("theme-toggle-icon");
+    const isDark = (document.body && document.body.classList.contains("dark")) || 
+                   document.documentElement.classList.contains("dark") ||
+                   document.documentElement.getAttribute("data-theme") === "dark";
     if (icon) {
-      icon.className = document.body.classList.contains("dark") ? "fas fa-sun" : "fas fa-moon";
+      icon.className = isDark ? "fas fa-sun" : "fas fa-moon";
+    }
+    if (btnThemeToggle) {
+      btnThemeToggle.setAttribute("title", isDark ? "Switch to light mode" : "Switch to dark mode");
+      btnThemeToggle.setAttribute("aria-label", isDark ? "Switch to light mode" : "Switch to dark mode");
     }
   }
+
+  window.addEventListener("storage", (e) => {
+    if (e.key === "theme" && (e.newValue === "light" || e.newValue === "dark")) {
+      applyAdminTheme(e.newValue);
+    }
+  });
 
   // =========================================================================
   // GLOBAL CLOUD DEPLOYMENT ENGINE (GitHub & Vercel Multi-Device Sync)
