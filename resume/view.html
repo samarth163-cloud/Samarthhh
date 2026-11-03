@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Resume Preview — Samarth Haveliwala</title>
+  <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Syne:wght@700;800;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --bg-dark: #121214;
+      --bg-bar: #1a1a1e;
+      --border-color: #2e2e36;
+      --accent-green: #24b47e;
+      --accent-yellow: #facc15;
+      --text-main: #f4f4f5;
+      --text-muted: #a1a1aa;
+      --font-display: 'Syne', sans-serif;
+      --font-mono: 'Space Mono', monospace;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: var(--bg-dark);
+      color: var(--text-main);
+      font-family: var(--font-mono);
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Top Viewer Navigation Bar */
+    header.viewer-header {
+      height: 56px;
+      background: var(--bg-bar);
+      border-bottom: 2px solid #000;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 18px;
+      z-index: 100;
+      box-shadow: 0 4px 0 #000;
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .btn-back {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #000;
+      color: var(--text-main);
+      border: 2px solid #fff;
+      padding: 6px 14px;
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 13px;
+      text-decoration: none;
+      box-shadow: 2px 2px 0 #fff;
+      transition: all 0.15s ease;
+    }
+
+    .btn-back:hover {
+      background: var(--accent-yellow);
+      color: #000;
+      border-color: #000;
+      box-shadow: 2px 2px 0 #000;
+      transform: translate(-1px, -1px);
+    }
+
+    .doc-meta {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      overflow: hidden;
+    }
+
+    .doc-title {
+      font-weight: 700;
+      font-size: 13px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      color: var(--text-main);
+    }
+
+    .doc-badge {
+      font-size: 10px;
+      padding: 2px 6px;
+      background: rgba(36, 180, 126, 0.2);
+      color: var(--accent-green);
+      border: 1px solid var(--accent-green);
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .btn-action {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 7px 16px;
+      font-family: var(--font-display);
+      font-weight: 800;
+      font-size: 13px;
+      border: 2px solid #000;
+      cursor: pointer;
+      text-decoration: none;
+      transition: all 0.15s ease;
+    }
+
+    .btn-download {
+      background: var(--accent-green);
+      color: #000;
+      box-shadow: 3px 3px 0 #000;
+    }
+
+    .btn-download:hover {
+      background: #1ea06e;
+      box-shadow: 1px 1px 0 #000;
+      transform: translate(2px, 2px);
+    }
+
+    .btn-secondary {
+      background: #27272a;
+      color: #fff;
+      border-color: #000;
+      box-shadow: 3px 3px 0 #000;
+    }
+
+    .btn-secondary:hover {
+      background: #3f3f46;
+      box-shadow: 1px 1px 0 #000;
+      transform: translate(2px, 2px);
+    }
+
+    /* Viewer Container */
+    #viewer-container {
+      flex: 1;
+      width: 100%;
+      height: calc(100% - 56px);
+      position: relative;
+      background: #202124;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #pdf-frame {
+      width: 100%;
+      height: 100%;
+      border: none;
+      display: none;
+    }
+
+    /* Loading Overlay */
+    #loading-state {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      text-align: center;
+      padding: 20px;
+    }
+
+    .spinner {
+      font-size: 40px;
+      color: var(--accent-green);
+    }
+
+    /* Fallback / Error State */
+    #error-state {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 14px;
+      text-align: center;
+      padding: 40px 20px;
+      max-width: 500px;
+      background: var(--bg-bar);
+      border: 2.5px solid #000;
+      box-shadow: 6px 6px 0 #000;
+    }
+
+    @media (max-width: 650px) {
+      header.viewer-header {
+        padding: 0 10px;
+        height: 52px;
+      }
+      .doc-meta { display: none; }
+      .btn-secondary { display: none; }
+      .btn-action { font-size: 12px; padding: 6px 12px; }
+      .btn-back { font-size: 12px; padding: 6px 10px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Header Navigation -->
+  <header class="viewer-header">
+    <div class="header-left">
+      <a href="/resume" class="btn-back">
+        <i class="fas fa-arrow-left"></i> <span>Back</span>
+      </a>
+      <div class="doc-meta">
+        <i class="fas fa-file-pdf" style="color: #ef4444; font-size: 18px;"></i>
+        <span class="doc-title" id="doc-title">Samarth_Haveliwala_Resume.pdf</span>
+        <span class="doc-badge">PDF Preview</span>
+      </div>
+    </div>
+
+    <div class="header-right">
+      <button type="button" class="btn-action btn-secondary" id="btn-print" title="Print document">
+        <i class="fas fa-print"></i> <span>Print</span>
+      </button>
+      <button type="button" class="btn-action btn-download" id="btn-download" title="Download exact PDF file">
+        <i class="fas fa-download"></i> <span>Download PDF</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Viewer Canvas -->
+  <main id="viewer-container">
+    <!-- Loading indicator -->
+    <div id="loading-state">
+      <i class="fas fa-circle-notch fa-spin spinner"></i>
+      <h3 style="font-family: var(--font-display); font-size: 18px;">Loading Resume Preview...</h3>
+      <p style="font-size: 13px; color: var(--text-muted);">Fetching document from Supabase Cloud Storage</p>
+    </div>
+
+    <!-- Error message fallback -->
+    <div id="error-state">
+      <i class="fas fa-triangle-exclamation" style="font-size: 38px; color: #ef4444;"></i>
+      <h3 style="font-family: var(--font-display); font-size: 18px;">Could not load document preview</h3>
+      <p style="font-size: 13px; color: var(--text-muted);" id="error-msg">No custom resume file was found in your portfolio database.</p>
+      <a href="/resume" class="btn-action btn-download" style="margin-top: 8px;">
+        <i class="fas fa-file-invoice"></i> View Web Resume
+      </a>
+    </div>
+
+    <!-- PDF IFrame / Embed -->
+    <iframe id="pdf-frame" title="Resume PDF Preview"></iframe>
+  </main>
+
+  <script>
+    const SUPABASE_URL = "https://npzqpcagdtnfuqhyngro.supabase.co";
+    const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5wenFwY2FnZHRuZnVxaHluZ3JvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTMxMjEzOTEsImV4cCI6MjEwODY5NzM5MX0.N20yyXXnX-ddUDo43ynQOe6f0r6ZoeK4w1MUpPzs37Y";
+
+    let activePdfBlob = null;
+    let activeFileName = "Samarth_Haveliwala_Resume.pdf";
+    let activePdfUrl = "";
+
+    async function fetchResumeData() {
+      // 1. Try Supabase Database first
+      try {
+        const resp = await fetch(`${SUPABASE_URL}/rest/v1/portfolio_data?id=eq.main&select=*`, {
+          headers: {
+            "apikey": SUPABASE_KEY,
+            "Authorization": `Bearer ${SUPABASE_KEY}`
+          }
+        });
+        if (resp.ok) {
+          const rows = await resp.json();
+          if (rows && rows[0] && rows[0].data && rows[0].data.resume && rows[0].data.resume.download) {
+            return rows[0].data.resume.download;
+          }
+        }
+      } catch (e) {
+        console.warn("Supabase fetch error, trying local backup:", e);
+      }
+
+      // 2. Fallback to /data/portfolio-data.json
+      try {
+        const resp = await fetch("/data/portfolio-data.json");
+        if (resp.ok) {
+          const json = await resp.json();
+          if (json.resume && json.resume.download) {
+            return json.resume.download;
+          }
+        }
+      } catch (e) {
+        console.error("Local data fetch failed:", e);
+      }
+
+      return null;
+    }
+
+    async function loadPdfViewer() {
+      const loadingEl = document.getElementById("loading-state");
+      const errorEl = document.getElementById("error-state");
+      const errorMsg = document.getElementById("error-msg");
+      const frameEl = document.getElementById("pdf-frame");
+      const titleEl = document.getElementById("doc-title");
+
+      try {
+        const dlConfig = await fetchResumeData();
+        if (!dlConfig || !dlConfig.fileUrl) {
+          throw new Error("No resume PDF file has been uploaded yet. Please upload one in the Admin Panel.");
+        }
+
+        activeFileName = dlConfig.fileName || "Samarth_Haveliwala_Resume.pdf";
+        activePdfUrl = dlConfig.fileUrl;
+        titleEl.textContent = activeFileName;
+        document.title = `${activeFileName} — Preview`;
+
+        // Fetch binary bytes from Supabase CDN
+        const fileResp = await fetch(activePdfUrl);
+        if (!fileResp.ok) throw new Error(`HTTP ${fileResp.status} failed to fetch file from storage`);
+
+        const arrayBuffer = await fileResp.arrayBuffer();
+        activePdfBlob = new Blob([arrayBuffer], { type: "application/pdf" });
+        const blobUrl = URL.createObjectURL(activePdfBlob);
+
+        loadingEl.style.display = "none";
+        frameEl.style.display = "block";
+        frameEl.src = blobUrl + "#toolbar=1&navpanes=1&statusbar=1";
+
+      } catch (err) {
+        console.error("PDF Preview load error:", err);
+        loadingEl.style.display = "none";
+        errorEl.style.display = "flex";
+        errorMsg.textContent = err.message;
+      }
+    }
+
+    // Trigger Download
+    function triggerDownload() {
+      if (activePdfBlob) {
+        const url = URL.createObjectURL(activePdfBlob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = activeFileName;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        setTimeout(() => URL.revokeObjectURL(url), 2000);
+      } else if (activePdfUrl) {
+        window.open(activePdfUrl, "_blank");
+      }
+    }
+
+    // Trigger Print
+    function triggerPrint() {
+      const frame = document.getElementById("pdf-frame");
+      if (frame && frame.contentWindow) {
+        try {
+          frame.contentWindow.print();
+          return;
+        } catch (e) {
+          console.warn("Direct iframe print failed, falling back to window.print():", e);
+        }
+      }
+      window.print();
+    }
+
+    document.getElementById("btn-download").addEventListener("click", triggerDownload);
+    document.getElementById("btn-print").addEventListener("click", triggerPrint);
+
+    loadPdfViewer();
+  </script>
+</body>
+</html>

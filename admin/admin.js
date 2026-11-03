@@ -2337,7 +2337,8 @@
       }
       if (btnPreview) {
         btnPreview.style.display = "inline-flex";
-        btnPreview.href = formatAssetUrl(dl.fileUrl);
+        btnPreview.href = "/resume/view";
+        btnPreview.target = "_blank";
       }
       if (btnDelete) {
         btnDelete.style.display = "inline-flex";
@@ -2356,6 +2357,11 @@
       if (btnDelete) btnDelete.style.display = "none";
     }
 
+    const modeSelect = document.getElementById("resume-download-action-mode");
+    if (modeSelect) {
+      modeSelect.value = dl.actionMode || "preview";
+    }
+
     setupResumeDownloadHandlers();
   }
 
@@ -2363,11 +2369,22 @@
     const toggleEl = document.getElementById("resume-download-toggle");
     const toggleLabel = document.getElementById("resume-download-toggle-label");
     const btnTextInput = document.getElementById("resume-download-btn-text-input");
+    const modeSelect = document.getElementById("resume-download-action-mode");
     const urlInput = document.getElementById("resume-download-url-input");
     const fileInput = document.getElementById("resume-file-input");
     const btnTriggerUpload = document.getElementById("btn-trigger-resume-file-upload");
     const uploadProgress = document.getElementById("resume-upload-progress");
     const btnDelete = document.getElementById("btn-delete-resume-file");
+
+    if (modeSelect && !modeSelect._hasBound) {
+      modeSelect._hasBound = true;
+      modeSelect.addEventListener("change", async (e) => {
+        if (!state.resume.download) state.resume.download = {};
+        state.resume.download.actionMode = e.target.value;
+        await performMasterSave();
+        showToast(e.target.value === "preview" ? "✓ Clicking button will open PDF preview in a new browser tab!" : "✓ Clicking button will download file directly!", "success");
+      });
+    }
 
     if (toggleEl && !toggleEl._hasBound) {
       toggleEl._hasBound = true;

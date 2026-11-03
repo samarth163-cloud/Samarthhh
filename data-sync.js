@@ -749,33 +749,41 @@
         if (downloadBtn) {
           const fileUrl = dlConfig.fileUrl ? formatImageUrl(dlConfig.fileUrl, data._updatedAt) : "";
           if (fileUrl) {
-            downloadBtn.href = fileUrl;
-            downloadBtn.target = "_blank";
-            downloadBtn.onclick = async (e) => {
-              e.preventDefault();
-              const origHtml = downloadBtn.innerHTML;
-              try {
-                downloadBtn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Downloading...`;
-                const resp = await fetch(fileUrl);
-                if (!resp.ok) throw new Error("HTTP " + resp.status);
-                const blob = await resp.blob();
-                const mimeType = (dlConfig.fileName && dlConfig.fileName.toLowerCase().endsWith(".pdf")) ? "application/pdf" : (blob.type || "application/pdf");
-                const fileBlob = new Blob([blob], { type: mimeType });
-                const blobUrl = URL.createObjectURL(fileBlob);
-                const tempLink = document.createElement("a");
-                tempLink.href = blobUrl;
-                tempLink.download = dlConfig.fileName || "Samarth_Haveliwala_Resume.pdf";
-                document.body.appendChild(tempLink);
-                tempLink.click();
-                tempLink.remove();
-                setTimeout(() => URL.revokeObjectURL(blobUrl), 2000);
-              } catch (err) {
-                console.warn("Direct blob download failed, opening directly:", err);
-                window.open(fileUrl, "_blank");
-              } finally {
-                downloadBtn.innerHTML = origHtml;
-              }
-            };
+            const isDirectDownload = dlConfig.actionMode === "direct";
+            if (isDirectDownload) {
+              downloadBtn.href = fileUrl;
+              downloadBtn.target = "_blank";
+              downloadBtn.onclick = async (e) => {
+                e.preventDefault();
+                const origHtml = downloadBtn.innerHTML;
+                try {
+                  downloadBtn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Downloading...`;
+                  const resp = await fetch(fileUrl);
+                  if (!resp.ok) throw new Error("HTTP " + resp.status);
+                  const blob = await resp.blob();
+                  const mimeType = (dlConfig.fileName && dlConfig.fileName.toLowerCase().endsWith(".pdf")) ? "application/pdf" : (blob.type || "application/pdf");
+                  const fileBlob = new Blob([blob], { type: mimeType });
+                  const blobUrl = URL.createObjectURL(fileBlob);
+                  const tempLink = document.createElement("a");
+                  tempLink.href = blobUrl;
+                  tempLink.download = dlConfig.fileName || "Samarth_Haveliwala_Resume.pdf";
+                  document.body.appendChild(tempLink);
+                  tempLink.click();
+                  tempLink.remove();
+                  setTimeout(() => URL.revokeObjectURL(blobUrl), 2000);
+                } catch (err) {
+                  console.warn("Direct blob download failed, opening directly:", err);
+                  window.open(fileUrl, "_blank");
+                } finally {
+                  downloadBtn.innerHTML = origHtml;
+                }
+              };
+            } else {
+              // Open in new tab with full Chrome / Browser PDF Viewer preview & download
+              downloadBtn.href = "/resume/view";
+              downloadBtn.target = "_blank";
+              downloadBtn.onclick = null;
+            }
           } else {
             downloadBtn.href = "#";
             downloadBtn.removeAttribute("download");
