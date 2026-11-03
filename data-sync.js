@@ -753,6 +753,7 @@
             if (isDirectDownload) {
               downloadBtn.href = fileUrl;
               downloadBtn.target = "_blank";
+              downloadBtn.setAttribute("download", dlConfig.fileName || "Samarth_Haveliwala_Resume.pdf");
               downloadBtn.onclick = async (e) => {
                 e.preventDefault();
                 const origHtml = downloadBtn.innerHTML;
@@ -779,9 +780,10 @@
                 }
               };
             } else {
-              // Open in new tab with full Chrome / Browser PDF Viewer preview & download
+              // Open in new browser tab with Chrome/Edge native PDF Viewer preview & download
               downloadBtn.href = "/resume/view";
               downloadBtn.target = "_blank";
+              downloadBtn.removeAttribute("download");
               downloadBtn.onclick = null;
             }
           } else {
