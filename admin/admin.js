@@ -3898,7 +3898,7 @@
       </div>`;
 
     try {
-      cachedPickerFiles = await listSupabaseStorageFiles();
+      cachedPickerFiles = await fetchAllSupabaseFilesRecursively("");
       renderCloudMediaPickerGrid(cachedPickerFiles);
     } catch (e) {
       grid.innerHTML = `<div style="grid-column: 1 / -1; color: var(--accent-red); padding: 20px;">Failed to load files: ${e.message}</div>`;
@@ -3957,13 +3957,15 @@
     const actionIcon = isCoverMode ? "fa-image" : "fa-plus";
 
     grid.innerHTML = files.map(file => {
-      const publicUrl = getPublicStorageUrl(file.name);
+      const filePath = file.fullPath || file.name;
+      const publicUrl = file.publicUrl || getPublicStorageUrl(filePath);
+      const isImg = file.metadata?.mimetype?.startsWith("image/") || filePath.match(/\.(png|jpe?g|webp|gif|svg|ico)$/i);
       return `
         <div class="picker-card" style="background: var(--bg-surface); border: 2px solid var(--border-color); border-radius: 6px; padding: 8px; text-align: center; display: flex; flex-direction: column; gap: 8px; transition: transform 0.15s ease;">
           <div style="width: 100%; height: 110px; background: #111; border: 1px solid var(--border-color); border-radius: 4px; overflow: hidden; display: flex; align-items: center; justify-content: center;">
-            <img src="${escapeHtml(publicUrl)}" alt="${escapeHtml(file.name)}" style="max-width: 100%; max-height: 100%; object-fit: cover;" onerror="this.src='/favicon.ico'" />
+            ${isImg ? `<img src="${escapeHtml(publicUrl)}" alt="${escapeHtml(file.name)}" style="max-width: 100%; max-height: 100%; object-fit: cover;" onerror="this.src='/favicon.ico'" />` : `<i class="fas fa-file-pdf" style="font-size: 38px; color: #e53e3e;"></i>`}
           </div>
-          <div style="font-size: 11px; font-family: var(--font-mono); overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${escapeHtml(file.name)}">
+          <div style="font-size: 11px; font-family: var(--font-mono); overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${escapeHtml(filePath)}">
             ${escapeHtml(file.name)}
           </div>
           <button type="button" class="btn btn-sm btn-yellow btn-picker-select" data-url="${escapeHtml(publicUrl)}" data-name="${escapeHtml(file.name)}" style="width: 100%; font-size: 11px;">
@@ -5790,13 +5792,25 @@
     };
   }
 
-  // 2. READ (List all files)
-  async function listSupabaseStorageFiles() {
+  // =========================================================================
+  // SUPABASE CLOUD MEDIA MANAGER: FULL RECURSIVE HIERARCHY, GRID & LIST VIEWS
+  // =========================================================================
+
+  let mediaManagerMode = "folder"; // "folder" | "flat"
+  let mediaViewMode = localStorage.getItem("admin_media_view_mode") || "grid"; // "grid" | "list"
+  let mediaCurrentPath = ""; // directory path e.g. "", "assets", "assets/projects", "resume"
+  let cachedCurrentFolderItems = []; // items in mediaCurrentPath
+  let cachedAllRecursiveFiles = []; // all files across all folders
+  let isFetchingRecursive = false;
+
+  // 2. READ (List files in specific folder / prefix)
+  async function listSupabaseStorageFolder(prefix = "") {
     const config = getSupabaseConfig();
     if (!config.url || !config.key) return [];
 
     const endpoint = `${config.url.replace(/\/+$/, "")}/storage/v1/object/list/${SUPABASE_STORAGE_BUCKET}`;
     try {
+      const cleanPrefix = prefix ? prefix.replace(/^\/+|\/+$/g, "") : "";
       const res = await fetch(endpoint, {
         method: "POST",
         headers: {
@@ -5805,25 +5819,78 @@
           "Content-Type": "application/json"
         },
         body: JSON.stringify({
-          prefix: "",
+          prefix: cleanPrefix,
           limit: 100,
-          sortBy: { column: "created_at", order: "desc" }
+          sortBy: { column: "name", order: "asc" }
         })
       });
 
       if (res.ok) {
-        const files = await res.json();
-        cachedMediaFiles = Array.isArray(files) ? files.filter(f => f.name && !f.name.startsWith(".")) : [];
-        return cachedMediaFiles;
+        const items = await res.json();
+        if (!Array.isArray(items)) return [];
+        return items
+          .filter(it => it.name && !it.name.startsWith("."))
+          .map(it => {
+            const isFolder = it.id === null || it.metadata === null || !it.id;
+            const fullPath = cleanPrefix ? `${cleanPrefix}/${it.name}` : it.name;
+            return {
+              ...it,
+              isFolder,
+              fullPath,
+              publicUrl: isFolder ? "" : getPublicStorageUrl(fullPath)
+            };
+          });
       }
     } catch (err) {
-      console.warn("Could not list Supabase storage files:", err);
+      console.warn("Could not list Supabase storage folder:", prefix, err);
     }
     return [];
   }
 
-  // 3. DELETE (Remove file)
-  async function deleteSupabaseStorageFile(filename) {
+  // 2b. READ RECURSIVELY (Crawl all folders and return flat array of every single file)
+  async function fetchAllSupabaseFilesRecursively(prefix = "") {
+    const items = await listSupabaseStorageFolder(prefix);
+    let all = [];
+    for (const it of items) {
+      if (it.isFolder) {
+        const sub = await fetchAllSupabaseFilesRecursively(it.fullPath);
+        all = all.concat(sub);
+      } else {
+        all.push(it);
+      }
+    }
+    return all;
+  }
+
+  async function refreshAllRecursiveFiles() {
+    if (isFetchingRecursive && cachedAllRecursiveFiles.length > 0) return cachedAllRecursiveFiles;
+    isFetchingRecursive = true;
+    try {
+      const files = await fetchAllSupabaseFilesRecursively("");
+      cachedAllRecursiveFiles = files;
+      const allCountEl = document.getElementById("media-all-count");
+      if (allCountEl) allCountEl.textContent = files.length;
+      const navCountMedia = document.getElementById("nav-count-media");
+      if (navCountMedia) navCountMedia.textContent = files.length;
+      return files;
+    } catch (err) {
+      console.warn("Recursive media crawl failed:", err);
+      return cachedAllRecursiveFiles || [];
+    } finally {
+      isFetchingRecursive = false;
+    }
+  }
+
+  // Backward compatibility wrapper for test suite & external calls
+  async function listSupabaseStorageFiles() {
+    if (cachedAllRecursiveFiles && cachedAllRecursiveFiles.length > 0) {
+      return cachedAllRecursiveFiles;
+    }
+    return await refreshAllRecursiveFiles();
+  }
+
+  // 3. DELETE (Remove file by its exact full path)
+  async function deleteSupabaseStorageFile(fullPath) {
     const config = getSupabaseConfig();
     if (!config.url || !config.key) return false;
 
@@ -5836,11 +5903,13 @@
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
-        prefixes: [filename]
+        prefixes: [fullPath]
       })
     });
 
     if (res.ok) {
+      // Invalidate cached recursive files
+      cachedAllRecursiveFiles = cachedAllRecursiveFiles.filter(f => (f.fullPath || f.name) !== fullPath);
       return true;
     } else {
       const err = await res.json().catch(() => ({}));
@@ -5848,62 +5917,237 @@
     }
   }
 
-  // Render Cloud Media Gallery
+  // Render Breadcrumbs Navigation
+  function renderMediaBreadcrumbs() {
+    const bar = document.getElementById("media-breadcrumbs-bar");
+    const list = document.getElementById("media-breadcrumbs");
+    const btnBack = document.getElementById("btn-media-nav-back");
+    const hint = document.getElementById("media-current-path-hint");
+    if (!bar || !list) return;
+
+    if (mediaManagerMode === "flat") {
+      bar.style.display = "none";
+      return;
+    }
+    bar.style.display = "flex";
+
+    const parts = mediaCurrentPath ? mediaCurrentPath.split("/").filter(Boolean) : [];
+    if (btnBack) {
+      btnBack.style.display = parts.length > 0 ? "inline-flex" : "none";
+    }
+
+    let html = `<button type="button" class="crumb-btn ${parts.length === 0 ? 'active-crumb' : ''}" onclick="window.__jumpMediaBreadcrumb('')"><i class="fas fa-house"></i> Root</button>`;
+
+    let accumulated = "";
+    parts.forEach((part, idx) => {
+      accumulated = accumulated ? `${accumulated}/${part}` : part;
+      const isLast = idx === parts.length - 1;
+      html += `
+        <span class="crumb-sep">/</span>
+        <button type="button" class="crumb-btn ${isLast ? 'active-crumb' : ''}" onclick="window.__jumpMediaBreadcrumb('${escapeHtml(accumulated)}')">
+          <i class="fas fa-folder"></i> ${escapeHtml(part)}
+        </button>
+      `;
+    });
+
+    list.innerHTML = html;
+    if (hint) {
+      const currentFolder = mediaCurrentPath ? `/${mediaCurrentPath}` : "/";
+      hint.innerHTML = `Upload target: <code style="color: #24b47e;">${escapeHtml(currentFolder)}</code>`;
+    }
+  }
+
+  // Update Toolbar Buttons Active State
+  function updateMediaControlsUI() {
+    const btnFolder = document.getElementById("btn-media-mode-folder");
+    const btnFlat = document.getElementById("btn-media-mode-flat");
+    const btnGrid = document.getElementById("btn-media-view-grid");
+    const btnList = document.getElementById("btn-media-view-list");
+
+    if (btnFolder) btnFolder.classList.toggle("active", mediaManagerMode === "folder");
+    if (btnFlat) btnFlat.classList.toggle("active", mediaManagerMode === "flat");
+    if (btnGrid) btnGrid.classList.toggle("active", mediaViewMode === "grid");
+    if (btnList) btnList.classList.toggle("active", mediaViewMode === "list");
+  }
+
+  // MAIN RENDER FUNCTION FOR CLOUD MEDIA GALLERY
   async function renderMediaGallery(searchFilter = "") {
-    const grid = document.getElementById("media-gallery-grid");
+    const container = document.getElementById("media-gallery-container");
     const countBadge = document.getElementById("media-count-badge");
     const navCountMedia = document.getElementById("nav-count-media");
-    if (!grid) return;
+    if (!container) return;
 
-    if (!cachedMediaFiles || cachedMediaFiles.length === 0) {
-      grid.innerHTML = `
-        <div style="grid-column: 1 / -1; text-align: center; padding: 40px; color: var(--text-muted);">
-          <i class="fas fa-spinner fa-spin fa-2x" style="color: #24b47e; margin-bottom: 12px;"></i>
-          <p>Fetching files from Supabase Storage...</p>
-        </div>`;
-    }
+    updateMediaControlsUI();
+    renderMediaBreadcrumbs();
 
-    const files = await listSupabaseStorageFiles();
-    if (navCountMedia) navCountMedia.textContent = files.length;
-    if (countBadge) countBadge.textContent = `${files.length} files`;
-
-    let filtered = files;
+    // If searching across files:
     if (searchFilter && searchFilter.trim()) {
       const q = searchFilter.toLowerCase().trim();
-      filtered = files.filter(f => (f.name || "").toLowerCase().includes(q));
+      if (!cachedAllRecursiveFiles || cachedAllRecursiveFiles.length === 0) {
+        container.innerHTML = `
+          <div style="text-align: center; padding: 40px; color: var(--text-muted);">
+            <i class="fas fa-spinner fa-spin fa-2x" style="color: #24b47e; margin-bottom: 12px;"></i>
+            <p>Searching all folders in Supabase Storage...</p>
+          </div>`;
+        await refreshAllRecursiveFiles();
+      }
+
+      const matches = cachedAllRecursiveFiles.filter(f => {
+        const full = (f.fullPath || f.name || "").toLowerCase();
+        return full.includes(q);
+      });
+
+      if (countBadge) countBadge.textContent = `${matches.length} matched`;
+
+      if (matches.length === 0) {
+        container.innerHTML = `
+          <div style="text-align: center; padding: 60px 20px; background: var(--bg-surface); border: 2px dashed var(--border-color); border-radius: 6px;">
+            <i class="fas fa-magnifying-glass fa-3x" style="color: var(--text-muted); margin-bottom: 14px; opacity: 0.5;"></i>
+            <h3 style="margin: 0 0 6px 0;">No Files Found</h3>
+            <p style="margin: 0; color: var(--text-muted); font-size: 13px;">No files matched "${escapeHtml(searchFilter)}". Try another search keyword.</p>
+          </div>`;
+        return;
+      }
+
+      renderMediaViewItems([], matches, container, true);
+      return;
     }
 
-    if (filtered.length === 0) {
-      grid.innerHTML = `
-        <div style="grid-column: 1 / -1; text-align: center; padding: 60px 20px; background: var(--bg-surface); border: 2px dashed var(--border-color); border-radius: 6px;">
-          <i class="fas fa-images fa-3x" style="color: var(--text-muted); margin-bottom: 14px; opacity: 0.5;"></i>
-          <h3 style="margin: 0 0 6px 0;">No Media Files Found</h3>
+    // Normal Browsing: Flat View vs Folder View
+    if (mediaManagerMode === "flat") {
+      if (!cachedAllRecursiveFiles || cachedAllRecursiveFiles.length === 0) {
+        container.innerHTML = `
+          <div style="text-align: center; padding: 40px; color: var(--text-muted);">
+            <i class="fas fa-spinner fa-spin fa-2x" style="color: #24b47e; margin-bottom: 12px;"></i>
+            <p>Loading all files across all folders...</p>
+          </div>`;
+        await refreshAllRecursiveFiles();
+      }
+
+      if (countBadge) countBadge.textContent = `${cachedAllRecursiveFiles.length} files`;
+      if (navCountMedia) navCountMedia.textContent = cachedAllRecursiveFiles.length;
+
+      if (cachedAllRecursiveFiles.length === 0) {
+        container.innerHTML = `
+          <div style="text-align: center; padding: 60px 20px; background: var(--bg-surface); border: 2px dashed var(--border-color); border-radius: 6px;">
+            <i class="fas fa-images fa-3x" style="color: var(--text-muted); margin-bottom: 14px; opacity: 0.5;"></i>
+            <h3 style="margin: 0 0 6px 0;">No Files in Storage Bucket</h3>
+            <p style="margin: 0; color: var(--text-muted); font-size: 13px;">Upload images using the drag & drop area above.</p>
+          </div>`;
+        return;
+      }
+
+      renderMediaViewItems([], cachedAllRecursiveFiles, container, false);
+      return;
+    }
+
+    // Folder View: Fetch items in mediaCurrentPath
+    container.innerHTML = `
+      <div style="text-align: center; padding: 40px; color: var(--text-muted);">
+        <i class="fas fa-spinner fa-spin fa-2x" style="color: #24b47e; margin-bottom: 12px;"></i>
+        <p>Loading folder contents...</p>
+      </div>`;
+
+    const items = await listSupabaseStorageFolder(mediaCurrentPath);
+    cachedCurrentFolderItems = items;
+
+    const folders = items.filter(it => it.isFolder);
+    const files = items.filter(it => !it.isFolder);
+
+    const folderDesc = mediaCurrentPath ? `/${mediaCurrentPath}` : "/";
+    if (countBadge) {
+      countBadge.textContent = `${folders.length} folder${folders.length === 1 ? '' : 's'}, ${files.length} file${files.length === 1 ? '' : 's'}`;
+    }
+
+    // Also background-sync the total count if needed
+    if (!cachedAllRecursiveFiles || cachedAllRecursiveFiles.length === 0) {
+      refreshAllRecursiveFiles();
+    }
+
+    if (folders.length === 0 && files.length === 0) {
+      container.innerHTML = `
+        <div style="text-align: center; padding: 60px 20px; background: var(--bg-surface); border: 2px dashed var(--border-color); border-radius: 6px;">
+          <i class="fas fa-folder-open fa-3x" style="color: var(--text-muted); margin-bottom: 14px; opacity: 0.5;"></i>
+          <h3 style="margin: 0 0 6px 0;">This Folder is Empty</h3>
           <p style="margin: 0; color: var(--text-muted); font-size: 13px;">
-            ${searchFilter ? "No files matched your search term." : "Drag & drop images above or click 'Upload Images' to store your first photo in Supabase Cloud."}
+            Drop files above or click 'Upload Images' to save media directly into <code>${escapeHtml(folderDesc)}</code>.
           </p>
+          ${mediaCurrentPath ? `<button type="button" class="btn btn-sm btn-yellow" onclick="window.__navMediaUp()" style="margin-top: 14px;"><i class="fas fa-arrow-left"></i> Go Up to Parent Folder</button>` : ''}
         </div>`;
       return;
     }
 
-    grid.innerHTML = filtered.map(file => {
-      const publicUrl = getPublicStorageUrl(file.name);
+    renderMediaViewItems(folders, files, container, false);
+  }
+
+  // Render Grid or List View
+  function renderMediaViewItems(folders, files, container, isSearchResults = false) {
+    if (mediaViewMode === "list") {
+      renderMediaListView(folders, files, container, isSearchResults);
+    } else {
+      renderMediaGridView(folders, files, container, isSearchResults);
+    }
+  }
+
+  // 1. GRID VIEW RENDERER
+  function renderMediaGridView(folders, files, container, isSearchResults) {
+    let html = `<div class="media-gallery-grid" id="media-gallery-grid">`;
+
+    // Render Folders
+    folders.forEach(folder => {
+      html += `
+        <div class="media-card media-folder-card" data-folder="${escapeHtml(folder.fullPath)}" onclick="window.__openMediaFolder('${escapeHtml(folder.fullPath)}')">
+          <div class="media-folder-icon-wrap">
+            <i class="fas fa-folder-open media-folder-big-icon"></i>
+            <span class="media-card-badge folder-badge">FOLDER</span>
+          </div>
+          <div class="media-card-body">
+            <div class="media-card-name" title="${escapeHtml(folder.name)}">
+              📁 ${escapeHtml(folder.name)}
+            </div>
+            <div style="font-size: 11px; color: var(--text-muted);">
+              Storage Directory
+            </div>
+            <button type="button" class="btn btn-sm btn-yellow" style="width: 100%; margin-top: 6px; font-weight: 700;">
+              <i class="fas fa-folder-open"></i> Open Folder
+            </button>
+          </div>
+        </div>
+      `;
+    });
+
+    // Render Files
+    files.forEach(file => {
+      const fullPath = file.fullPath || file.name;
+      const publicUrl = file.publicUrl || getPublicStorageUrl(fullPath);
       const sizeStr = formatBytes(file.metadata?.size || 0);
       const createdStr = file.created_at ? new Date(file.created_at).toLocaleDateString() : "";
+      const isImg = file.metadata?.mimetype?.startsWith("image/") || fullPath.match(/\.(png|jpe?g|webp|gif|svg|ico)$/i);
+      const isPdf = fullPath.toLowerCase().endsWith(".pdf") || file.metadata?.mimetype === "application/pdf";
 
-      return `
-        <div class="media-card" data-filename="${escapeHtml(file.name)}">
-          <div class="media-card-img-wrap" onclick="window.__openImgPreview('${escapeHtml(publicUrl)}', '${escapeHtml(file.name)}')">
-            <img class="media-card-img" src="${escapeHtml(publicUrl)}" alt="${escapeHtml(file.name)}" loading="lazy" onerror="this.src='/assets/profile/1.jpg'" />
+      html += `
+        <div class="media-card" data-filename="${escapeHtml(fullPath)}">
+          <div class="media-card-img-wrap" onclick="window.__openImgPreview('${escapeHtml(publicUrl)}', '${escapeHtml(fullPath)}')">
+            ${isImg ? `
+              <img class="media-card-img" src="${escapeHtml(publicUrl)}" alt="${escapeHtml(file.name)}" loading="lazy" onerror="this.src='/assets/profile/1.jpg'" />
+            ` : `
+              <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px;">
+                <i class="fas ${isPdf ? 'fa-file-pdf' : 'fa-file-lines'} media-doc-big-icon"></i>
+                <span style="font-size: 11px; font-family: var(--font-mono); color: #fff; background: rgba(0,0,0,0.6); padding: 2px 6px; border-radius: 3px;">${isPdf ? 'PDF DOCUMENT' : 'DOCUMENT'}</span>
+              </div>
+            `}
             <span class="media-card-badge">${sizeStr}</span>
           </div>
           <div class="media-card-body">
-            <div class="media-card-name" title="${escapeHtml(file.name)}">${escapeHtml(file.name)}</div>
-            <div style="font-size: 11px; color: var(--text-muted); display: flex; justify-content: space-between;">
-              <span>${escapeHtml(file.metadata?.mimetype || "image")}</span>
-              <span>${createdStr}</span>
+            <div class="media-card-name" title="${escapeHtml(fullPath)}">
+              ${escapeHtml(file.name)}
+            </div>
+            <div style="font-size: 11px; color: var(--text-muted); display: flex; justify-content: space-between; gap: 4px;">
+              <span style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${escapeHtml(fullPath)}">${isSearchResults || mediaManagerMode === 'flat' ? escapeHtml(fullPath) : escapeHtml(file.metadata?.mimetype || 'file')}</span>
+              <span style="flex-shrink: 0;">${createdStr}</span>
             </div>
 
-            <!-- Copy URL row -->
+            <!-- Direct URL Row -->
             <div style="display: flex; gap: 4px; margin-top: 4px;">
               <input type="text" class="form-input" readonly value="${escapeHtml(publicUrl)}" style="font-family: var(--font-mono); font-size: 11px; padding: 4px 6px; flex: 1;" />
               <button class="btn btn-sm btn-yellow" onclick="window.__copyMediaUrl('${escapeHtml(publicUrl)}')" title="Copy Direct Public URL" type="button" style="padding: 4px 8px;">
@@ -5911,32 +6155,189 @@
               </button>
             </div>
 
-            <!-- Action buttons -->
+            <!-- Action Buttons -->
             <div class="media-card-actions">
-              <label class="btn-micro" title="Replace/Overwrite this exact image file in Supabase" style="cursor: pointer;">
+              <label class="btn-micro" title="Replace/Overwrite this exact file in Supabase" style="cursor: pointer;">
                 <i class="fas fa-rotate" style="color: #24b47e;"></i> Replace
-                <input type="file" accept="image/*" style="display: none;" onchange="window.__replaceMediaFile(this, '${escapeHtml(file.name)}')" />
+                <input type="file" style="display: none;" onchange="window.__replaceMediaFile(this, '${escapeHtml(fullPath)}')" />
               </label>
 
-              <button class="btn-micro" onclick="window.__useAsAvatar('${escapeHtml(publicUrl)}')" title="Use as Live Portfolio Starting Avatar" type="button">
-                <i class="fas fa-user-circle" style="color: #00aa55;"></i> Set Avatar
-              </button>
+              ${isImg ? `
+                <button class="btn-micro" onclick="window.__useAsAvatar('${escapeHtml(publicUrl)}')" title="Use as Profile Avatar" type="button">
+                  <i class="fas fa-user-circle" style="color: #00aa55;"></i> Set Avatar
+                </button>
+              ` : ''}
 
-              <button class="btn-micro" onclick="window.__copyBlogMd('${escapeHtml(publicUrl)}', '${escapeHtml(file.name)}')" title="Copy Markdown image snippet for blog" type="button">
+              <button class="btn-micro" onclick="window.__copyBlogMd('${escapeHtml(publicUrl)}', '${escapeHtml(file.name)}')" title="Copy Markdown code" type="button">
                 <i class="fas fa-code"></i> Copy MD
               </button>
 
-              <button class="btn-micro" onclick="window.__deleteMediaFile('${escapeHtml(file.name)}')" title="Permanently delete from Supabase" type="button" style="color: var(--accent-red); margin-left: auto;">
+              <button class="btn-micro" onclick="window.__deleteMediaFile('${escapeHtml(fullPath)}')" title="Permanently delete from Supabase" type="button" style="color: var(--accent-red); margin-left: auto;">
                 <i class="fas fa-trash"></i>
               </button>
             </div>
           </div>
         </div>
       `;
-    }).join("");
+    });
+
+    html += `</div>`;
+    container.innerHTML = html;
   }
 
-  // Global window functions for media card actions
+  // 2. LIST VIEW RENDERER (Clean, structured table)
+  function renderMediaListView(folders, files, container, isSearchResults) {
+    let html = `
+      <div class="media-list-wrapper">
+        <table class="media-list-table">
+          <thead>
+            <tr>
+              <th style="width: 52px; text-align: center;">Item</th>
+              <th>Name &amp; Location</th>
+              <th style="width: 100px;">Size</th>
+              <th style="width: 130px;">Type</th>
+              <th style="width: 110px;">Date</th>
+              <th style="width: 220px;">Direct CDN URL</th>
+              <th style="width: 200px; text-align: right;">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+    `;
+
+    // Folder Rows
+    folders.forEach(folder => {
+      html += `
+        <tr>
+          <td style="text-align: center;">
+            <div class="media-list-folder-icon" onclick="window.__openMediaFolder('${escapeHtml(folder.fullPath)}')">
+              <i class="fas fa-folder"></i>
+            </div>
+          </td>
+          <td>
+            <a href="javascript:void(0)" class="media-list-name-btn" onclick="window.__openMediaFolder('${escapeHtml(folder.fullPath)}')">
+              📁 ${escapeHtml(folder.name)}
+            </a>
+            <span class="media-list-subpath">/${escapeHtml(folder.fullPath)}</span>
+          </td>
+          <td style="font-family: var(--font-mono); color: var(--text-muted);">—</td>
+          <td><span class="badge" style="background: rgba(36, 180, 126, 0.15); color: #24b47e; border: 1px solid #24b47e;">Directory</span></td>
+          <td style="font-family: var(--font-mono); font-size: 11px; color: var(--text-muted);">—</td>
+          <td style="font-family: var(--font-mono); font-size: 11px; color: var(--text-muted);">Folder Container</td>
+          <td style="text-align: right;">
+            <button type="button" class="btn btn-sm btn-yellow" onclick="window.__openMediaFolder('${escapeHtml(folder.fullPath)}')">
+              <i class="fas fa-folder-open"></i> Open
+            </button>
+          </td>
+        </tr>
+      `;
+    });
+
+    // File Rows
+    files.forEach(file => {
+      const fullPath = file.fullPath || file.name;
+      const publicUrl = file.publicUrl || getPublicStorageUrl(fullPath);
+      const sizeStr = formatBytes(file.metadata?.size || 0);
+      const createdStr = file.created_at ? new Date(file.created_at).toLocaleDateString() : "—";
+      const isImg = file.metadata?.mimetype?.startsWith("image/") || fullPath.match(/\.(png|jpe?g|webp|gif|svg|ico)$/i);
+      const isPdf = fullPath.toLowerCase().endsWith(".pdf") || file.metadata?.mimetype === "application/pdf";
+      const mimeType = isPdf ? "PDF Document" : (file.metadata?.mimetype || (isImg ? "image" : "document"));
+
+      html += `
+        <tr data-filename="${escapeHtml(fullPath)}">
+          <td style="text-align: center;">
+            ${isImg ? `
+              <img class="media-list-thumb" src="${escapeHtml(publicUrl)}" alt="${escapeHtml(file.name)}" onclick="window.__openImgPreview('${escapeHtml(publicUrl)}', '${escapeHtml(fullPath)}')" onerror="this.src='/assets/profile/1.jpg'" />
+            ` : `
+              <div class="media-list-thumb" style="display: flex; align-items: center; justify-content: center; cursor: pointer;" onclick="window.__openImgPreview('${escapeHtml(publicUrl)}', '${escapeHtml(fullPath)}')">
+                <i class="fas ${isPdf ? 'fa-file-pdf' : 'fa-file-lines'}" style="color: ${isPdf ? '#e53e3e' : 'var(--text-color)'}; font-size: 20px;"></i>
+              </div>
+            `}
+          </td>
+          <td>
+            <span class="media-list-name-btn" onclick="window.__openImgPreview('${escapeHtml(publicUrl)}', '${escapeHtml(fullPath)}')">
+              ${escapeHtml(file.name)}
+            </span>
+            <span class="media-list-subpath">/${escapeHtml(fullPath)}</span>
+          </td>
+          <td style="font-family: var(--font-mono); font-size: 11.5px; font-weight: 700;">
+            ${sizeStr}
+          </td>
+          <td>
+            <span class="badge" style="font-size: 10px; padding: 2px 6px; background: var(--bg-main); border: 1px solid var(--border-color);">${escapeHtml(mimeType)}</span>
+          </td>
+          <td style="font-family: var(--font-mono); font-size: 11px; color: var(--text-muted); white-space: nowrap;">
+            ${createdStr}
+          </td>
+          <td>
+            <div style="display: flex; gap: 4px; max-width: 210px;">
+              <input type="text" class="form-input" readonly value="${escapeHtml(publicUrl)}" style="font-family: var(--font-mono); font-size: 10.5px; padding: 3px 6px; flex: 1;" />
+              <button class="btn btn-sm btn-yellow" onclick="window.__copyMediaUrl('${escapeHtml(publicUrl)}')" title="Copy URL" type="button" style="padding: 3px 7px;">
+                <i class="fas fa-copy"></i>
+              </button>
+            </div>
+          </td>
+          <td style="text-align: right; white-space: nowrap;">
+            <div style="display: inline-flex; gap: 4px;">
+              <button class="btn btn-sm" onclick="window.__openImgPreview('${escapeHtml(publicUrl)}', '${escapeHtml(fullPath)}')" title="Preview" type="button" style="padding: 4px 7px;">
+                <i class="fas fa-eye"></i>
+              </button>
+              <label class="btn btn-sm" title="Replace file" style="cursor: pointer; padding: 4px 7px;">
+                <i class="fas fa-rotate" style="color: #24b47e;"></i>
+                <input type="file" style="display: none;" onchange="window.__replaceMediaFile(this, '${escapeHtml(fullPath)}')" />
+              </label>
+              ${isImg ? `
+                <button class="btn btn-sm" onclick="window.__useAsAvatar('${escapeHtml(publicUrl)}')" title="Set Avatar" type="button" style="padding: 4px 7px;">
+                  <i class="fas fa-user-circle" style="color: #00aa55;"></i>
+                </button>
+              ` : ''}
+              <button class="btn btn-sm" onclick="window.__copyBlogMd('${escapeHtml(publicUrl)}', '${escapeHtml(file.name)}')" title="Copy Markdown" type="button" style="padding: 4px 7px;">
+                <i class="fas fa-code"></i>
+              </button>
+              <button class="btn btn-sm" onclick="window.__deleteMediaFile('${escapeHtml(fullPath)}')" title="Delete permanently" type="button" style="color: var(--accent-red); padding: 4px 7px;">
+                <i class="fas fa-trash"></i>
+              </button>
+            </div>
+          </td>
+        </tr>
+      `;
+    });
+
+    html += `
+          </tbody>
+        </table>
+      </div>
+    `;
+    container.innerHTML = html;
+  }
+
+  // Global window functions for folder & media navigation
+  window.__openMediaFolder = (folderPath) => {
+    mediaCurrentPath = folderPath;
+    mediaManagerMode = "folder";
+    const searchInput = document.getElementById("media-search-input");
+    if (searchInput) searchInput.value = "";
+    renderMediaGallery();
+  };
+
+  window.__jumpMediaBreadcrumb = (path) => {
+    mediaCurrentPath = path;
+    mediaManagerMode = "folder";
+    const searchInput = document.getElementById("media-search-input");
+    if (searchInput) searchInput.value = "";
+    renderMediaGallery();
+  };
+
+  window.__navMediaUp = () => {
+    if (!mediaCurrentPath) return;
+    const parts = mediaCurrentPath.split("/").filter(Boolean);
+    parts.pop();
+    mediaCurrentPath = parts.join("/");
+    mediaManagerMode = "folder";
+    const searchInput = document.getElementById("media-search-input");
+    if (searchInput) searchInput.value = "";
+    renderMediaGallery();
+  };
+
   window.__copyMediaUrl = async (url) => {
     try {
       await navigator.clipboard.writeText(url);
@@ -5968,30 +6369,29 @@
     showToast("✓ Set as your active profile avatar & saved to cloud!", "success");
   };
 
-  window.__replaceMediaFile = async (input, filename) => {
+  window.__replaceMediaFile = async (input, fullPath) => {
     const file = input.files && input.files[0];
     if (!file) return;
 
     try {
-      showToast(`Replacing "${filename}" in Supabase Storage...`, "info");
-      await uploadSupabaseStorageFile(file, filename, true);
-      showToast(`✓ Successfully replaced "${filename}" in Supabase!`, "success");
-      renderMediaGallery();
-      // Bust browser cache
-      const cards = document.querySelectorAll(`[data-filename="${filename}"] img`);
-      cards.forEach(img => { img.src = getPublicStorageUrl(filename) + "?t=" + Date.now(); });
+      showToast(`Replacing "${fullPath}" in Supabase Storage...`, "info");
+      await uploadSupabaseStorageFile(file, fullPath, true);
+      showToast(`✓ Successfully replaced "${fullPath}" in Supabase!`, "success");
+      await refreshAllRecursiveFiles();
+      await renderMediaGallery();
     } catch (err) {
       console.error(err);
       showToast("Replace error: " + err.message, "error");
     }
   };
 
-  window.__deleteMediaFile = async (filename) => {
-    if (confirm(`Are you sure you want to permanently delete "${filename}" from Supabase Cloud Storage?`)) {
+  window.__deleteMediaFile = async (fullPath) => {
+    if (confirm(`Are you sure you want to permanently delete "${fullPath}" from Supabase Cloud Storage?`)) {
       try {
-        await deleteSupabaseStorageFile(filename);
-        showToast(`✓ Deleted "${filename}" from Supabase.`, "success");
-        renderMediaGallery();
+        await deleteSupabaseStorageFile(fullPath);
+        showToast(`✓ Deleted "${fullPath}" from Supabase.`, "success");
+        await refreshAllRecursiveFiles();
+        await renderMediaGallery();
       } catch (err) {
         showToast("Delete error: " + err.message, "error");
       }
@@ -6005,7 +6405,15 @@
     const urlInput = document.getElementById("modal-preview-url-input");
     const openTabBtn = document.getElementById("btn-modal-open-tab");
 
-    if (imgTag) imgTag.src = url;
+    if (imgTag) {
+      const isImg = url.match(/\.(png|jpe?g|webp|gif|svg|ico)($|\?)/i);
+      if (isImg) {
+        imgTag.style.display = "block";
+        imgTag.src = url;
+      } else {
+        imgTag.style.display = "none";
+      }
+    }
     if (filenameEl) filenameEl.textContent = name;
     if (urlInput) urlInput.value = url;
     if (openTabBtn) openTabBtn.href = url;
@@ -6057,12 +6465,12 @@
     mediaDropzone.addEventListener("drop", async (e) => {
       e.preventDefault();
       mediaDropzone.classList.remove("dragover");
-      const files = Array.from(e.dataTransfer.files || []).filter(f => f.type.startsWith("image/"));
+      const files = Array.from(e.dataTransfer.files || []);
       if (files.length === 0) {
-        showToast("Please drop valid image files (PNG, JPG, WebP, SVG, GIF)", "error");
+        showToast("Please drop valid media files", "error");
         return;
       }
-      await uploadMultipleFiles(files);
+      await uploadMultipleMediaFiles(files);
     });
   }
 
@@ -6070,18 +6478,21 @@
     mediaUploadInput.addEventListener("change", async (e) => {
       const files = Array.from(e.target.files || []);
       if (files.length > 0) {
-        await uploadMultipleFiles(files);
+        await uploadMultipleMediaFiles(files);
         mediaUploadInput.value = "";
       }
     });
   }
 
-  async function uploadMultipleFiles(files) {
-    showToast(`Uploading ${files.length} image(s) to Supabase Storage...`, "info");
+  async function uploadMultipleMediaFiles(files) {
+    const targetFolderDesc = mediaCurrentPath ? `/${mediaCurrentPath}` : "root";
+    showToast(`Uploading ${files.length} file(s) to ${targetFolderDesc} in Supabase Storage...`, "info");
     let successCount = 0;
     for (const file of files) {
       try {
-        await uploadSupabaseStorageFile(file);
+        const baseFilename = getSafeStorageFilename(file);
+        const targetFilename = mediaCurrentPath ? `${mediaCurrentPath}/${baseFilename}` : baseFilename;
+        await uploadSupabaseStorageFile(file, targetFilename, false);
         successCount++;
       } catch (err) {
         console.error("Upload error for file", file.name, err);
@@ -6089,12 +6500,13 @@
       }
     }
     if (successCount > 0) {
-      showToast(`✓ Successfully uploaded ${successCount} image(s) to Supabase Cloud!`, "success");
+      showToast(`✓ Successfully uploaded ${successCount} file(s) to Supabase Storage (${targetFolderDesc})!`, "success");
+      await refreshAllRecursiveFiles();
       await renderMediaGallery();
     }
   }
 
-  // Search filter listener
+  // Search filter listener with debounce
   const mediaSearchInput = document.getElementById("media-search-input");
   if (mediaSearchInput) {
     let searchDebounce = null;
@@ -6112,10 +6524,51 @@
     btnRefreshMedia.addEventListener("click", async () => {
       btnRefreshMedia.disabled = true;
       btnRefreshMedia.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Refreshing...`;
+      await refreshAllRecursiveFiles();
       await renderMediaGallery(mediaSearchInput?.value || "");
       btnRefreshMedia.disabled = false;
       btnRefreshMedia.innerHTML = `<i class="fas fa-rotate"></i> Refresh`;
       showToast("✓ Media gallery refreshed from Supabase Storage", "info");
+    });
+  }
+
+  // Setup View Mode and Browse Mode toggles
+  const btnModeFolder = document.getElementById("btn-media-mode-folder");
+  const btnModeFlat = document.getElementById("btn-media-mode-flat");
+  const btnViewGrid = document.getElementById("btn-media-view-grid");
+  const btnViewList = document.getElementById("btn-media-view-list");
+
+  if (btnModeFolder) {
+    btnModeFolder.addEventListener("click", () => {
+      mediaManagerMode = "folder";
+      renderMediaGallery(mediaSearchInput?.value || "");
+    });
+  }
+  if (btnModeFlat) {
+    btnModeFlat.addEventListener("click", () => {
+      mediaManagerMode = "flat";
+      renderMediaGallery(mediaSearchInput?.value || "");
+    });
+  }
+  if (btnViewGrid) {
+    btnViewGrid.addEventListener("click", () => {
+      mediaViewMode = "grid";
+      localStorage.setItem("admin_media_view_mode", "grid");
+      renderMediaGallery(mediaSearchInput?.value || "");
+    });
+  }
+  if (btnViewList) {
+    btnViewList.addEventListener("click", () => {
+      mediaViewMode = "list";
+      localStorage.setItem("admin_media_view_mode", "list");
+      renderMediaGallery(mediaSearchInput?.value || "");
+    });
+  }
+
+  const btnMediaNavBack = document.getElementById("btn-media-nav-back");
+  if (btnMediaNavBack) {
+    btnMediaNavBack.addEventListener("click", () => {
+      window.__navMediaUp();
     });
   }
 
@@ -6124,8 +6577,10 @@
 
   // Init
   loadInitialData();
-  listSupabaseStorageFiles().then(files => {
+  refreshAllRecursiveFiles().then(files => {
     const navCountMedia = document.getElementById("nav-count-media");
     if (navCountMedia) navCountMedia.textContent = files.length;
+    const allCountEl = document.getElementById("media-all-count");
+    if (allCountEl) allCountEl.textContent = files.length;
   });
 })();

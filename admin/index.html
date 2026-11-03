@@ -1709,25 +1709,67 @@
           </p>
         </div>
 
-        <!-- Toolbar / Search Bar -->
-        <div class="admin-card" style="margin-bottom: 20px;">
-          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
-            <div style="display: flex; align-items: center; gap: 10px;">
-              <span style="font-weight: 700; font-size: 14px;">Cloud Assets:</span>
-              <span class="badge" id="media-count-badge" style="background: #24b47e; color: #000; font-weight: 800;">0 files</span>
+        <!-- Toolbar / Search Bar & Controls -->
+        <div class="admin-card media-toolbar-card" style="margin-bottom: 16px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 14px;">
+            <!-- Left: Asset Count & Search -->
+            <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap; flex: 1; min-width: 280px;">
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <span style="font-weight: 700; font-size: 13px; font-family: var(--font-display); text-transform: uppercase;">Cloud Storage:</span>
+                <span class="badge" id="media-count-badge" style="background: #24b47e; color: #000; font-weight: 800; font-size: 12px; padding: 4px 8px;">0 items</span>
+              </div>
+              <div style="position: relative; flex: 1; max-width: 320px; min-width: 200px;">
+                <i class="fas fa-search" style="position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 12px;"></i>
+                <input type="text" id="media-search-input" class="form-input" placeholder="Search all folders & files..." style="padding: 6px 10px 6px 30px; font-size: 13px; width: 100%;" />
+              </div>
             </div>
-            <div style="display: flex; gap: 8px; flex: 1; max-width: 320px;">
-              <input type="text" id="media-search-input" class="form-input" placeholder="Search images by name..." style="padding: 6px 12px; font-size: 13px;" />
+
+            <!-- Right: View Controls (Browse Mode: Folder vs Flat, Layout: Grid vs List) -->
+            <div class="media-view-controls">
+              <!-- Browse Mode Toggle -->
+              <div class="media-btn-group" title="Switch browsing mode">
+                <button type="button" class="media-view-toggle-btn active" id="btn-media-mode-folder" title="Browse by Folders">
+                  <i class="fas fa-folder-tree"></i> Folders
+                </button>
+                <button type="button" class="media-view-toggle-btn" id="btn-media-mode-flat" title="Show All Files across all folders">
+                  <i class="fas fa-layer-group"></i> All Files (<span id="media-all-count">0</span>)
+                </button>
+              </div>
+
+              <!-- View Layout Toggle: Grid vs List -->
+              <div class="media-btn-group" title="Switch view layout">
+                <button type="button" class="media-view-toggle-btn active" id="btn-media-view-grid" title="Grid View">
+                  <i class="fas fa-border-all"></i> Grid
+                </button>
+                <button type="button" class="media-view-toggle-btn" id="btn-media-view-list" title="List View">
+                  <i class="fas fa-list"></i> List
+                </button>
+              </div>
             </div>
           </div>
         </div>
 
-        <!-- Media Grid -->
-        <div class="media-gallery-grid" id="media-gallery-grid">
-          <!-- Dynamically populated media cards -->
-          <div style="grid-column: 1 / -1; text-align: center; padding: 40px; color: var(--text-muted);">
-            <i class="fas fa-spinner fa-spin fa-2x" style="color: #24b47e; margin-bottom: 12px;"></i>
-            <p>Loading files from Supabase Storage...</p>
+        <!-- Breadcrumbs Navigation Bar (visible in folder mode) -->
+        <div class="media-breadcrumbs-bar" id="media-breadcrumbs-bar">
+          <button type="button" class="crumb-btn" id="btn-media-nav-back" title="Go up to parent folder" style="display: none;">
+            <i class="fas fa-arrow-left"></i> Up
+          </button>
+          <div class="media-breadcrumbs-list" id="media-breadcrumbs" style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
+            <span class="crumb-btn active-crumb" data-path=""><i class="fas fa-house"></i> Root</span>
+          </div>
+          <div id="media-current-path-hint" style="margin-left: auto; font-size: 11px; color: var(--text-muted); font-family: var(--font-mono);">
+            Upload target: <code style="color: #24b47e;">/</code>
+          </div>
+        </div>
+
+        <!-- Media Gallery Container (Hosts Grid View or List View Table) -->
+        <div id="media-gallery-container">
+          <div class="media-gallery-grid" id="media-gallery-grid">
+            <!-- Dynamically populated media cards -->
+            <div style="grid-column: 1 / -1; text-align: center; padding: 40px; color: var(--text-muted);">
+              <i class="fas fa-spinner fa-spin fa-2x" style="color: #24b47e; margin-bottom: 12px;"></i>
+              <p>Loading files from Supabase Storage...</p>
+            </div>
           </div>
         </div>
       </section>
