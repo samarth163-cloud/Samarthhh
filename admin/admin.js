@@ -525,6 +525,66 @@
     });
   });
 
+  // Sidebar Collapse / Toggle
+  function initSidebarToggle() {
+    const btnToggle = document.getElementById("btn-toggle-sidebar");
+    const btnCollapseInner = document.getElementById("btn-collapse-sidebar-inner");
+    const SIDEBAR_PREF_KEY = "samarth_admin_sidebar_collapsed";
+
+    function setSidebarCollapsed(collapsed) {
+      if (collapsed) {
+        document.body.classList.add("sidebar-collapsed");
+        document.documentElement.classList.add("sidebar-collapsed");
+        if (btnToggle) {
+          btnToggle.classList.add("active");
+          btnToggle.title = "Expand Sidebar (Ctrl+B)";
+        }
+      } else {
+        document.body.classList.remove("sidebar-collapsed");
+        document.documentElement.classList.remove("sidebar-collapsed");
+        if (btnToggle) {
+          btnToggle.classList.remove("active");
+          btnToggle.title = "Collapse Sidebar (Ctrl+B)";
+        }
+      }
+      try {
+        localStorage.setItem(SIDEBAR_PREF_KEY, collapsed ? "true" : "false");
+      } catch (e) {}
+    }
+
+    const isInitiallyCollapsed = localStorage.getItem(SIDEBAR_PREF_KEY) === "true";
+    if (isInitiallyCollapsed) {
+      setSidebarCollapsed(true);
+    }
+
+    if (btnToggle) {
+      btnToggle.addEventListener("click", () => {
+        const isCollapsed = document.body.classList.contains("sidebar-collapsed");
+        setSidebarCollapsed(!isCollapsed);
+      });
+    }
+
+    if (btnCollapseInner) {
+      btnCollapseInner.addEventListener("click", () => {
+        setSidebarCollapsed(true);
+      });
+    }
+
+    // Keyboard shortcut: Ctrl+B or Cmd+B
+    document.addEventListener("keydown", (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "b") {
+        const activeTag = document.activeElement ? document.activeElement.tagName : "";
+        if (activeTag === "INPUT" || activeTag === "TEXTAREA" || document.activeElement?.isContentEditable) {
+          return;
+        }
+        e.preventDefault();
+        const isCollapsed = document.body.classList.contains("sidebar-collapsed");
+        setSidebarCollapsed(!isCollapsed);
+      }
+    });
+  }
+  initSidebarToggle();
+
   // Counters
   function updateCounters() {
     const projCount = state.projects?.length || 0;

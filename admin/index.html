@@ -26,6 +26,13 @@
     document.documentElement.classList.add(savedTheme);
     document.documentElement.classList.toggle("is-authenticated", isAuthenticated);
 
+    try {
+      if (localStorage.getItem("samarth_admin_sidebar_collapsed") === "true") {
+        document.documentElement.classList.add("sidebar-collapsed");
+        document.addEventListener("DOMContentLoaded", () => document.body.classList.add("sidebar-collapsed"));
+      }
+    } catch (e) {}
+
     document.addEventListener("DOMContentLoaded", () => {
       document.body.classList.add(savedTheme);
       updateThemeIcon();
@@ -119,6 +126,9 @@
     <!-- Top Navigation Header -->
     <header class="admin-header">
       <div class="brand-wrapper">
+        <button class="btn btn-sm btn-sidebar-toggle" id="btn-toggle-sidebar" type="button" title="Toggle Sidebar (Ctrl+B)" aria-label="Toggle Sidebar">
+          <i class="fas fa-bars-staggered" id="sidebar-toggle-icon"></i>
+        </button>
         <div class="brand-title">
           <i class="fas fa-terminal" style="color: var(--accent-red);"></i>
           SAMARTH // ADMIN
@@ -164,56 +174,61 @@
   <div class="admin-layout">
     
     <!-- Sidebar -->
-    <aside class="admin-sidebar">
-      <div class="nav-section-title">Control Modules</div>
+    <aside class="admin-sidebar" id="admin-sidebar">
+      <div class="sidebar-header-row">
+        <span class="nav-section-title">Control Modules</span>
+        <button type="button" class="sidebar-collapse-btn" id="btn-collapse-sidebar-inner" title="Collapse Sidebar (Ctrl+B)" aria-label="Collapse Sidebar">
+          <i class="fas fa-chevron-left"></i>
+        </button>
+      </div>
       <ul class="admin-nav">
         <li class="admin-nav-item">
-          <button class="admin-nav-link active" data-tab="tab-projects" type="button">
-            <span class="link-left"><i class="fas fa-cubes"></i> Projects</span>
+          <button class="admin-nav-link active" data-tab="tab-projects" data-tooltip="Projects" type="button">
+            <span class="link-left"><i class="fas fa-cubes"></i> <span class="link-text">Projects</span></span>
             <span class="nav-counter" id="nav-count-projects">9</span>
           </button>
         </li>
         <li class="admin-nav-item">
-          <button class="admin-nav-link" data-tab="tab-resume" type="button">
-            <span class="link-left"><i class="fas fa-file-contract"></i> Resume Editor</span>
+          <button class="admin-nav-link" data-tab="tab-resume" data-tooltip="Resume Editor" type="button">
+            <span class="link-left"><i class="fas fa-file-contract"></i> <span class="link-text">Resume Editor</span></span>
             <span class="nav-counter" id="nav-count-resume">4 exp</span>
           </button>
         </li>
         <li class="admin-nav-item">
-          <button class="admin-nav-link" data-tab="tab-about" type="button">
-            <span class="link-left"><i class="fas fa-user-astronaut"></i> About Me</span>
+          <button class="admin-nav-link" data-tab="tab-about" data-tooltip="About Me" type="button">
+            <span class="link-left"><i class="fas fa-user-astronaut"></i> <span class="link-text">About Me</span></span>
           </button>
         </li>
         <li class="admin-nav-item">
-          <button class="admin-nav-link" data-tab="tab-hero" type="button">
-            <span class="link-left"><i class="fas fa-sliders-h"></i> Hero &amp; General</span>
+          <button class="admin-nav-link" data-tab="tab-hero" data-tooltip="Hero & General" type="button">
+            <span class="link-left"><i class="fas fa-sliders-h"></i> <span class="link-text">Hero &amp; General</span></span>
           </button>
         </li>
         <li class="admin-nav-item">
-          <button class="admin-nav-link" data-tab="tab-blog" type="button">
-            <span class="link-left"><i class="fas fa-newspaper"></i> Blog Studio</span>
-            <span class="nav-counter" id="nav-count-blog">2 posts</span>
+          <button class="admin-nav-link" data-tab="tab-blog" data-tooltip="Blog Studio" type="button">
+            <span class="link-left"><i class="fas fa-newspaper"></i> <span class="link-text">Blog Studio</span></span>
+            <span class="nav-counter" id="nav-count-blog">5 posts</span>
           </button>
         </li>
         <li class="admin-nav-item">
-          <button class="admin-nav-link" data-tab="tab-media" type="button">
-            <span class="link-left"><i class="fas fa-photo-film"></i> Cloud Media</span>
-            <span class="nav-counter" id="nav-count-media" style="background: #24b47e; color: #000;">0</span>
+          <button class="admin-nav-link" data-tab="tab-media" data-tooltip="Cloud Media" type="button">
+            <span class="link-left"><i class="fas fa-photo-film"></i> <span class="link-text">Cloud Media</span></span>
+            <span class="nav-counter" id="nav-count-media" style="background: #24b47e; color: #000;">8</span>
           </button>
         </li>
         <li class="admin-nav-item">
-          <button class="admin-nav-link" data-tab="tab-backup" type="button">
-            <span class="link-left"><i class="fas fa-database"></i> Backup &amp; Files</span>
+          <button class="admin-nav-link" data-tab="tab-backup" data-tooltip="Backup & Files" type="button">
+            <span class="link-left"><i class="fas fa-database"></i> <span class="link-text">Backup &amp; Files</span></span>
           </button>
         </li>
       </ul>
 
       <div class="sidebar-footer">
-        <button class="btn btn-sm btn-yellow" id="btn-direct-disk-save" style="width: 100%;">
-          <i class="fas fa-hard-drive"></i> Save to Project File
+        <button class="btn btn-sm btn-yellow" id="btn-direct-disk-save" style="width: 100%;" title="Save to Project File">
+          <i class="fas fa-hard-drive"></i> <span>Save to Project File</span>
         </button>
-        <button class="btn btn-sm" id="btn-download-json-quick" style="width: 100%;">
-          <i class="fas fa-download"></i> Export JSON
+        <button class="btn btn-sm" id="btn-download-json-quick" style="width: 100%;" title="Export JSON">
+          <i class="fas fa-download"></i> <span>Export JSON</span>
         </button>
       </div>
     </aside>

@@ -509,10 +509,144 @@ body.dark .btn-ghost:hover {
   width: 250px;
   background-color: var(--bg-sidebar);
   border-right: var(--border-width) solid var(--border-color);
-  padding: 20px 0;
+  padding: 16px 0;
   display: flex;
   flex-direction: column;
   flex-shrink: 0;
+  transition: width 0.2s cubic-bezier(0.4, 0, 0.2, 1), padding 0.2s ease;
+  position: relative;
+}
+
+/* Sidebar Toggle Buttons (Neo-Brutalist) */
+.btn-sidebar-toggle {
+  background: var(--bg-surface);
+  color: var(--text-main);
+  border: var(--border-width) solid var(--border-color);
+  box-shadow: 2px 2px 0 var(--shadow-color);
+  padding: 6px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  transition: all 0.12s ease;
+}
+
+.btn-sidebar-toggle:hover {
+  background: var(--accent-yellow);
+  color: #000;
+  transform: translate(-1px, -1px);
+  box-shadow: 3px 3px 0 var(--shadow-color);
+}
+
+.btn-sidebar-toggle:active {
+  transform: translate(1px, 1px);
+  box-shadow: 1px 1px 0 var(--shadow-color);
+}
+
+.btn-sidebar-toggle.active {
+  background: var(--accent-red);
+  color: #fff;
+}
+
+.sidebar-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px 8px 0;
+}
+
+.sidebar-collapse-btn {
+  background: transparent;
+  border: 1.5px solid transparent;
+  border-radius: 4px;
+  cursor: pointer;
+  color: var(--text-muted);
+  width: 24px;
+  height: 24px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  transition: all 0.12s ease;
+}
+
+.sidebar-collapse-btn:hover {
+  background: var(--bg-surface);
+  border-color: var(--border-color);
+  color: var(--text-main);
+  box-shadow: 1px 1px 0 var(--shadow-color);
+}
+
+/* Collapsed Sidebar Mode */
+body.sidebar-collapsed .admin-sidebar,
+html.sidebar-collapsed body .admin-sidebar {
+  width: 68px;
+  padding: 16px 0;
+}
+
+body.sidebar-collapsed .nav-section-title,
+html.sidebar-collapsed body .nav-section-title,
+body.sidebar-collapsed .sidebar-collapse-btn,
+html.sidebar-collapsed body .sidebar-collapse-btn,
+body.sidebar-collapsed .admin-nav-link .link-text,
+html.sidebar-collapsed body .admin-nav-link .link-text,
+body.sidebar-collapsed .nav-counter,
+html.sidebar-collapsed body .nav-counter,
+body.sidebar-collapsed .sidebar-footer,
+html.sidebar-collapsed body .sidebar-footer {
+  display: none !important;
+}
+
+body.sidebar-collapsed .admin-nav,
+html.sidebar-collapsed body .admin-nav {
+  padding: 0 8px;
+  gap: 8px;
+}
+
+body.sidebar-collapsed .admin-nav-link,
+html.sidebar-collapsed body .admin-nav-link {
+  justify-content: center;
+  padding: 12px 0;
+  border-radius: 4px;
+  position: relative;
+}
+
+body.sidebar-collapsed .admin-nav-link .link-left,
+html.sidebar-collapsed body .admin-nav-link .link-left {
+  gap: 0;
+  justify-content: center;
+}
+
+body.sidebar-collapsed .admin-nav-link i,
+html.sidebar-collapsed body .admin-nav-link i {
+  font-size: 18px;
+  margin: 0;
+  width: auto;
+}
+
+/* Hover Tooltip when collapsed */
+body.sidebar-collapsed .admin-nav-link:hover::after,
+html.sidebar-collapsed body .admin-nav-link:hover::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  left: calc(100% + 12px);
+  top: 50%;
+  transform: translateY(-50%);
+  background: var(--bg-card, #000);
+  color: var(--text-main, #fff);
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+  padding: 6px 12px;
+  border-radius: 4px;
+  border: 1.5px solid var(--border-color);
+  box-shadow: 2px 2px 0 var(--shadow-color);
+  z-index: 1000;
+  pointer-events: none;
+  animation: fadeIn 0.12s ease-in-out;
 }
 
 .nav-section-title {
