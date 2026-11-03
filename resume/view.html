@@ -3,14 +3,14 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=3.0, user-scalable=yes" />
-  <title>Resume Preview — Samarth Haveliwala</title>
+  <title>Resume Viewer — Samarth Haveliwala</title>
   <link rel="icon" type="image/x-icon" href="/favicon.ico" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Syne:wght@700;800;900&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
 
-  <!-- PDF.js - Universal Canvas PDF Engine (100% Mobile & Desktop Compatible) -->
+  <!-- PDF.js Engine -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 
   <style>
@@ -22,9 +22,10 @@
     }
 
     :root {
-      --bg-dark: #121214;
-      --bg-bar: #1c1c20;
-      --border-color: #2e2e36;
+      --bg-chrome: #202124;
+      --bg-toolbar: #2b2b2f;
+      --bg-sidebar: #1f1f23;
+      --border-dark: #3c3c43;
       --accent-green: #24b47e;
       --accent-yellow: #facc15;
       --accent-red: #ef4444;
@@ -32,354 +33,517 @@
       --text-muted: #a1a1aa;
       --font-display: 'Syne', sans-serif;
       --font-mono: 'Space Mono', monospace;
+      --sidebar-width: 200px;
     }
 
     html, body {
       width: 100%;
       height: 100%;
-      background: var(--bg-dark);
+      background: var(--bg-chrome);
       color: var(--text-main);
       font-family: var(--font-mono);
       display: flex;
       flex-direction: column;
-      overflow-x: hidden;
+      overflow: hidden;
+      user-select: none;
     }
 
-    /* Fixed Top Navigation Bar */
-    header.viewer-header {
-      height: 56px;
-      background: var(--bg-bar);
-      border-bottom: 2.5px solid #000;
+    /* =========================================================================
+       CHROME-STYLE TOP TOOLBAR
+       ========================================================================= */
+    header.chrome-toolbar {
+      height: 52px;
+      background: var(--bg-toolbar);
+      border-bottom: 2px solid #000;
+      box-shadow: 0 3px 0 #000;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 0 16px;
-      position: sticky;
-      top: 0;
+      padding: 0 12px;
       z-index: 1000;
-      box-shadow: 0 4px 0 #000;
+      flex-shrink: 0;
     }
 
-    .header-left {
+    .toolbar-section {
       display: flex;
       align-items: center;
-      gap: 12px;
-      overflow: hidden;
+      gap: 8px;
     }
 
-    .btn-back {
+    .toolbar-btn {
+      height: 34px;
+      padding: 0 10px;
+      background: #18181b;
+      color: var(--text-main);
+      border: 1.5px solid #000;
+      box-shadow: 2px 2px 0 #000;
+      border-radius: 4px;
+      font-family: var(--font-display);
+      font-size: 12px;
+      font-weight: 700;
       display: inline-flex;
       align-items: center;
+      justify-content: center;
       gap: 6px;
-      background: #000;
-      color: var(--text-main);
-      border: 2px solid #fff;
-      padding: 6px 12px;
-      font-family: var(--font-display);
-      font-weight: 700;
-      font-size: 13px;
+      cursor: pointer;
       text-decoration: none;
-      box-shadow: 2px 2px 0 #fff;
-      flex-shrink: 0;
-      transition: all 0.15s ease;
+      transition: all 0.12s ease;
+      white-space: nowrap;
     }
 
-    .btn-back:hover, .btn-back:active {
+    .toolbar-btn:hover {
+      background: #323238;
+      transform: translate(-1px, -1px);
+      box-shadow: 3px 3px 0 #000;
+    }
+
+    .toolbar-btn:active {
+      transform: translate(1px, 1px);
+      box-shadow: 1px 1px 0 #000;
+    }
+
+    .toolbar-btn.btn-active {
       background: var(--accent-yellow);
       color: #000;
       border-color: #000;
-      box-shadow: 2px 2px 0 #000;
     }
 
+    .toolbar-btn.btn-green {
+      background: var(--accent-green);
+      color: #000;
+      font-weight: 800;
+    }
+
+    .toolbar-btn.btn-green:hover {
+      background: #1ea06e;
+    }
+
+    .toolbar-btn.btn-icon-only {
+      width: 34px;
+      padding: 0;
+    }
+
+    .toolbar-divider {
+      width: 1px;
+      height: 24px;
+      background: var(--border-dark);
+      margin: 0 2px;
+    }
+
+    /* Page Navigation Control */
+    .page-nav-box {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      background: #18181b;
+      border: 1.5px solid #000;
+      box-shadow: 2px 2px 0 #000;
+      border-radius: 4px;
+      padding: 2px 6px;
+      font-family: var(--font-mono);
+      font-size: 12px;
+    }
+
+    .page-input {
+      width: 32px;
+      text-align: center;
+      background: transparent;
+      border: none;
+      color: var(--text-main);
+      font-family: var(--font-mono);
+      font-weight: 700;
+      font-size: 12px;
+      outline: none;
+    }
+
+    .page-total {
+      color: var(--text-muted);
+      font-size: 11px;
+    }
+
+    /* Doc Title Meta */
     .doc-meta {
       display: flex;
       align-items: center;
       gap: 8px;
+      max-width: 280px;
       overflow: hidden;
-      white-space: nowrap;
     }
 
-    .doc-title {
+    .doc-title-text {
+      font-size: 12.5px;
       font-weight: 700;
-      font-size: 13px;
+      white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
-      color: var(--text-main);
-    }
-
-    .doc-badge {
-      font-size: 10px;
-      padding: 2px 6px;
-      background: rgba(36, 180, 126, 0.2);
-      color: var(--accent-green);
-      border: 1px solid var(--accent-green);
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      flex-shrink: 0;
-    }
-
-    .header-right {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      flex-shrink: 0;
-    }
-
-    .btn-action {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      padding: 7px 14px;
-      font-family: var(--font-display);
-      font-weight: 800;
-      font-size: 12.5px;
-      border: 2px solid #000;
-      cursor: pointer;
-      text-decoration: none;
-      transition: all 0.15s ease;
-    }
-
-    .btn-download {
-      background: var(--accent-green);
-      color: #000;
-      box-shadow: 3px 3px 0 #000;
-    }
-
-    .btn-download:hover, .btn-download:active {
-      background: #1ea06e;
-      box-shadow: 1px 1px 0 #000;
-      transform: translate(2px, 2px);
-    }
-
-    .btn-secondary {
-      background: #27272a;
       color: #fff;
-      border-color: #000;
-      box-shadow: 3px 3px 0 #000;
     }
 
-    .btn-zoom {
-      background: #27272a;
-      color: #fff;
-      border: 2px solid #000;
-      padding: 6px 10px;
-      font-size: 12px;
-      font-weight: 700;
-      cursor: pointer;
-      box-shadow: 2px 2px 0 #000;
-    }
-
-    /* Scrollable Canvas Viewer Container */
-    #viewer-container {
+    /* =========================================================================
+       WORKSPACE: SIDEBAR + MAIN CANVAS
+       ========================================================================= */
+    .viewer-workspace {
       flex: 1;
       width: 100%;
-      min-height: calc(100vh - 56px);
-      background: #18181b;
+      height: calc(100% - 52px);
+      display: flex;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Chrome-Style Thumbnail Sidebar */
+    aside.thumbnail-sidebar {
+      width: var(--sidebar-width);
+      background: var(--bg-sidebar);
+      border-right: 2px solid #000;
+      box-shadow: 3px 0 0 rgba(0, 0, 0, 0.4);
+      display: flex;
+      flex-direction: column;
+      z-index: 50;
+      transition: width 0.2s ease, transform 0.2s ease;
+      overflow-y: auto;
+      overflow-x: hidden;
+      padding: 12px 10px;
+      gap: 14px;
+    }
+
+    aside.thumbnail-sidebar.collapsed {
+      width: 0;
+      padding: 0;
+      border-right: none;
+      overflow: hidden;
+      visibility: hidden;
+    }
+
+    .thumb-item {
       display: flex;
       flex-direction: column;
       align-items: center;
-      padding: 20px 10px 100px 10px;
-      overflow-y: auto;
-      -webkit-overflow-scrolling: touch;
+      gap: 6px;
+      cursor: pointer;
+      opacity: 0.75;
+      transition: opacity 0.15s ease, transform 0.15s ease;
     }
 
-    /* Page Container */
-    #pdf-pages-container {
+    .thumb-item:hover {
+      opacity: 1;
+      transform: scale(1.02);
+    }
+
+    .thumb-item.active-thumb {
+      opacity: 1;
+    }
+
+    .thumb-preview-wrap {
+      width: 100%;
+      background: #fff;
+      border: 2px solid #000;
+      box-shadow: 2px 2px 0 #000;
+      border-radius: 2px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .thumb-item.active-thumb .thumb-preview-wrap {
+      border-color: var(--accent-green);
+      box-shadow: 0 0 0 2px var(--accent-green), 3px 3px 0 #000;
+    }
+
+    .thumb-canvas {
+      display: block;
+      width: 100%;
+      height: auto;
+    }
+
+    .thumb-label {
+      font-size: 11px;
+      font-family: var(--font-mono);
+      color: var(--text-muted);
+      font-weight: 700;
+    }
+
+    .thumb-item.active-thumb .thumb-label {
+      color: var(--accent-green);
+    }
+
+    /* Main Scrollable Document Viewer */
+    main.document-viewport {
+      flex: 1;
+      height: 100%;
+      background: var(--bg-chrome);
+      overflow-y: auto;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 24px 16px 80px 16px;
+      position: relative;
+    }
+
+    /* Document Pages Stream */
+    #pages-stream {
       display: flex;
       flex-direction: column;
       align-items: center;
       gap: 20px;
       width: 100%;
       max-width: 900px;
+      transition: max-width 0.15s ease;
     }
 
-    .pdf-page-wrapper {
-      position: relative;
+    .pdf-page-card {
       background: #fff;
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4), 0 0 0 2px #000;
+      border: 2px solid #000;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6), 4px 4px 0 #000;
       border-radius: 2px;
+      position: relative;
       overflow: hidden;
       max-width: 100%;
     }
 
-    .pdf-page-canvas {
+    .pdf-canvas {
       display: block;
       width: 100%;
       height: auto;
     }
 
-    .page-num-pill {
+    .page-floating-badge {
       position: absolute;
       bottom: 8px;
       right: 8px;
-      background: rgba(0, 0, 0, 0.7);
+      background: rgba(0, 0, 0, 0.75);
       color: #fff;
       font-size: 10px;
       font-family: var(--font-mono);
-      padding: 2px 6px;
+      padding: 3px 7px;
       border-radius: 3px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
       pointer-events: none;
     }
 
-    /* Loading Overlay */
-    #loading-state {
+    /* Loading Screen */
+    #loading-overlay {
       display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 16px;
-      text-align: center;
-      padding: 60px 20px;
-    }
-
-    .spinner {
-      font-size: 42px;
-      color: var(--accent-green);
-    }
-
-    /* Error State */
-    #error-state {
-      display: none;
       flex-direction: column;
       align-items: center;
       justify-content: center;
       gap: 14px;
       text-align: center;
-      padding: 30px 20px;
+      padding: 80px 20px;
+      color: var(--text-main);
+    }
+
+    .loading-spinner {
+      font-size: 44px;
+      color: var(--accent-green);
+    }
+
+    /* Error Card */
+    #error-card {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      text-align: center;
+      padding: 36px 24px;
       max-width: 480px;
-      background: var(--bg-bar);
+      background: #18181b;
       border: 2.5px solid #000;
       box-shadow: 6px 6px 0 #000;
       margin: 40px auto;
     }
 
-    /* Floating Mobile Download Bar (Fixed at bottom on phones) */
-    .mobile-float-bar {
+    /* Floating Quick Actions Bar for Mobile */
+    .mobile-bottom-bar {
       display: none;
       position: fixed;
       bottom: 0;
       left: 0;
       width: 100%;
-      background: rgba(26, 26, 30, 0.95);
-      backdrop-filter: blur(8px);
+      background: rgba(26, 26, 30, 0.96);
+      backdrop-filter: blur(10px);
       border-top: 2px solid #000;
-      padding: 10px 16px;
+      padding: 10px 14px;
       box-shadow: 0 -4px 0 #000;
       z-index: 1000;
-      justify-content: space-between;
       align-items: center;
+      justify-content: space-between;
       gap: 10px;
     }
 
-    .btn-mobile-download {
+    .btn-mobile-dl {
       flex: 1;
+      height: 42px;
+      background: var(--accent-green);
+      color: #000;
+      border: 2px solid #000;
+      box-shadow: 3px 3px 0 #000;
+      font-family: var(--font-display);
+      font-weight: 800;
+      font-size: 13.5px;
       display: inline-flex;
       align-items: center;
       justify-content: center;
       gap: 8px;
-      padding: 12px 18px;
-      background: var(--accent-green);
-      color: #000;
-      font-family: var(--font-display);
-      font-weight: 800;
-      font-size: 14px;
-      border: 2px solid #000;
-      box-shadow: 3px 3px 0 #000;
       text-decoration: none;
       cursor: pointer;
     }
 
-    .btn-mobile-download:active {
+    .btn-mobile-dl:active {
       transform: translate(2px, 2px);
       box-shadow: 1px 1px 0 #000;
     }
 
-    @media (max-width: 768px) {
-      header.viewer-header {
-        height: 52px;
-        padding: 0 10px;
-      }
+    /* Responsive adjustments */
+    @media (max-width: 820px) {
       .doc-meta { display: none; }
-      .btn-secondary { display: none; }
-      .btn-zoom { display: none; }
-      .header-right .btn-download { display: none; }
-      .mobile-float-bar { display: flex; }
-      #viewer-container {
-        padding: 10px 6px 90px 6px;
+      .hide-mobile { display: none !important; }
+      .mobile-bottom-bar { display: flex; }
+      main.document-viewport {
+        padding: 14px 6px 90px 6px;
       }
-      .btn-back {
-        font-size: 12px;
-        padding: 6px 10px;
+      aside.thumbnail-sidebar {
+        position: absolute;
+        top: 0;
+        left: 0;
+        height: 100%;
+        background: rgba(26, 26, 30, 0.98);
+        box-shadow: 6px 0 0 #000;
+        z-index: 500;
+      }
+      aside.thumbnail-sidebar.collapsed {
+        transform: translateX(-100%);
       }
     }
   </style>
 </head>
 <body>
 
-  <!-- Top Header Navigation -->
-  <header class="viewer-header">
-    <div class="header-left">
-      <a href="/resume" class="btn-back">
+  <!-- Chrome-Style Top Toolbar -->
+  <header class="chrome-toolbar">
+    <!-- Left Section: Sidebar Toggle + Document Title -->
+    <div class="toolbar-section">
+      <button type="button" class="toolbar-btn btn-icon-only" id="btn-toggle-sidebar" title="Toggle Page Thumbnails (T)">
+        <i class="fas fa-bars"></i>
+      </button>
+
+      <a href="/resume" class="toolbar-btn" title="Back to Interactive Web Resume">
         <i class="fas fa-arrow-left"></i> <span>Resume</span>
       </a>
-      <div class="doc-meta">
-        <i class="fas fa-file-pdf" style="color: #ef4444; font-size: 18px;"></i>
-        <span class="doc-title" id="doc-title">Samarth_resume.pdf</span>
-        <span class="doc-badge" id="page-count-badge">PDF Preview</span>
+
+      <div class="doc-meta hide-mobile">
+        <i class="fas fa-file-pdf" style="color: #ef4444; font-size: 16px;"></i>
+        <span class="doc-title-text" id="doc-title-text">Samarth_resume.pdf</span>
       </div>
     </div>
 
-    <div class="header-right">
-      <button type="button" class="btn-zoom" id="btn-zoom-out" title="Zoom Out"><i class="fas fa-minus"></i></button>
-      <button type="button" class="btn-zoom" id="btn-zoom-in" title="Zoom In"><i class="fas fa-plus"></i></button>
-      <button type="button" class="btn-action btn-secondary" id="btn-print" title="Print document">
-        <i class="fas fa-print"></i> <span>Print</span>
+    <!-- Center Section: Chrome Page Navigator + Zoom Controls -->
+    <div class="toolbar-section">
+      <!-- Page Navigation -->
+      <div class="page-nav-box">
+        <button type="button" id="btn-page-prev" style="background: none; border: none; color: inherit; cursor: pointer; padding: 2px 5px;" title="Previous Page (PageUp)">
+          <i class="fas fa-chevron-left" style="font-size: 10px;"></i>
+        </button>
+        <input type="text" id="page-num-input" class="page-input" value="1" title="Jump to page" />
+        <span class="page-total">/ <span id="page-count-text">1</span></span>
+        <button type="button" id="btn-page-next" style="background: none; border: none; color: inherit; cursor: pointer; padding: 2px 5px;" title="Next Page (PageDown)">
+          <i class="fas fa-chevron-right" style="font-size: 10px;"></i>
+        </button>
+      </div>
+
+      <div class="toolbar-divider hide-mobile"></div>
+
+      <!-- Zoom Controls -->
+      <button type="button" class="toolbar-btn btn-icon-only hide-mobile" id="btn-zoom-out" title="Zoom Out (-)">
+        <i class="fas fa-minus"></i>
       </button>
-      <button type="button" class="btn-action btn-download" id="btn-download" title="Download PDF file">
-        <i class="fas fa-download"></i> <span>Download PDF</span>
+      <button type="button" class="toolbar-btn hide-mobile" id="btn-zoom-preset" title="Fit to Width / Reset Zoom (0)">
+        <span id="zoom-level-text">Fit Width</span>
+      </button>
+      <button type="button" class="toolbar-btn btn-icon-only hide-mobile" id="btn-zoom-in" title="Zoom In (+)">
+        <i class="fas fa-plus"></i>
+      </button>
+
+      <!-- Rotate clockwise -->
+      <button type="button" class="toolbar-btn btn-icon-only hide-mobile" id="btn-rotate" title="Rotate Clockwise (R)">
+        <i class="fas fa-rotate-right"></i>
+      </button>
+    </div>
+
+    <!-- Right Section: Print, Download, Fullscreen -->
+    <div class="toolbar-section">
+      <button type="button" class="toolbar-btn btn-icon-only hide-mobile" id="btn-print" title="Print Document (Ctrl+P)">
+        <i class="fas fa-print"></i>
+      </button>
+
+      <button type="button" class="toolbar-btn btn-icon-only hide-mobile" id="btn-fullscreen" title="Toggle Fullscreen (F)">
+        <i class="fas fa-expand"></i>
+      </button>
+
+      <button type="button" class="toolbar-btn btn-green" id="btn-download" title="Download exact PDF file (Ctrl+S)">
+        <i class="fas fa-download"></i> <span>Download</span>
       </button>
     </div>
   </header>
 
-  <!-- Viewer Canvas -->
-  <main id="viewer-container">
-    <!-- Loading indicator -->
-    <div id="loading-state">
-      <i class="fas fa-circle-notch fa-spin spinner"></i>
-      <h3 style="font-family: var(--font-display); font-size: 18px; margin-top: 10px;">Loading Resume Preview...</h3>
-      <p style="font-size: 12px; color: var(--text-muted); font-family: var(--font-mono);">Rendering interactive pages for mobile &amp; desktop</p>
-    </div>
+  <!-- Workspace: Thumbnail Sidebar + Document Viewport -->
+  <div class="viewer-workspace">
+    <!-- Chrome Thumbnail Sidebar -->
+    <aside class="thumbnail-sidebar" id="thumbnail-sidebar" title="Page Thumbnails">
+      <!-- Injected dynamically -->
+    </aside>
 
-    <!-- Error message fallback -->
-    <div id="error-state">
-      <i class="fas fa-triangle-exclamation" style="font-size: 38px; color: #ef4444;"></i>
-      <h3 style="font-family: var(--font-display); font-size: 18px;">Could not render PDF preview</h3>
-      <p style="font-size: 13px; color: var(--text-muted);" id="error-msg">Loading file from cloud storage...</p>
-      <div style="display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin-top: 10px;">
-        <button type="button" class="btn-action btn-download" id="btn-fallback-download">
-          <i class="fas fa-download"></i> Download Directly
-        </button>
-        <a href="/resume" class="btn-action btn-secondary">
-          <i class="fas fa-arrow-left"></i> Back to Resume
-        </a>
+    <!-- Document Viewport -->
+    <main class="document-viewport" id="document-viewport">
+      <!-- Loading State -->
+      <div id="loading-overlay">
+        <i class="fas fa-circle-notch fa-spin loading-spinner"></i>
+        <h3 style="font-family: var(--font-display); font-size: 18px; margin-top: 10px;">Rendering Document...</h3>
+        <p style="font-size: 12px; color: var(--text-muted); font-family: var(--font-mono);">
+          Built-in Chrome &amp; Mobile PDF Canvas Engine
+        </p>
       </div>
-    </div>
 
-    <!-- Container for Rendered PDF Canvas Pages -->
-    <div id="pdf-pages-container"></div>
-  </main>
+      <!-- Error State -->
+      <div id="error-card">
+        <i class="fas fa-triangle-exclamation" style="font-size: 38px; color: #ef4444;"></i>
+        <h3 style="font-family: var(--font-display); font-size: 18px;">Unable to Display Resume</h3>
+        <p style="font-size: 12px; color: var(--text-muted); font-family: var(--font-mono);" id="error-desc">
+          No PDF file found.
+        </p>
+        <div style="display: flex; gap: 8px; margin-top: 8px;">
+          <button type="button" class="toolbar-btn btn-green" id="btn-fallback-dl">
+            <i class="fas fa-download"></i> Download Directly
+          </button>
+          <a href="/resume" class="toolbar-btn">
+            <i class="fas fa-arrow-left"></i> Back to Resume
+          </a>
+        </div>
+      </div>
 
-  <!-- Mobile Floating Bottom Action Bar -->
-  <aside class="mobile-float-bar">
-    <button type="button" class="btn-mobile-download" id="btn-mobile-dl">
+      <!-- Rendered PDF Pages Container -->
+      <div id="pages-stream"></div>
+    </main>
+  </div>
+
+  <!-- Mobile Floating Bottom Bar -->
+  <aside class="mobile-bottom-bar">
+    <button type="button" class="toolbar-btn" id="btn-mobile-sidebar-toggle" style="height: 42px; padding: 0 12px;">
+      <i class="fas fa-images"></i> <span>Pages</span>
+    </button>
+    <button type="button" class="btn-mobile-dl" id="btn-mobile-dl">
       <i class="fas fa-cloud-arrow-down fa-lg"></i>
-      <span id="mobile-dl-text">Download Resume (PDF)</span>
+      <span id="mobile-dl-btn-text">Download PDF</span>
+    </button>
+    <button type="button" class="toolbar-btn btn-icon-only" id="btn-mobile-share" style="height: 42px; width: 42px;" title="Share Resume">
+      <i class="fas fa-share-nodes"></i>
     </button>
   </aside>
 
   <script>
-    // Supabase Configuration
+    // Supabase Credentials
     const SUPABASE_URL = "https://npzqpcagdtnfuqhyngro.supabase.co";
     const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5wenFwY2FnZHRuZnVxaHluZ3JvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTMxMjEzOTEsImV4cCI6MjEwODY5NzM5MX0.N20yyXXnX-ddUDo43ynQOe6f0r6ZoeK4w1MUpPzs37Y";
 
@@ -387,194 +551,407 @@
       pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
     }
 
-    let activePdfDoc = null;
-    let activePdfBlob = null;
-    let activeFileName = "Samarth_Haveliwala_Resume.pdf";
-    let activePdfUrl = "";
-    let currentScale = 1.0;
+    let pdfDoc = null;
+    let pdfBlob = null;
+    let pdfFilename = "Samarth_Haveliwala_Resume.pdf";
+    let pdfPublicUrl = "";
+    let rotation = 0;
+    let zoomFactor = 1.0;
+    let currentPage = 1;
+    let isSidebarOpen = window.innerWidth > 900;
 
-    async function fetchResumeData() {
-      // 1. Try Supabase Database first
+    // Fetch Resume Data from Supabase DB or Local JSON fallback
+    async function getResumeDownloadData() {
       try {
-        const resp = await fetch(`${SUPABASE_URL}/rest/v1/portfolio_data?id=eq.main&select=*`, {
-          headers: {
-            "apikey": SUPABASE_KEY,
-            "Authorization": `Bearer ${SUPABASE_KEY}`
-          }
+        const res = await fetch(`${SUPABASE_URL}/rest/v1/portfolio_data?id=eq.main&select=*`, {
+          headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}` }
         });
-        if (resp.ok) {
-          const rows = await resp.json();
-          if (rows && rows[0] && rows[0].data && rows[0].data.resume && rows[0].data.resume.download) {
+        if (res.ok) {
+          const rows = await res.json();
+          if (rows?.[0]?.data?.resume?.download) {
             return rows[0].data.resume.download;
           }
         }
       } catch (e) {
-        console.warn("Supabase fetch error, trying local backup:", e);
+        console.warn("Supabase fetch fallback:", e);
       }
 
-      // 2. Fallback to local /data/portfolio-data.json
       try {
-        const resp = await fetch("/data/portfolio-data.json");
-        if (resp.ok) {
-          const json = await resp.json();
-          if (json.resume && json.resume.download) {
-            return json.resume.download;
-          }
+        const res = await fetch("/data/portfolio-data.json");
+        if (res.ok) {
+          const json = await res.json();
+          if (json?.resume?.download) return json.resume.download;
         }
       } catch (e) {
-        console.error("Local data fetch failed:", e);
+        console.error("Local data fallback error:", e);
       }
-
       return null;
     }
 
-    async function renderPage(pageNum, pdfDoc, container) {
-      const page = await pdfDoc.getPage(pageNum);
-      const viewportBase = page.getViewport({ scale: 1.0 });
+    // Initialize & Load PDF
+    async function initPdfViewer() {
+      const loadingEl = document.getElementById("loading-overlay");
+      const errorCard = document.getElementById("error-card");
+      const errorDesc = document.getElementById("error-desc");
+      const titleEl = document.getElementById("doc-title-text");
+      const pageCountEl = document.getElementById("page-count-text");
+      const mobileDlText = document.getElementById("mobile-dl-btn-text");
+      const sidebarEl = document.getElementById("thumbnail-sidebar");
 
-      // Calculate responsive width
-      const maxWidth = Math.min(window.innerWidth - 20, 860);
-      const scale = (maxWidth / viewportBase.width) * (window.devicePixelRatio > 1 ? 1.5 : 1.2);
-      const viewport = page.getViewport({ scale });
-
-      const wrapper = document.createElement("div");
-      wrapper.className = "pdf-page-wrapper";
-      wrapper.style.width = `${maxWidth}px`;
-
-      const canvas = document.createElement("canvas");
-      canvas.className = "pdf-page-canvas";
-      canvas.width = viewport.width;
-      canvas.height = viewport.height;
-
-      const context = canvas.getContext("2d");
-      const renderContext = {
-        canvasContext: context,
-        viewport: viewport
-      };
-
-      const pill = document.createElement("span");
-      pill.className = "page-num-pill";
-      pill.textContent = `Page ${pageNum} of ${pdfDoc.numPages}`;
-
-      wrapper.appendChild(canvas);
-      wrapper.appendChild(pill);
-      container.appendChild(wrapper);
-
-      await page.render(renderContext).promise;
-    }
-
-    async function loadPdfViewer() {
-      const loadingEl = document.getElementById("loading-state");
-      const errorEl = document.getElementById("error-state");
-      const errorMsg = document.getElementById("error-msg");
-      const pagesContainer = document.getElementById("pdf-pages-container");
-      const titleEl = document.getElementById("doc-title");
-      const badgeEl = document.getElementById("page-count-badge");
-      const mobileDlText = document.getElementById("mobile-dl-text");
+      // Sidebar default state
+      if (!isSidebarOpen) sidebarEl.classList.add("collapsed");
 
       try {
-        const dlConfig = await fetchResumeData();
-        if (!dlConfig || !dlConfig.fileUrl) {
+        const config = await getResumeDownloadData();
+        if (!config?.fileUrl) {
           throw new Error("No resume PDF file has been uploaded yet in the Admin Panel.");
         }
 
-        activeFileName = dlConfig.fileName || "Samarth_Haveliwala_Resume.pdf";
-        activePdfUrl = dlConfig.fileUrl;
-        titleEl.textContent = activeFileName;
-        document.title = `${activeFileName} — Resume Preview`;
+        pdfFilename = config.fileName || "Samarth_Haveliwala_Resume.pdf";
+        pdfPublicUrl = config.fileUrl;
+        titleEl.textContent = pdfFilename;
+        document.title = `${pdfFilename} — Chrome PDF Preview`;
 
-        if (dlConfig.fileSize) {
-          mobileDlText.textContent = `Download PDF (${dlConfig.fileSize})`;
+        if (config.fileSize) {
+          mobileDlText.textContent = `Download PDF (${config.fileSize})`;
         }
 
-        // Fetch binary bytes from Supabase Storage
-        const fileResp = await fetch(activePdfUrl);
-        if (!fileResp.ok) throw new Error(`HTTP ${fileResp.status} failed to fetch resume file.`);
+        // Fetch binary data from CDN
+        const res = await fetch(pdfPublicUrl);
+        if (!res.ok) throw new Error(`HTTP ${res.status} failed to fetch resume from storage`);
 
-        const arrayBuffer = await fileResp.arrayBuffer();
-        activePdfBlob = new Blob([arrayBuffer], { type: "application/pdf" });
+        const arrayBuffer = await res.arrayBuffer();
+        pdfBlob = new Blob([arrayBuffer], { type: "application/pdf" });
 
-        // Load document via PDF.js
-        if (!window.pdfjsLib) {
-          throw new Error("PDF rendering engine not loaded.");
-        }
+        const loadingTask = pdfjsLib.getDocument({ data: new Uint8Array(arrayBuffer) });
+        pdfDoc = await loadingTask.promise;
 
-        const typedArray = new Uint8Array(arrayBuffer);
-        const loadingTask = pdfjsLib.getDocument({ data: typedArray });
-        activePdfDoc = await loadingTask.promise;
-
+        pageCountEl.textContent = pdfDoc.numPages;
         loadingEl.style.display = "none";
-        badgeEl.textContent = `${activePdfDoc.numPages} Page${activePdfDoc.numPages > 1 ? 's' : ''}`;
 
-        // Render every page onto canvas
-        pagesContainer.innerHTML = "";
-        for (let i = 1; i <= activePdfDoc.numPages; i++) {
-          await renderPage(i, activePdfDoc, pagesContainer);
-        }
+        // Render main stream pages & thumbnails
+        await renderAllPages();
+        await renderThumbnails();
+
+        // Track scroll position to update current page indicator
+        setupScrollObserver();
 
       } catch (err) {
-        console.error("PDF Preview load error:", err);
+        console.error("PDF load error:", err);
         loadingEl.style.display = "none";
-        errorEl.style.display = "flex";
-        errorMsg.textContent = err.message;
+        errorCard.style.display = "flex";
+        errorDesc.textContent = err.message;
       }
     }
 
-    // Trigger Direct Download (Works 100% on Android, iOS Safari, and Desktop)
+    // Render Full Pages in Viewport
+    async function renderAllPages() {
+      const stream = document.getElementById("pages-stream");
+      stream.innerHTML = "";
+
+      const viewportWidth = document.getElementById("document-viewport").clientWidth - 32;
+      const baseMaxWidth = Math.min(Math.max(viewportWidth * 0.92, 320), 880);
+      const targetWidth = baseMaxWidth * zoomFactor;
+
+      stream.style.maxWidth = `${targetWidth}px`;
+
+      for (let i = 1; i <= pdfDoc.numPages; i++) {
+        const page = await pdfDoc.getPage(i);
+        const originalViewport = page.getViewport({ scale: 1.0, rotation });
+
+        // Calculate high-DPI scaling for ultra-sharp canvas rendering
+        const dpr = Math.min(window.devicePixelRatio || 1, 2.5);
+        const scale = (targetWidth / originalViewport.width) * dpr;
+        const viewport = page.getViewport({ scale, rotation });
+
+        const card = document.createElement("div");
+        card.className = "pdf-page-card";
+        card.id = `pdf-page-${i}`;
+        card.style.width = `${targetWidth}px`;
+
+        const canvas = document.createElement("canvas");
+        canvas.className = "pdf-canvas";
+        canvas.width = viewport.width;
+        canvas.height = viewport.height;
+
+        const ctx = canvas.getContext("2d", { alpha: false });
+        await page.render({ canvasContext: ctx, viewport }).promise;
+
+        const badge = document.createElement("span");
+        badge.className = "page-floating-badge";
+        badge.textContent = `${i} / ${pdfDoc.numPages}`;
+
+        card.appendChild(canvas);
+        card.appendChild(badge);
+        stream.appendChild(card);
+      }
+    }
+
+    // Render Mini Thumbnails in Sidebar
+    async function renderThumbnails() {
+      const sidebar = document.getElementById("thumbnail-sidebar");
+      sidebar.innerHTML = "";
+
+      for (let i = 1; i <= pdfDoc.numPages; i++) {
+        const page = await pdfDoc.getPage(i);
+        const vp = page.getViewport({ scale: 0.25, rotation });
+
+        const item = document.createElement("div");
+        item.className = `thumb-item ${i === 1 ? 'active-thumb' : ''}`;
+        item.id = `thumb-${i}`;
+        item.onclick = () => scrollToPage(i);
+
+        const wrap = document.createElement("div");
+        wrap.className = "thumb-preview-wrap";
+
+        const canvas = document.createElement("canvas");
+        canvas.className = "thumb-canvas";
+        canvas.width = vp.width;
+        canvas.height = vp.height;
+
+        const ctx = canvas.getContext("2d");
+        await page.render({ canvasContext: ctx, viewport: vp }).promise;
+
+        const label = document.createElement("span");
+        label.className = "thumb-label";
+        label.textContent = `Page ${i}`;
+
+        wrap.appendChild(canvas);
+        item.appendChild(wrap);
+        item.appendChild(label);
+        sidebar.appendChild(item);
+      }
+    }
+
+    // Scroll directly to a specific page
+    function scrollToPage(num) {
+      const target = document.getElementById(`pdf-page-${num}`);
+      if (target) {
+        target.scrollIntoView({ behavior: "smooth", block: "start" });
+        currentPage = num;
+        updatePageIndicator();
+      }
+    }
+
+    // Setup intersection observer to detect current visible page
+    function setupScrollObserver() {
+      const viewport = document.getElementById("document-viewport");
+      viewport.addEventListener("scroll", () => {
+        const stream = document.getElementById("pages-stream");
+        const cards = stream.querySelectorAll(".pdf-page-card");
+        let visibleIndex = 1;
+
+        cards.forEach((card, idx) => {
+          const rect = card.getBoundingClientRect();
+          if (rect.top <= window.innerHeight / 2 && rect.bottom >= window.innerHeight / 4) {
+            visibleIndex = idx + 1;
+          }
+        });
+
+        if (visibleIndex !== currentPage) {
+          currentPage = visibleIndex;
+          updatePageIndicator();
+        }
+      }, { passive: true });
+    }
+
+    function updatePageIndicator() {
+      const input = document.getElementById("page-num-input");
+      if (input) input.value = currentPage;
+
+      // Update active thumbnail
+      document.querySelectorAll(".thumb-item").forEach((thumb, idx) => {
+        thumb.classList.toggle("active-thumb", idx + 1 === currentPage);
+      });
+    }
+
+    // Download Handler
     function triggerDownload() {
-      if (activePdfBlob) {
-        const url = URL.createObjectURL(activePdfBlob);
+      if (pdfBlob) {
+        const blobUrl = URL.createObjectURL(pdfBlob);
         const a = document.createElement("a");
-        a.href = url;
-        a.download = activeFileName;
+        a.href = blobUrl;
+        a.download = pdfFilename;
         document.body.appendChild(a);
         a.click();
         a.remove();
-        setTimeout(() => URL.revokeObjectURL(url), 3000);
-      } else if (activePdfUrl) {
-        window.open(activePdfUrl, "_blank");
+        setTimeout(() => URL.revokeObjectURL(blobUrl), 3000);
+      } else if (pdfPublicUrl) {
+        window.open(pdfPublicUrl, "_blank");
       }
     }
 
-    // Trigger Print
-    function triggerPrint() {
-      window.print();
+    // Web Share API
+    async function triggerShare() {
+      if (navigator.share) {
+        try {
+          await navigator.share({
+            title: "Samarth Haveliwala — Resume",
+            text: "Take a look at Samarth's developer resume & experience.",
+            url: window.location.href
+          });
+        } catch (e) {
+          // User cancelled
+        }
+      } else {
+        triggerDownload();
+      }
     }
 
-    // Event Listeners
-    document.getElementById("btn-download").addEventListener("click", triggerDownload);
-    document.getElementById("btn-mobile-dl").addEventListener("click", triggerDownload);
-    document.getElementById("btn-fallback-download").addEventListener("click", triggerDownload);
-    document.getElementById("btn-print").addEventListener("click", triggerPrint);
+    // Event Bindings
+    document.getElementById("btn-download").onclick = triggerDownload;
+    document.getElementById("btn-mobile-dl").onclick = triggerDownload;
+    document.getElementById("btn-fallback-dl").onclick = triggerDownload;
+    document.getElementById("btn-mobile-share").onclick = triggerShare;
 
-    // Zoom buttons
-    document.getElementById("btn-zoom-in").addEventListener("click", () => {
-      const container = document.getElementById("pdf-pages-container");
-      const currentWidth = container.offsetWidth;
-      container.style.maxWidth = `${Math.min(currentWidth * 1.2, 1400)}px`;
-    });
-    document.getElementById("btn-zoom-out").addEventListener("click", () => {
-      const container = document.getElementById("pdf-pages-container");
-      const currentWidth = container.offsetWidth;
-      container.style.maxWidth = `${Math.max(currentWidth * 0.85, 300)}px`;
-    });
+    document.getElementById("btn-print").onclick = () => window.print();
 
-    // Handle Orientation Change / Resize on Mobile
-    let resizeDebounce = null;
-    window.addEventListener("resize", () => {
-      clearTimeout(resizeDebounce);
-      resizeDebounce = setTimeout(() => {
-        if (activePdfDoc) {
-          const pagesContainer = document.getElementById("pdf-pages-container");
-          pagesContainer.innerHTML = "";
-          for (let i = 1; i <= activePdfDoc.numPages; i++) {
-            renderPage(i, activePdfDoc, pagesContainer);
-          }
+    // Toggle Sidebar
+    function toggleSidebar() {
+      const sb = document.getElementById("thumbnail-sidebar");
+      isSidebarOpen = !isSidebarOpen;
+      sb.classList.toggle("collapsed", !isSidebarOpen);
+      document.getElementById("btn-toggle-sidebar").classList.toggle("btn-active", isSidebarOpen);
+    }
+
+    document.getElementById("btn-toggle-sidebar").onclick = toggleSidebar;
+    document.getElementById("btn-mobile-sidebar-toggle").onclick = toggleSidebar;
+
+    // Page Prev / Next
+    document.getElementById("btn-page-prev").onclick = () => {
+      if (currentPage > 1) scrollToPage(currentPage - 1);
+    };
+    document.getElementById("btn-page-next").onclick = () => {
+      if (pdfDoc && currentPage < pdfDoc.numPages) scrollToPage(currentPage + 1);
+    };
+
+    // Page input direct jump
+    const pageInput = document.getElementById("page-num-input");
+    pageInput.onchange = (e) => {
+      const val = parseInt(e.target.value, 10);
+      if (val >= 1 && pdfDoc && val <= pdfDoc.numPages) {
+        scrollToPage(val);
+      } else {
+        e.target.value = currentPage;
+      }
+    };
+
+    // Zoom In / Out / Reset
+    document.getElementById("btn-zoom-in").onclick = async () => {
+      zoomFactor = Math.min(zoomFactor + 0.15, 2.0);
+      document.getElementById("zoom-level-text").textContent = `${Math.round(zoomFactor * 100)}%`;
+      await renderAllPages();
+    };
+
+    document.getElementById("btn-zoom-out").onclick = async () => {
+      zoomFactor = Math.max(zoomFactor - 0.15, 0.5);
+      document.getElementById("zoom-level-text").textContent = `${Math.round(zoomFactor * 100)}%`;
+      await renderAllPages();
+    };
+
+    document.getElementById("btn-zoom-preset").onclick = async () => {
+      zoomFactor = 1.0;
+      document.getElementById("zoom-level-text").textContent = "Fit Width";
+      await renderAllPages();
+    };
+
+    // Rotate Clockwise
+    document.getElementById("btn-rotate").onclick = async () => {
+      rotation = (rotation + 90) % 360;
+      await renderAllPages();
+      await renderThumbnails();
+    };
+
+    // Fullscreen Toggle
+    document.getElementById("btn-fullscreen").onclick = () => {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(() => {});
+      } else {
+        document.exitFullscreen().catch(() => {});
+      }
+    };
+
+    // Keyboard Shortcuts (Chrome PDF Viewer standards)
+    window.addEventListener("keydown", (e) => {
+      if (e.target.tagName === "INPUT") return;
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "p") {
+        e.preventDefault();
+        window.print();
+      } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "s") {
+        e.preventDefault();
+        triggerDownload();
+      } else if (e.key === "+" || e.key === "=") {
+        document.getElementById("btn-zoom-in").click();
+      } else if (e.key === "-") {
+        document.getElementById("btn-zoom-out").click();
+      } else if (e.key === "0") {
+        document.getElementById("btn-zoom-preset").click();
+      } else if (e.key.toLowerCase() === "r") {
+        document.getElementById("btn-rotate").click();
+      } else if (e.key.toLowerCase() === "t") {
+        toggleSidebar();
+      } else if (e.key.toLowerCase() === "f") {
+        document.getElementById("btn-fullscreen").click();
+      } else if (e.key === "PageDown" || e.key === "ArrowDown") {
+        if (pdfDoc && currentPage < pdfDoc.numPages) {
+          e.preventDefault();
+          scrollToPage(currentPage + 1);
         }
-      }, 300);
+      } else if (e.key === "PageUp" || e.key === "ArrowUp") {
+        if (currentPage > 1) {
+          e.preventDefault();
+          scrollToPage(currentPage - 1);
+        }
+      }
     });
 
-    loadPdfViewer();
+    // Touch Pinch-to-Zoom Support for Mobile
+    let initialPinchDistance = null;
+    let initialZoomFactor = 1.0;
+    const viewportEl = document.getElementById("document-viewport");
+
+    viewportEl.addEventListener("touchstart", (e) => {
+      if (e.touches.length === 2) {
+        initialPinchDistance = Math.hypot(
+          e.touches[0].pageX - e.touches[1].pageX,
+          e.touches[0].pageY - e.touches[1].pageY
+        );
+        initialZoomFactor = zoomFactor;
+      }
+    }, { passive: true });
+
+    viewportEl.addEventListener("touchmove", (e) => {
+      if (e.touches.length === 2 && initialPinchDistance) {
+        const currentDistance = Math.hypot(
+          e.touches[0].pageX - e.touches[1].pageX,
+          e.touches[0].pageY - e.touches[1].pageY
+        );
+        const ratio = currentDistance / initialPinchDistance;
+        const newZoom = Math.min(Math.max(initialZoomFactor * ratio, 0.6), 2.2);
+        const stream = document.getElementById("pages-stream");
+        if (stream) {
+          stream.style.maxWidth = `${Math.round(window.innerWidth * newZoom)}px`;
+        }
+      }
+    }, { passive: true });
+
+    viewportEl.addEventListener("touchend", async (e) => {
+      if (initialPinchDistance && e.touches.length < 2) {
+        initialPinchDistance = null;
+      }
+    }, { passive: true });
+
+    // Handle Window Resize
+    let resizeTimer = null;
+    window.addEventListener("resize", () => {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(() => {
+        if (pdfDoc) renderAllPages();
+      }, 250);
+    });
+
+    // Run
+    initPdfViewer();
   </script>
 </body>
 </html>
