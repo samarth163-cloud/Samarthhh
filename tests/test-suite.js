@@ -84,7 +84,7 @@ async function runTestSuite() {
 
   const vercelJson = JSON.parse(fs.readFileSync(path.join(ROOT_DIR, 'vercel.json'), 'utf8'));
   assert(vercelJson.cleanUrls === true, 'vercel.json has cleanUrls enabled');
-  assert(Array.isArray(vercelJson.rewrites) && vercelJson.rewrites.some(r => r.destination && r.destination.includes('view.html')), 'vercel.json rewrites dynamic blog articles to view.html');
+  assert(Array.isArray(vercelJson.rewrites) && vercelJson.rewrites.some(r => r.destination && r.destination.includes('/blog/view')), 'vercel.json rewrites dynamic blog articles to view');
 
   // ---------------------------------------------------------------------------
   // 4. LIVE SUPABASE DATABASE & SCHEMA TESTS

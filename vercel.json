@@ -25,11 +25,11 @@
   "rewrites": [
     {
       "source": "/blog/:slug",
-      "destination": "/blog/view.html?slug=:slug"
+      "destination": "/blog/view?slug=:slug"
     },
     {
       "source": "/blog/:slug/",
-      "destination": "/blog/view.html?slug=:slug"
+      "destination": "/blog/view?slug=:slug"
     }
   ]
 }
