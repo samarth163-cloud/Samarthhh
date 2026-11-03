@@ -1690,21 +1690,34 @@ footer .source-link {
 }
 
 /* ==========================================================================
-   CUSTOM CURSOR (RETRO BRUTALIST STYLE)
+   CUSTOM CURSOR (RETRO BRUTALIST STYLE - PERFECTLY SYNCHRONIZED)
    ========================================================================== */
+.cursor,
+.cursor2 {
+  position: fixed;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  will-change: transform;
+}
+
+body.cursor-visible .cursor,
+body.cursor-visible .cursor2 {
+  opacity: 1;
+}
+
 .cursor {
   width: 36px;
   height: 36px;
   border-radius: 50%;
   border: 2px solid var(--accent-red);
   background: transparent;
-  position: fixed;
-  pointer-events: none;
-  left: 0;
-  top: 0;
-  transform: translate(-50%, -50%);
   z-index: 9998;
-  transition: transform 0.1s ease-out, width 0.15s ease, height 0.15s ease;
+  margin-top: -18px;
+  margin-left: -18px;
+  transition: opacity 0.2s ease, width 0.15s ease, height 0.15s ease, margin 0.15s ease, border-color 0.15s ease;
 }
 
 .cursor2 {
@@ -1712,14 +1725,27 @@ footer .source-link {
   height: 10px;
   border-radius: 50%;
   background: var(--border-color);
-  position: fixed;
-  pointer-events: none;
-  transform: translate(-50%, -50%);
   z-index: 9999;
+  margin-top: -5px;
+  margin-left: -5px;
+  transition: opacity 0.2s ease, transform 0.12s ease, background 0.12s ease;
 }
 
-.cursorinnerhover {
-  transform: translate(-50%, -50%) scale(1.6);
+.cursor.hover {
+  width: 48px;
+  height: 48px;
+  margin-top: -24px;
+  margin-left: -24px;
+  border-color: var(--accent-yellow);
+  background: rgba(250, 204, 21, 0.1);
+}
+
+.cursor.click {
+  transform: scale(0.85);
+}
+
+.cursor2.cursorinnerhover {
+  transform: scale(1.6);
   background: var(--accent-red);
 }
 

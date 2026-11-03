@@ -206,53 +206,105 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  // Handle section highlighting on scroll
-  const sections = document.querySelectorAll("section");
+  // Handle section highlighting on scroll (Synchronized with All Sections including Header)
+  const navTargets = [
+    { id: "header-wrapper", el: document.getElementById("header-wrapper") },
+    { id: "about-me", el: document.getElementById("about-me") },
+    { id: "portfolio", el: document.getElementById("portfolio") || document.getElementById("showcase") },
+    { id: "blog", el: document.getElementById("blog") }
+  ];
   const navLinks = document.querySelectorAll(".scroll-indicator a");
 
-  window.addEventListener("scroll", () => {
-    let current = "";
+  function updateScrollIndicator() {
+    const scrollPos = window.scrollY + 220;
+    let currentId = "header-wrapper";
 
-    sections.forEach((section) => {
-      const sectionTop = section.offsetTop;
-      if (window.scrollY >= sectionTop - 200) {
-        current = section.getAttribute("id");
+    navTargets.forEach((target) => {
+      if (!target.el) {
+        target.el = document.getElementById(target.id);
+      }
+      if (target.el) {
+        const top = target.el.offsetTop;
+        if (scrollPos >= top) {
+          currentId = target.id;
+        }
       }
     });
+
+    if ((window.innerHeight + window.scrollY) >= (document.documentElement.scrollHeight - 60)) {
+      currentId = "blog";
+    }
 
     navLinks.forEach((link) => {
-      link.classList.remove("active");
-      if (link.getAttribute("href").substring(1) === current) {
-        link.classList.add("active");
-      }
+      const targetHref = link.getAttribute("href")?.substring(1);
+      const isMatch = targetHref === currentId;
+      link.classList.toggle("active", isMatch);
     });
-  });
+  }
+
+  window.addEventListener("scroll", updateScrollIndicator, { passive: true });
+  window.addEventListener("resize", updateScrollIndicator, { passive: true });
+  setTimeout(updateScrollIndicator, 300);
 
   // Smooth scroll for anchor links
   document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
     anchor.addEventListener("click", function (e) {
-      e.preventDefault();
-      document.querySelector(this.getAttribute("href")).scrollIntoView({
-        behavior: "smooth",
-      });
+      const href = this.getAttribute("href");
+      if (!href || href === "#") return;
+      const target = document.querySelector(href);
+      if (target) {
+        e.preventDefault();
+        target.scrollIntoView({ behavior: "smooth" });
+      }
     });
   });
 
-  // Cursor customization
+  // Cursor customization - 100% Synchronized concentric tracking
   const cursor = document.querySelector(".cursor");
   const cursorinner = document.querySelector(".cursor2");
-  const links = document.querySelectorAll("a");
+  const interactiveLinks = document.querySelectorAll("a, button, input, .card, .project-card, .btn");
+
+  let mouseX = -100, mouseY = -100;
+  let ringX = -100, ringY = -100;
+  let isRingMoving = false;
+
+  function moveRing() {
+    if (!cursor) return;
+    ringX += (mouseX - ringX) * 0.35;
+    ringY += (mouseY - ringY) * 0.35;
+
+    cursor.style.transform = `translate3d(${ringX}px, ${ringY}px, 0)`;
+
+    if (Math.abs(mouseX - ringX) > 0.1 || Math.abs(mouseY - ringY) > 0.1) {
+      requestAnimationFrame(moveRing);
+    } else {
+      cursor.style.transform = `translate3d(${mouseX}px, ${mouseY}px, 0)`;
+      isRingMoving = false;
+    }
+  }
 
   document.addEventListener("mousemove", function (e) {
-    const x = e.clientX;
-    const y = e.clientY;
-    if (cursor) {
-      cursor.style.transform = `translate3d(calc(${x}px - 50%), calc(${y}px - 50%), 0)`;
-    }
+    mouseX = e.clientX;
+    mouseY = e.clientY;
+
+    document.body.classList.add("cursor-visible");
+
     if (cursorinner) {
-      cursorinner.style.left = `${x}px`;
-      cursorinner.style.top = `${y}px`;
+      cursorinner.style.transform = `translate3d(${mouseX}px, ${mouseY}px, 0)`;
     }
+
+    if (!isRingMoving) {
+      isRingMoving = true;
+      requestAnimationFrame(moveRing);
+    }
+  });
+
+  document.addEventListener("mouseleave", () => {
+    document.body.classList.remove("cursor-visible");
+  });
+
+  document.addEventListener("mouseenter", () => {
+    document.body.classList.add("cursor-visible");
   });
 
   document.addEventListener("mousedown", function () {
@@ -265,11 +317,9 @@ document.addEventListener("DOMContentLoaded", () => {
     cursorinner?.classList.remove("cursorinnerhover");
   });
 
-  links.forEach((link) => {
-    link.addEventListener("mouseover", () => cursor?.classList.add("hover"));
-    link.addEventListener("mouseleave", () =>
-      cursor?.classList.remove("hover"),
-    );
+  interactiveLinks.forEach((link) => {
+    link.addEventListener("mouseenter", () => cursor?.classList.add("hover"));
+    link.addEventListener("mouseleave", () => cursor?.classList.remove("hover"));
   });
 
   const menuToggle = document.querySelector(".menu-toggle");
