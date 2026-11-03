@@ -10,8 +10,12 @@
   <link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Syne:wght@700;800;900&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
 
-  <!-- PDF.js Engine -->
+  <!-- PDF.js Engine (for .pdf) -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+
+  <!-- JSZip & docx-preview Engine (for .docx) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/docx-preview@0.3.3/dist/docx-preview.min.js"></script>
 
   <style>
     * {
@@ -29,6 +33,7 @@
       --accent-green: #24b47e;
       --accent-yellow: #facc15;
       --accent-red: #ef4444;
+      --accent-blue: #2563eb;
       --text-main: #f4f4f5;
       --text-muted: #a1a1aa;
       --font-display: 'Syne', sans-serif;
@@ -179,6 +184,16 @@
       color: #fff;
     }
 
+    .format-badge {
+      font-size: 10px;
+      font-weight: 700;
+      padding: 2px 6px;
+      border-radius: 3px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      text-transform: uppercase;
+      font-family: var(--font-mono);
+    }
+
     /* =========================================================================
        WORKSPACE: SIDEBAR + MAIN CANVAS
        ========================================================================= */
@@ -322,6 +337,43 @@
       pointer-events: none;
     }
 
+    /* =========================================================================
+       DOCX STYLING FOR WORD DOCUMENTS
+       ========================================================================= */
+    .docx-wrapper {
+      background: transparent !important;
+      padding: 0 !important;
+      display: flex !important;
+      flex-direction: column !important;
+      align-items: center !important;
+      gap: 20px !important;
+      width: 100% !important;
+      user-select: text;
+    }
+
+    .docx-wrapper > section.docx {
+      background: #ffffff !important;
+      color: #111827 !important;
+      border: 2px solid #000000 !important;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6), 4px 4px 0 #000 !important;
+      border-radius: 2px !important;
+      margin-bottom: 20px !important;
+      max-width: 100% !important;
+      box-sizing: border-box !important;
+      font-family: system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif !important;
+      line-height: 1.6 !important;
+    }
+
+    /* DOC Legacy Binary Viewer Iframe */
+    #doc-legacy-frame {
+      width: 100%;
+      height: calc(100vh - 120px);
+      border: 2px solid #000;
+      box-shadow: 4px 4px 0 #000;
+      background: #fff;
+      display: none;
+    }
+
     /* Loading Screen */
     #loading-overlay {
       display: flex;
@@ -416,6 +468,11 @@
       aside.thumbnail-sidebar.collapsed {
         transform: translateX(-100%);
       }
+      .docx-wrapper > section.docx {
+        padding: 20px 16px !important;
+        width: 100% !important;
+        box-shadow: 0 4px 14px rgba(0,0,0,0.4) !important;
+      }
     }
   </style>
 </head>
@@ -425,7 +482,7 @@
   <header class="chrome-toolbar">
     <!-- Left Section: Sidebar Toggle + Document Title -->
     <div class="toolbar-section">
-      <button type="button" class="toolbar-btn btn-icon-only" id="btn-toggle-sidebar" title="Toggle Page Thumbnails (T)">
+      <button type="button" class="toolbar-btn btn-icon-only" id="btn-toggle-sidebar" title="Toggle Document Navigation (T)">
         <i class="fas fa-bars"></i>
       </button>
 
@@ -434,15 +491,16 @@
       </a>
 
       <div class="doc-meta hide-mobile">
-        <i class="fas fa-file-pdf" style="color: #ef4444; font-size: 16px;"></i>
+        <i class="fas fa-file-pdf" id="doc-type-icon" style="color: #ef4444; font-size: 16px;"></i>
         <span class="doc-title-text" id="doc-title-text">Samarth_resume.pdf</span>
+        <span class="format-badge" id="doc-format-badge">PDF</span>
       </div>
     </div>
 
-    <!-- Center Section: Chrome Page Navigator + Zoom Controls -->
+    <!-- Center Section: Page Navigator + Zoom Controls -->
     <div class="toolbar-section">
       <!-- Page Navigation -->
-      <div class="page-nav-box">
+      <div class="page-nav-box" id="page-nav-container">
         <button type="button" id="btn-page-prev" style="background: none; border: none; color: inherit; cursor: pointer; padding: 2px 5px;" title="Previous Page (PageUp)">
           <i class="fas fa-chevron-left" style="font-size: 10px;"></i>
         </button>
@@ -482,8 +540,8 @@
         <i class="fas fa-expand"></i>
       </button>
 
-      <button type="button" class="toolbar-btn btn-green" id="btn-download" title="Download exact PDF file (Ctrl+S)">
-        <i class="fas fa-download"></i> <span>Download</span>
+      <button type="button" class="toolbar-btn btn-green" id="btn-download" title="Download Document (Ctrl+S)">
+        <i class="fas fa-download"></i> <span id="btn-dl-text">Download</span>
       </button>
     </div>
   </header>
@@ -491,7 +549,7 @@
   <!-- Workspace: Thumbnail Sidebar + Document Viewport -->
   <div class="viewer-workspace">
     <!-- Chrome Thumbnail Sidebar -->
-    <aside class="thumbnail-sidebar" id="thumbnail-sidebar" title="Page Thumbnails">
+    <aside class="thumbnail-sidebar" id="thumbnail-sidebar" title="Document Navigation">
       <!-- Injected dynamically -->
     </aside>
 
@@ -502,16 +560,16 @@
         <i class="fas fa-circle-notch fa-spin loading-spinner"></i>
         <h3 style="font-family: var(--font-display); font-size: 18px; margin-top: 10px;">Rendering Document...</h3>
         <p style="font-size: 12px; color: var(--text-muted); font-family: var(--font-mono);">
-          Built-in Chrome &amp; Mobile PDF Canvas Engine
+          Supporting PDF, DOCX &amp; DOC on Mobile &amp; Desktop
         </p>
       </div>
 
       <!-- Error State -->
       <div id="error-card">
         <i class="fas fa-triangle-exclamation" style="font-size: 38px; color: #ef4444;"></i>
-        <h3 style="font-family: var(--font-display); font-size: 18px;">Unable to Display Resume</h3>
+        <h3 style="font-family: var(--font-display); font-size: 18px;">Unable to Preview Document</h3>
         <p style="font-size: 12px; color: var(--text-muted); font-family: var(--font-mono);" id="error-desc">
-          No PDF file found.
+          No document file found.
         </p>
         <div style="display: flex; gap: 8px; margin-top: 8px;">
           <button type="button" class="toolbar-btn btn-green" id="btn-fallback-dl">
@@ -523,19 +581,22 @@
         </div>
       </div>
 
-      <!-- Rendered PDF Pages Container -->
+      <!-- Rendered Document Container (PDF canvases or DOCX HTML) -->
       <div id="pages-stream"></div>
+
+      <!-- Legacy DOC Viewer IFrame -->
+      <iframe id="doc-legacy-frame" title="Word Document Preview"></iframe>
     </main>
   </div>
 
   <!-- Mobile Floating Bottom Bar -->
   <aside class="mobile-bottom-bar">
     <button type="button" class="toolbar-btn" id="btn-mobile-sidebar-toggle" style="height: 42px; padding: 0 12px;">
-      <i class="fas fa-images"></i> <span>Pages</span>
+      <i class="fas fa-bars"></i> <span>Pages</span>
     </button>
     <button type="button" class="btn-mobile-dl" id="btn-mobile-dl">
       <i class="fas fa-cloud-arrow-down fa-lg"></i>
-      <span id="mobile-dl-btn-text">Download PDF</span>
+      <span id="mobile-dl-btn-text">Download Document</span>
     </button>
     <button type="button" class="toolbar-btn btn-icon-only" id="btn-mobile-share" style="height: 42px; width: 42px;" title="Share Resume">
       <i class="fas fa-share-nodes"></i>
@@ -552,13 +613,22 @@
     }
 
     let pdfDoc = null;
-    let pdfBlob = null;
-    let pdfFilename = "Samarth_Haveliwala_Resume.pdf";
-    let pdfPublicUrl = "";
+    let docBlob = null;
+    let docFilename = "Samarth_resume.pdf";
+    let docPublicUrl = "";
+    let docFormat = "pdf"; // "pdf" | "docx" | "doc"
     let rotation = 0;
     let zoomFactor = 1.0;
     let currentPage = 1;
     let isSidebarOpen = window.innerWidth > 900;
+
+    // Detect format from filename or url
+    function detectFileFormat(name, url) {
+      const combined = `${name || ''} ${url || ''}`.toLowerCase();
+      if (combined.includes(".docx")) return "docx";
+      if (combined.includes(".doc")) return "doc";
+      return "pdf";
+    }
 
     // Fetch Resume Data from Supabase DB or Local JSON fallback
     async function getResumeDownloadData() {
@@ -588,64 +658,215 @@
       return null;
     }
 
-    // Initialize & Load PDF
-    async function initPdfViewer() {
+    // Main Initializer
+    async function initDocumentViewer() {
       const loadingEl = document.getElementById("loading-overlay");
       const errorCard = document.getElementById("error-card");
       const errorDesc = document.getElementById("error-desc");
       const titleEl = document.getElementById("doc-title-text");
+      const typeIcon = document.getElementById("doc-type-icon");
+      const formatBadge = document.getElementById("doc-format-badge");
       const pageCountEl = document.getElementById("page-count-text");
       const mobileDlText = document.getElementById("mobile-dl-btn-text");
+      const dlBtnText = document.getElementById("btn-dl-text");
       const sidebarEl = document.getElementById("thumbnail-sidebar");
 
-      // Sidebar default state
       if (!isSidebarOpen) sidebarEl.classList.add("collapsed");
 
       try {
         const config = await getResumeDownloadData();
         if (!config?.fileUrl) {
-          throw new Error("No resume PDF file has been uploaded yet in the Admin Panel.");
+          throw new Error("No resume file has been attached yet in the Admin Panel.");
         }
 
-        pdfFilename = config.fileName || "Samarth_Haveliwala_Resume.pdf";
-        pdfPublicUrl = config.fileUrl;
-        titleEl.textContent = pdfFilename;
-        document.title = `${pdfFilename} — Chrome PDF Preview`;
+        docFilename = config.fileName || "Samarth_resume.pdf";
+        docPublicUrl = config.fileUrl;
+        docFormat = detectFileFormat(docFilename, docPublicUrl);
 
-        if (config.fileSize) {
-          mobileDlText.textContent = `Download PDF (${config.fileSize})`;
+        titleEl.textContent = docFilename;
+        document.title = `${docFilename} — Document Preview`;
+
+        // Update UI Badges & Icons
+        if (docFormat === "docx") {
+          typeIcon.className = "fas fa-file-word";
+          typeIcon.style.color = "#2563eb";
+          formatBadge.textContent = "DOCX Word";
+          formatBadge.style.color = "#60a5fa";
+          formatBadge.style.borderColor = "#2563eb";
+          dlBtnText.textContent = "Download DOCX";
+          mobileDlText.textContent = config.fileSize ? `Download DOCX (${config.fileSize})` : "Download DOCX";
+        } else if (docFormat === "doc") {
+          typeIcon.className = "fas fa-file-word";
+          typeIcon.style.color = "#2563eb";
+          formatBadge.textContent = "DOC Legacy";
+          formatBadge.style.color = "#60a5fa";
+          formatBadge.style.borderColor = "#2563eb";
+          dlBtnText.textContent = "Download DOC";
+          mobileDlText.textContent = config.fileSize ? `Download DOC (${config.fileSize})` : "Download DOC";
+        } else {
+          typeIcon.className = "fas fa-file-pdf";
+          typeIcon.style.color = "#ef4444";
+          formatBadge.textContent = "PDF";
+          formatBadge.style.color = "#f87171";
+          formatBadge.style.borderColor = "#ef4444";
+          dlBtnText.textContent = "Download PDF";
+          mobileDlText.textContent = config.fileSize ? `Download PDF (${config.fileSize})` : "Download PDF";
         }
 
-        // Fetch binary data from CDN
-        const res = await fetch(pdfPublicUrl);
-        if (!res.ok) throw new Error(`HTTP ${res.status} failed to fetch resume from storage`);
+        // Fetch binary ArrayBuffer from Supabase Storage CDN
+        const res = await fetch(docPublicUrl);
+        if (!res.ok) throw new Error(`HTTP ${res.status} failed to fetch document from storage.`);
 
         const arrayBuffer = await res.arrayBuffer();
-        pdfBlob = new Blob([arrayBuffer], { type: "application/pdf" });
+        const mimeType = docFormat === "docx"
+          ? "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+          : (docFormat === "doc" ? "application/msword" : "application/pdf");
+        docBlob = new Blob([arrayBuffer], { type: mimeType });
 
-        const loadingTask = pdfjsLib.getDocument({ data: new Uint8Array(arrayBuffer) });
-        pdfDoc = await loadingTask.promise;
+        // ROUTE RENDERER BASED ON FORMAT
+        if (docFormat === "docx") {
+          await renderDocxDocument(arrayBuffer);
+        } else if (docFormat === "doc") {
+          await renderLegacyDocDocument(docPublicUrl);
+        } else {
+          await renderPdfDocument(arrayBuffer);
+        }
 
-        pageCountEl.textContent = pdfDoc.numPages;
         loadingEl.style.display = "none";
 
-        // Render main stream pages & thumbnails
-        await renderAllPages();
-        await renderThumbnails();
-
-        // Track scroll position to update current page indicator
-        setupScrollObserver();
-
       } catch (err) {
-        console.error("PDF load error:", err);
+        console.error("Document load error:", err);
         loadingEl.style.display = "none";
         errorCard.style.display = "flex";
         errorDesc.textContent = err.message;
       }
     }
 
-    // Render Full Pages in Viewport
-    async function renderAllPages() {
+    // =========================================================================
+    // 1. DOCX RENDERER (Using docx-preview)
+    // =========================================================================
+    async function renderDocxDocument(arrayBuffer) {
+      const stream = document.getElementById("pages-stream");
+      const pageNav = document.getElementById("page-nav-container");
+      const sidebar = document.getElementById("thumbnail-sidebar");
+      const rotateBtn = document.getElementById("btn-rotate");
+      stream.innerHTML = "";
+
+      if (rotateBtn) rotateBtn.style.display = "none";
+
+      const docxContainer = document.createElement("div");
+      docxContainer.id = "docx-render-target";
+      docxContainer.style.width = "100%";
+      stream.appendChild(docxContainer);
+
+      if (!window.docx || !docx.renderAsync) {
+        throw new Error("Word DOCX rendering engine not loaded.");
+      }
+
+      await docx.renderAsync(arrayBuffer, docxContainer, null, {
+        className: "docx",
+        inWrapper: true,
+        ignoreWidth: false,
+        ignoreHeight: false,
+        breakPages: true,
+        useBase64URL: true,
+        renderChanges: false
+      });
+
+      // Count pages generated by docx-preview
+      const pages = docxContainer.querySelectorAll("section.docx");
+      const pageCount = Math.max(pages.length, 1);
+      document.getElementById("page-count-text").textContent = pageCount;
+
+      // Render thumbnail sidebar for DOCX
+      sidebar.innerHTML = "";
+      pages.forEach((p, idx) => {
+        const item = document.createElement("div");
+        item.className = `thumb-item ${idx === 0 ? 'active-thumb' : ''}`;
+        item.onclick = () => {
+          p.scrollIntoView({ behavior: "smooth", block: "start" });
+          currentPage = idx + 1;
+          updatePageIndicator();
+        };
+
+        const wrap = document.createElement("div");
+        wrap.className = "thumb-preview-wrap";
+        wrap.style.height = "70px";
+        wrap.style.background = "#fff";
+        wrap.style.display = "flex";
+        wrap.style.alignItems = "center";
+        wrap.style.justifyContent = "center";
+        wrap.style.fontSize = "22px";
+        wrap.style.color = "#2563eb";
+        wrap.innerHTML = `<i class="fas fa-file-word"></i>`;
+
+        const label = document.createElement("span");
+        label.className = "thumb-label";
+        label.textContent = `Page ${idx + 1}`;
+
+        item.appendChild(wrap);
+        item.appendChild(label);
+        sidebar.appendChild(item);
+      });
+
+      setupDocxScrollObserver();
+    }
+
+    function setupDocxScrollObserver() {
+      const viewport = document.getElementById("document-viewport");
+      viewport.addEventListener("scroll", () => {
+        const pages = document.querySelectorAll(".docx-wrapper > section.docx");
+        let visibleIdx = 1;
+        pages.forEach((p, idx) => {
+          const rect = p.getBoundingClientRect();
+          if (rect.top <= window.innerHeight / 2 && rect.bottom >= window.innerHeight / 4) {
+            visibleIdx = idx + 1;
+          }
+        });
+        if (visibleIdx !== currentPage) {
+          currentPage = visibleIdx;
+          updatePageIndicator();
+        }
+      }, { passive: true });
+    }
+
+    // =========================================================================
+    // 2. LEGACY DOC RENDERER (Office Online / Google Docs Viewer Embed)
+    // =========================================================================
+    async function renderLegacyDocDocument(publicUrl) {
+      const stream = document.getElementById("pages-stream");
+      const frame = document.getElementById("doc-legacy-frame");
+      const pageNav = document.getElementById("page-nav-container");
+      const sidebarToggle = document.getElementById("btn-toggle-sidebar");
+      const rotateBtn = document.getElementById("btn-rotate");
+
+      if (stream) stream.style.display = "none";
+      if (pageNav) pageNav.style.display = "none";
+      if (sidebarToggle) sidebarToggle.style.display = "none";
+      if (rotateBtn) rotateBtn.style.display = "none";
+
+      if (frame) {
+        frame.style.display = "block";
+        // Google Docs Viewer handles binary .doc securely
+        frame.src = `https://docs.google.com/viewer?url=${encodeURIComponent(publicUrl)}&embedded=true`;
+      }
+    }
+
+    // =========================================================================
+    // 3. PDF RENDERER (Using PDF.js Canvas Engine)
+    // =========================================================================
+    async function renderPdfDocument(arrayBuffer) {
+      const loadingTask = pdfjsLib.getDocument({ data: new Uint8Array(arrayBuffer) });
+      pdfDoc = await loadingTask.promise;
+
+      document.getElementById("page-count-text").textContent = pdfDoc.numPages;
+
+      await renderAllPdfPages();
+      await renderPdfThumbnails();
+      setupPdfScrollObserver();
+    }
+
+    async function renderAllPdfPages() {
       const stream = document.getElementById("pages-stream");
       stream.innerHTML = "";
 
@@ -659,7 +880,6 @@
         const page = await pdfDoc.getPage(i);
         const originalViewport = page.getViewport({ scale: 1.0, rotation });
 
-        // Calculate high-DPI scaling for ultra-sharp canvas rendering
         const dpr = Math.min(window.devicePixelRatio || 1, 2.5);
         const scale = (targetWidth / originalViewport.width) * dpr;
         const viewport = page.getViewport({ scale, rotation });
@@ -687,8 +907,7 @@
       }
     }
 
-    // Render Mini Thumbnails in Sidebar
-    async function renderThumbnails() {
+    async function renderPdfThumbnails() {
       const sidebar = document.getElementById("thumbnail-sidebar");
       sidebar.innerHTML = "";
 
@@ -723,8 +942,17 @@
       }
     }
 
-    // Scroll directly to a specific page
     function scrollToPage(num) {
+      if (docFormat === "docx") {
+        const pages = document.querySelectorAll(".docx-wrapper > section.docx");
+        if (pages[num - 1]) {
+          pages[num - 1].scrollIntoView({ behavior: "smooth", block: "start" });
+          currentPage = num;
+          updatePageIndicator();
+        }
+        return;
+      }
+
       const target = document.getElementById(`pdf-page-${num}`);
       if (target) {
         target.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -733,8 +961,7 @@
       }
     }
 
-    // Setup intersection observer to detect current visible page
-    function setupScrollObserver() {
+    function setupPdfScrollObserver() {
       const viewport = document.getElementById("document-viewport");
       viewport.addEventListener("scroll", () => {
         const stream = document.getElementById("pages-stream");
@@ -759,25 +986,24 @@
       const input = document.getElementById("page-num-input");
       if (input) input.value = currentPage;
 
-      // Update active thumbnail
       document.querySelectorAll(".thumb-item").forEach((thumb, idx) => {
         thumb.classList.toggle("active-thumb", idx + 1 === currentPage);
       });
     }
 
-    // Download Handler
+    // Direct Download
     function triggerDownload() {
-      if (pdfBlob) {
-        const blobUrl = URL.createObjectURL(pdfBlob);
+      if (docBlob) {
+        const blobUrl = URL.createObjectURL(docBlob);
         const a = document.createElement("a");
         a.href = blobUrl;
-        a.download = pdfFilename;
+        a.download = docFilename;
         document.body.appendChild(a);
         a.click();
         a.remove();
         setTimeout(() => URL.revokeObjectURL(blobUrl), 3000);
-      } else if (pdfPublicUrl) {
-        window.open(pdfPublicUrl, "_blank");
+      } else if (docPublicUrl) {
+        window.open(docPublicUrl, "_blank");
       }
     }
 
@@ -786,19 +1012,17 @@
       if (navigator.share) {
         try {
           await navigator.share({
-            title: "Samarth Haveliwala — Resume",
+            title: `Samarth Haveliwala — ${docFilename}`,
             text: "Take a look at Samarth's developer resume & experience.",
             url: window.location.href
           });
-        } catch (e) {
-          // User cancelled
-        }
+        } catch (e) {}
       } else {
         triggerDownload();
       }
     }
 
-    // Event Bindings
+    // Bind Controls
     document.getElementById("btn-download").onclick = triggerDownload;
     document.getElementById("btn-mobile-dl").onclick = triggerDownload;
     document.getElementById("btn-fallback-dl").onclick = triggerDownload;
@@ -822,44 +1046,63 @@
       if (currentPage > 1) scrollToPage(currentPage - 1);
     };
     document.getElementById("btn-page-next").onclick = () => {
-      if (pdfDoc && currentPage < pdfDoc.numPages) scrollToPage(currentPage + 1);
+      const maxPages = docFormat === "docx"
+        ? document.querySelectorAll(".docx-wrapper > section.docx").length
+        : (pdfDoc ? pdfDoc.numPages : 1);
+      if (currentPage < maxPages) scrollToPage(currentPage + 1);
     };
 
-    // Page input direct jump
     const pageInput = document.getElementById("page-num-input");
     pageInput.onchange = (e) => {
       const val = parseInt(e.target.value, 10);
-      if (val >= 1 && pdfDoc && val <= pdfDoc.numPages) {
+      const maxPages = docFormat === "docx"
+        ? document.querySelectorAll(".docx-wrapper > section.docx").length
+        : (pdfDoc ? pdfDoc.numPages : 1);
+      if (val >= 1 && val <= maxPages) {
         scrollToPage(val);
       } else {
         e.target.value = currentPage;
       }
     };
 
-    // Zoom In / Out / Reset
+    // Zoom Controls
     document.getElementById("btn-zoom-in").onclick = async () => {
       zoomFactor = Math.min(zoomFactor + 0.15, 2.0);
       document.getElementById("zoom-level-text").textContent = `${Math.round(zoomFactor * 100)}%`;
-      await renderAllPages();
+      if (docFormat === "pdf" && pdfDoc) {
+        await renderAllPdfPages();
+      } else if (docFormat === "docx") {
+        document.getElementById("pages-stream").style.maxWidth = `${Math.round(900 * zoomFactor)}px`;
+      }
     };
 
     document.getElementById("btn-zoom-out").onclick = async () => {
       zoomFactor = Math.max(zoomFactor - 0.15, 0.5);
       document.getElementById("zoom-level-text").textContent = `${Math.round(zoomFactor * 100)}%`;
-      await renderAllPages();
+      if (docFormat === "pdf" && pdfDoc) {
+        await renderAllPdfPages();
+      } else if (docFormat === "docx") {
+        document.getElementById("pages-stream").style.maxWidth = `${Math.round(900 * zoomFactor)}px`;
+      }
     };
 
     document.getElementById("btn-zoom-preset").onclick = async () => {
       zoomFactor = 1.0;
       document.getElementById("zoom-level-text").textContent = "Fit Width";
-      await renderAllPages();
+      if (docFormat === "pdf" && pdfDoc) {
+        await renderAllPdfPages();
+      } else if (docFormat === "docx") {
+        document.getElementById("pages-stream").style.maxWidth = "900px";
+      }
     };
 
-    // Rotate Clockwise
+    // Rotate (PDF only)
     document.getElementById("btn-rotate").onclick = async () => {
-      rotation = (rotation + 90) % 360;
-      await renderAllPages();
-      await renderThumbnails();
+      if (docFormat === "pdf" && pdfDoc) {
+        rotation = (rotation + 90) % 360;
+        await renderAllPdfPages();
+        await renderPdfThumbnails();
+      }
     };
 
     // Fullscreen Toggle
@@ -871,7 +1114,7 @@
       }
     };
 
-    // Keyboard Shortcuts (Chrome PDF Viewer standards)
+    // Keyboard Shortcuts
     window.addEventListener("keydown", (e) => {
       if (e.target.tagName === "INPUT") return;
       if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "p") {
@@ -892,20 +1135,10 @@
         toggleSidebar();
       } else if (e.key.toLowerCase() === "f") {
         document.getElementById("btn-fullscreen").click();
-      } else if (e.key === "PageDown" || e.key === "ArrowDown") {
-        if (pdfDoc && currentPage < pdfDoc.numPages) {
-          e.preventDefault();
-          scrollToPage(currentPage + 1);
-        }
-      } else if (e.key === "PageUp" || e.key === "ArrowUp") {
-        if (currentPage > 1) {
-          e.preventDefault();
-          scrollToPage(currentPage - 1);
-        }
       }
     });
 
-    // Touch Pinch-to-Zoom Support for Mobile
+    // Touch Pinch-to-Zoom for Mobile
     let initialPinchDistance = null;
     let initialZoomFactor = 1.0;
     const viewportEl = document.getElementById("document-viewport");
@@ -935,10 +1168,8 @@
       }
     }, { passive: true });
 
-    viewportEl.addEventListener("touchend", async (e) => {
-      if (initialPinchDistance && e.touches.length < 2) {
-        initialPinchDistance = null;
-      }
+    viewportEl.addEventListener("touchend", () => {
+      initialPinchDistance = null;
     }, { passive: true });
 
     // Handle Window Resize
@@ -946,12 +1177,12 @@
     window.addEventListener("resize", () => {
       clearTimeout(resizeTimer);
       resizeTimer = setTimeout(() => {
-        if (pdfDoc) renderAllPages();
+        if (docFormat === "pdf" && pdfDoc) renderAllPdfPages();
       }, 250);
     });
 
     // Run
-    initPdfViewer();
+    initDocumentViewer();
   </script>
 </body>
 </html>
