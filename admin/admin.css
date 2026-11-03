@@ -4243,3 +4243,26 @@ body.dark .sub-item-card.is-hidden {
   background: #1e9a6b !important;
   transform: translate(-1px, -1px);
 }
+
+
+/* Resume Download Settings & Presets */
+.btn-dl-preset {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 4px 10px;
+  background: var(--bg-surface);
+  color: var(--text-main);
+  border: 1.5px solid var(--border-color);
+  border-radius: 4px;
+  cursor: pointer;
+  box-shadow: 1px 1px 0 var(--shadow-color);
+  transition: all 0.12s ease;
+}
+
+.btn-dl-preset:hover {
+  background: var(--accent-yellow);
+  color: #000;
+  transform: translate(-1px, -1px);
+  box-shadow: 2px 2px 0 var(--shadow-color);
+}

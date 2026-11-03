@@ -1268,6 +1268,7 @@
     try { renderResumeProjects(r.projects || []); } catch (e) { console.error("Projects error", e); }
     try { renderResumeEducation(r.education || []); } catch (e) { console.error("Education error", e); }
     try { renderResumeRecognition(r.recognition || []); } catch (e) { console.error("Recognition error", e); }
+    try { renderResumeDownloadSettings(); } catch (e) { console.error("Download settings error", e); }
 
     // 5. Action Buttons (Save Top/Bottom, Reset Defaults, Skill Helpers)
     bindResumeActionButtons();
@@ -2281,6 +2282,193 @@
     resSkillsEl.addEventListener("input", (e) => {
       state.resume.skills = e.target.value;
     });
+  }
+
+  // =========================================================================
+  // RESUME DOWNLOAD / CV FILE MANAGER
+  // =========================================================================
+
+  function renderResumeDownloadSettings() {
+    if (!state.resume) state.resume = {};
+    if (!state.resume.download) {
+      state.resume.download = {
+        enabled: true,
+        buttonText: "Download Resume",
+        fileUrl: "",
+        fileName: "",
+        fileSize: "",
+        updatedAt: ""
+      };
+    }
+    const dl = state.resume.download;
+
+    const toggleEl = document.getElementById("resume-download-toggle");
+    const toggleLabel = document.getElementById("resume-download-toggle-label");
+    const btnTextInput = document.getElementById("resume-download-btn-text-input");
+    const urlInput = document.getElementById("resume-download-url-input");
+    const fileNameDisplay = document.getElementById("resume-file-name-display");
+    const fileBadge = document.getElementById("resume-file-badge");
+    const fileInfoDisplay = document.getElementById("resume-file-info-display");
+    const btnPreview = document.getElementById("btn-preview-resume-file");
+    const btnDelete = document.getElementById("btn-delete-resume-file");
+
+    if (toggleEl) {
+      toggleEl.checked = dl.enabled !== false;
+      if (toggleLabel) toggleLabel.textContent = toggleEl.checked ? "SHOW ON RESUME" : "HIDDEN";
+    }
+
+    if (btnTextInput) {
+      btnTextInput.value = dl.buttonText || "Download Resume";
+    }
+
+    if (urlInput) {
+      urlInput.value = dl.fileUrl || "";
+    }
+
+    if (dl.fileUrl) {
+      if (fileNameDisplay) fileNameDisplay.textContent = dl.fileName || "Custom Resume File";
+      if (fileBadge) {
+        fileBadge.textContent = "LIVE & ATTACHED";
+        fileBadge.style.background = "#24b47e";
+        fileBadge.style.color = "#000";
+      }
+      if (fileInfoDisplay) {
+        fileInfoDisplay.innerHTML = `<i class="fas fa-check-circle" style="color: #24b47e;"></i> Active: <code>${escapeHtml(dl.fileUrl)}</code> ${dl.fileSize ? `(${escapeHtml(dl.fileSize)})` : ""}`;
+      }
+      if (btnPreview) {
+        btnPreview.style.display = "inline-flex";
+        btnPreview.href = formatAssetUrl(dl.fileUrl);
+      }
+      if (btnDelete) {
+        btnDelete.style.display = "inline-flex";
+      }
+    } else {
+      if (fileNameDisplay) fileNameDisplay.textContent = "No File Attached";
+      if (fileBadge) {
+        fileBadge.textContent = "STANDBY";
+        fileBadge.style.background = "#888";
+        fileBadge.style.color = "#fff";
+      }
+      if (fileInfoDisplay) {
+        fileInfoDisplay.textContent = "When no file is attached, the button uses browser print/save.";
+      }
+      if (btnPreview) btnPreview.style.display = "none";
+      if (btnDelete) btnDelete.style.display = "none";
+    }
+
+    setupResumeDownloadHandlers();
+  }
+
+  function setupResumeDownloadHandlers() {
+    const toggleEl = document.getElementById("resume-download-toggle");
+    const toggleLabel = document.getElementById("resume-download-toggle-label");
+    const btnTextInput = document.getElementById("resume-download-btn-text-input");
+    const urlInput = document.getElementById("resume-download-url-input");
+    const fileInput = document.getElementById("resume-file-input");
+    const btnTriggerUpload = document.getElementById("btn-trigger-resume-file-upload");
+    const uploadProgress = document.getElementById("resume-upload-progress");
+    const btnDelete = document.getElementById("btn-delete-resume-file");
+
+    if (toggleEl && !toggleEl._hasBound) {
+      toggleEl._hasBound = true;
+      toggleEl.addEventListener("change", (e) => {
+        if (!state.resume.download) state.resume.download = {};
+        state.resume.download.enabled = e.target.checked;
+        if (toggleLabel) toggleLabel.textContent = e.target.checked ? "SHOW ON RESUME" : "HIDDEN";
+        showToast(e.target.checked ? "Download button enabled on resume!" : "Download button hidden from resume.", "info");
+      });
+    }
+
+    if (btnTextInput && !btnTextInput._hasBound) {
+      btnTextInput._hasBound = true;
+      btnTextInput.addEventListener("input", (e) => {
+        if (!state.resume.download) state.resume.download = {};
+        state.resume.download.buttonText = e.target.value.trim() || "Download Resume";
+      });
+    }
+
+    document.querySelectorAll(".btn-dl-preset").forEach((btn) => {
+      if (!btn._hasBound) {
+        btn._hasBound = true;
+        btn.addEventListener("click", () => {
+          const text = btn.getAttribute("data-text");
+          if (text && btnTextInput) {
+            btnTextInput.value = text;
+            if (!state.resume.download) state.resume.download = {};
+            state.resume.download.buttonText = text;
+            showToast(`Button text set to: "${text}"`, "info");
+          }
+        });
+      }
+    });
+
+    if (urlInput && !urlInput._hasBound) {
+      urlInput._hasBound = true;
+      urlInput.addEventListener("input", (e) => {
+        if (!state.resume.download) state.resume.download = {};
+        const val = e.target.value.trim();
+        state.resume.download.fileUrl = val;
+        if (val && !state.resume.download.fileName) {
+          state.resume.download.fileName = val.split("/").pop() || "Resume.pdf";
+        }
+        renderResumeDownloadSettings();
+      });
+    }
+
+    if (btnTriggerUpload && !btnTriggerUpload._hasBound) {
+      btnTriggerUpload._hasBound = true;
+      btnTriggerUpload.addEventListener("click", () => {
+        if (fileInput) fileInput.click();
+      });
+    }
+
+    if (fileInput && !fileInput._hasBound) {
+      fileInput._hasBound = true;
+      fileInput.addEventListener("change", async (e) => {
+        const file = e.target.files && e.target.files[0];
+        if (!file) return;
+
+        try {
+          if (uploadProgress) {
+            uploadProgress.style.display = "block";
+            uploadProgress.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Uploading "${escapeHtml(file.name)}"...<br><span style="font-size: 11px;">Saving to Supabase Cloud Storage & Project...</span>`;
+          }
+
+          const targetFilename = `resume/${Date.now()}-${file.name.replace(/[^a-zA-Z0-9._-]/g, "_")}`;
+          const res = await uploadSupabaseStorageFile(file, targetFilename, true);
+
+          if (!state.resume.download) state.resume.download = {};
+          state.resume.download.fileUrl = res.url;
+          state.resume.download.fileName = file.name;
+          state.resume.download.fileSize = `${(file.size / 1024).toFixed(1)} KB`;
+          state.resume.download.updatedAt = new Date().toISOString();
+
+          renderResumeDownloadSettings();
+          showToast(`✓ "${file.name}" uploaded to Cloud Storage & attached to resume!`, "success");
+        } catch (err) {
+          console.error("Resume upload error:", err);
+          showToast(`Upload failed: ${err.message}`, "error");
+        } finally {
+          if (uploadProgress) uploadProgress.style.display = "none";
+          fileInput.value = "";
+        }
+      });
+    }
+
+    if (btnDelete && !btnDelete._hasBound) {
+      btnDelete._hasBound = true;
+      btnDelete.addEventListener("click", () => {
+        if (confirm("Are you sure you want to detach this resume file?")) {
+          if (!state.resume.download) state.resume.download = {};
+          state.resume.download.fileUrl = "";
+          state.resume.download.fileName = "";
+          state.resume.download.fileSize = "";
+          if (urlInput) urlInput.value = "";
+          renderResumeDownloadSettings();
+          showToast("Resume file detached. Button will use browser print fallback.", "info");
+        }
+      });
+    }
   }
 
   // =========================================================================
@@ -4819,6 +5007,14 @@
             state.resume.sectionTitles[sec] = inp.value.trim();
           }
         });
+
+        if (!state.resume.download) state.resume.download = {};
+        const elDlToggle = document.getElementById("resume-download-toggle");
+        if (elDlToggle) state.resume.download.enabled = elDlToggle.checked;
+        const elDlText = document.getElementById("resume-download-btn-text-input");
+        if (elDlText && elDlText.value.trim()) state.resume.download.buttonText = elDlText.value.trim();
+        const elDlUrl = document.getElementById("resume-download-url-input");
+        if (elDlUrl && elDlUrl.value.trim()) state.resume.download.fileUrl = elDlUrl.value.trim();
       }
 
       // Check admin session (prefer active user session token, graceful fallback to authenticated config key)
@@ -5500,9 +5696,12 @@
     }
 
     // Validate MIME
-    const allowedMimes = ["image/jpeg", "image/png", "image/webp", "image/gif", "image/svg+xml", "image/x-icon", "image/vnd.microsoft.icon"];
-    if (file.type && !allowedMimes.includes(file.type.toLowerCase())) {
-      throw new Error(`Unsupported image type (${file.type}). Allowed: PNG, JPEG, WebP, GIF, SVG, ICO`);
+    const allowedMimes = [
+      "image/jpeg", "image/png", "image/webp", "image/gif", "image/svg+xml", "image/x-icon", "image/vnd.microsoft.icon",
+      "application/pdf", "application/msword", "application/vnd.openxmlformats-officedocument.wordprocessingml.document", "text/plain", "application/octet-stream"
+    ];
+    if (file.type && !allowedMimes.includes(file.type.toLowerCase()) && !file.name.match(/\.(pdf|doc|docx|txt)$/i)) {
+      throw new Error(`Unsupported file type (${file.type}). Allowed: Images (PNG, JPEG, WebP, GIF, SVG) and Documents (PDF, DOCX)`);
     }
 
     const session = await getOrRefreshAuthSession();

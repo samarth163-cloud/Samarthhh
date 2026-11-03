@@ -728,6 +728,49 @@
         return;
       }
     });
+
+    // 3. Download Resume Action Button & Attached CV File
+    const downloadSec = document.getElementById("resume-download-section");
+    const downloadBtn = document.getElementById("btn-download-resume-file");
+    const downloadText = document.getElementById("resume-download-btn-text");
+    const downloadMeta = document.getElementById("resume-download-meta");
+
+    if (downloadSec) {
+      const dlConfig = r.download || {};
+      const isDlVisible = dlConfig.enabled !== false;
+
+      if (!isDlVisible) {
+        downloadSec.style.display = "none";
+      } else {
+        downloadSec.style.display = "flex";
+        if (downloadText) {
+          downloadText.textContent = dlConfig.buttonText || "Download Resume";
+        }
+        if (downloadBtn) {
+          const fileUrl = dlConfig.fileUrl ? formatImageUrl(dlConfig.fileUrl, data._updatedAt) : "";
+          if (fileUrl) {
+            downloadBtn.href = fileUrl;
+            downloadBtn.setAttribute("download", dlConfig.fileName || "Samarth_Haveliwala_Resume.pdf");
+            downloadBtn.onclick = null;
+          } else {
+            downloadBtn.href = "#";
+            downloadBtn.removeAttribute("download");
+            downloadBtn.onclick = (e) => {
+              e.preventDefault();
+              window.print();
+            };
+          }
+        }
+        if (downloadMeta) {
+          if (dlConfig.fileName) {
+            downloadMeta.style.display = "flex";
+            downloadMeta.innerHTML = `<i class="fas fa-file-pdf"></i> Attached: <b>${escapeHtml(dlConfig.fileName)}</b> ${dlConfig.fileSize ? `(${escapeHtml(dlConfig.fileSize)})` : ""}`;
+          } else {
+            downloadMeta.style.display = "none";
+          }
+        }
+      }
+    }
   }
 
   // Hydrate Blog Listing Page (/blog/)

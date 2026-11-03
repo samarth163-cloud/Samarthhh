@@ -435,6 +435,14 @@
       "education": "Education",
       "experience": "Experience",
       "recognition": "Recognition"
+    },
+    "download": {
+      "enabled": true,
+      "buttonText": "Download Resume",
+      "fileUrl": "",
+      "fileName": "",
+      "fileSize": "",
+      "updatedAt": ""
     }
   },
   "general": {
@@ -750,5 +758,5 @@
       "description": "An open-source npm package for unit conversion."
     }
   ],
-  "_updatedAt": 1793724644815
+  "_updatedAt": 1793727816578
 }

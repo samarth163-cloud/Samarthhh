@@ -323,6 +323,7 @@
           <a href="#sec-resume-edu" class="jump-chip"><i class="fas fa-graduation-cap"></i> Education</a>
           <a href="#sec-resume-awards" class="jump-chip"><i class="fas fa-trophy"></i> Awards</a>
           <a href="#sec-resume-skills" class="jump-chip"><i class="fas fa-screwdriver-wrench"></i> Skills</a>
+          <a href="#sec-resume-download" class="jump-chip"><i class="fas fa-file-arrow-down"></i> Download Button &amp; CV</a>
         </div>
 
         <!-- Resume Header / Profile -->
@@ -719,6 +720,87 @@
                 </div>
               </div>
               <textarea id="resume-skills" class="form-textarea" rows="3"></textarea>
+            </div>
+          </div>
+        </div>
+
+        <!-- Resume Download / CV File Settings -->
+        <div class="admin-card" id="sec-resume-download">
+          <div class="admin-card-header">
+            <div class="admin-card-title"><i class="fas fa-file-arrow-down"></i> Resume Download Button &amp; CV File</div>
+            <div class="card-header-actions">
+              <label class="neo-switch-sm" title="Toggle Download Button on live resume">
+                <input type="checkbox" id="resume-download-toggle" checked />
+                <span class="neo-slider-sm"></span>
+              </label>
+              <span class="switch-label-sm" id="resume-download-toggle-label">SHOW ON RESUME</span>
+            </div>
+          </div>
+          <div class="admin-card-body">
+            <p style="font-size: 0.9rem; color: var(--text-muted); margin-top: 0; margin-bottom: 16px;">
+              Manage the download button at the bottom of your public resume. Upload a real PDF/DOCX file, customize the button label, or turn the button on/off.
+            </p>
+
+            <!-- Button Label Customizer & Quick Presets -->
+            <div class="form-group">
+              <label class="form-label">Button Text / Label Displayed on Resume</label>
+              <input type="text" id="resume-download-btn-text-input" class="form-input" placeholder="e.g. Download Resume, Download CV, This is my CV" value="Download Resume" />
+              <div style="display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; align-items: center;">
+                <span style="font-family: var(--font-mono); font-size: 0.72rem; color: var(--text-muted); font-weight: 700;">QUICK PRESETS:</span>
+                <button type="button" class="btn-dl-preset" data-text="Download Resume">Download Resume</button>
+                <button type="button" class="btn-dl-preset" data-text="Download CV">Download CV</button>
+                <button type="button" class="btn-dl-preset" data-text="This is my CV">This is my CV</button>
+                <button type="button" class="btn-dl-preset" data-text="View Full CV (PDF)">View Full CV (PDF)</button>
+                <button type="button" class="btn-dl-preset" data-text="Get PDF Resume">Get PDF Resume</button>
+              </div>
+            </div>
+
+            <!-- Current File Status Card -->
+            <div class="resume-file-status-card" id="resume-file-status-card" style="background: var(--bg-surface); border: 2px solid var(--border-color); box-shadow: var(--hard-shadow-xs); border-radius: 4px; padding: 16px; margin: 18px 0;">
+              <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+                <div style="display: flex; align-items: center; gap: 14px;">
+                  <div style="width: 44px; height: 44px; border-radius: 4px; background: #ff4747; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 20px; border: 2px solid #000; box-shadow: 2px 2px 0 #000;">
+                    <i class="fas fa-file-pdf"></i>
+                  </div>
+                  <div>
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                      <strong id="resume-file-name-display" style="font-size: 0.95rem; font-family: var(--font-mono);">No File Attached</strong>
+                      <span class="badge" id="resume-file-badge" style="background: #888; color: #fff; font-size: 10px;">STANDBY</span>
+                    </div>
+                    <div style="font-size: 0.78rem; color: var(--text-muted); font-family: var(--font-mono); margin-top: 2px;" id="resume-file-info-display">
+                      When no file is attached, the button uses browser print/save.
+                    </div>
+                  </div>
+                </div>
+
+                <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+                  <a href="#" target="_blank" class="btn btn-sm" id="btn-preview-resume-file" style="display: none;">
+                    <i class="fas fa-arrow-up-right-from-square"></i> Preview File
+                  </a>
+                  <button type="button" class="btn btn-sm btn-danger" id="btn-delete-resume-file" style="display: none;">
+                    <i class="fas fa-trash"></i> Delete File
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Upload / URL Inputs -->
+            <div class="form-grid">
+              <div class="form-group" style="margin-bottom: 0;">
+                <label class="form-label">Upload New Resume File (PDF, DOCX)</label>
+                <input type="file" id="resume-file-input" accept=".pdf,.doc,.docx,.txt" style="display: none;" />
+                <button type="button" class="btn btn-yellow" id="btn-trigger-resume-file-upload" style="width: 100%; font-weight: 800;">
+                  <i class="fas fa-cloud-arrow-up"></i> Select &amp; Upload Resume File
+                </button>
+                <span id="resume-upload-progress" style="display: none; font-family: var(--font-mono); font-size: 0.8rem; color: #24b47e; margin-top: 6px; font-weight: 700;">
+                  <i class="fas fa-spinner fa-spin"></i> Uploading file to Supabase Cloud Storage...
+                </span>
+              </div>
+
+              <div class="form-group" style="margin-bottom: 0;">
+                <label class="form-label">Or External File URL</label>
+                <input type="url" id="resume-download-url-input" class="form-input" placeholder="https://... / Google Drive / Dropbox link" />
+              </div>
             </div>
           </div>
         </div>
